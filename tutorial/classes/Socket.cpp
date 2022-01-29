@@ -5,6 +5,18 @@ Socket::Socket() : m_sock_fd(SOCK_FD_EMPTY)
 
 }
 
+/* destroy current socket and copy all the data */
+Socket::Socket(const Socket &sock)
+{
+    close(m_sock_fd);
+    m_sock_fd = sock.m_sock_fd;
+    std::memset(m_sock_addr.sin_zero, 0, 8);
+    m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
+    m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
+    m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
+    m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
+}
+
 Socket::~Socket()
 {
     if (m_sock_fd != SOCK_FD_EMPTY)
@@ -13,11 +25,20 @@ Socket::~Socket()
     }
 }
 
+Socket&     Socket::operator = (const Socket &sock)
+{
+    if (this != &sock)
+    {
+        *this = sock;
+    }
+    return (*this);
+}
+
 /*
 ** initialise socket for listening on specified port
 */
 
-void        Socket::init(const short sin_port)
+int        Socket::init(const short sin_port)
 {
     m_sock_fd = socket(AF_INET, SOCK_STREAM, SOCK_TCP_T);
     if (m_sock_fd == SOCK_ERROR)
@@ -42,6 +63,7 @@ void        Socket::init(const short sin_port)
         /* some error handling */
         std::exit(EXIT_FAILURE);
     }
+    return (SOCK_SUCCESS);
 }
 
 const int       Socket::getFileDescriptor()

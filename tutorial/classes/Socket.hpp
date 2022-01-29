@@ -5,6 +5,7 @@
 # define SOCK_FD_EMPTY  -1
 # define DFL_BACKLOG    10
 # define SOCK_ERROR     -1
+# define SOCK_SUCCESS   1
 
 # define SA     struct sockaddr
 # define SA_IN  struct sockaddr_in
@@ -24,13 +25,12 @@ private:
 
 public:
     Socket();
-    Socket(Socket &sock);
+    Socket(const Socket &sock);
+    ~Socket();
 
     Socket& operator = (const Socket& sock);
 
-    ~Socket();
-
-    void        init(const short sin_port);
+    int         init(const short sin_port);
     const int   getFileDescriptor();
 
 };
