@@ -11,11 +11,15 @@
 # define SA_IN  struct sockaddr_in
 
 # include <string>          // TODO maybe move to more common hpp
+# include <iostream>
+
 # include <cstdlib>
 # include <cstring>
 # include <unistd.h>
 # include <netdb.h>
+# include <arpa/inet.h>
 # include <sys/socket.h>
+
 
 class Socket
 {
@@ -30,7 +34,7 @@ public:
 
     Socket& operator = (const Socket& sock);
 
-    int         init(const short sin_port);
+    int         init(const std::string& address, const short sin_port);
     const int   getFileDescriptor();
 
 };

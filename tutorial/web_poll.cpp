@@ -5,14 +5,15 @@
 
 int     main(void)
 {
-    Config  server_config;
-    Server  default_server;
+    Server      default_server;
+    std::string host;       // should come from "listen" directive
 
-    if (default_server.initListener(SERVER_PORT) == SOCK_ERROR)
-    {
-        /* do some error handling */
-        return (EXIT_FAILURE);
-    }
+    host += DFL_SERVER_HOST;
+    host += ":";
+    host += std::to_string(DFL_SERVER_PORT);
+    std::cout << "Connecting to " << host << '\n';
+    default_server.initListener(host);
 
 
+    return (EXIT_SUCCESS);
 }

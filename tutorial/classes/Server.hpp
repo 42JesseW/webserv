@@ -24,8 +24,26 @@ public:
     std::vector<Route>&         getRoutes();
 
     /* returns sys_error if failed */
-    int                         initListener(const short port);
+    int                         initListener(const std::string& host);
 
 };
+
+namespace ft {
+
+    template< class InputIt, class T >
+    size_t  count( InputIt first, InputIt last, const T& value )
+    {
+        size_t  counter;
+
+        counter = 0;
+        while (first != last)
+        {
+            if (*first == value)
+                counter++;
+            first++;
+        }
+        return (counter);
+    }
+}
 
 #endif
