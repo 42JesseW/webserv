@@ -2,7 +2,9 @@ NAME		= 	webserve
 CC			= 	clang++
 RM			=	rm -f
 
-SRC			= 	main.cpp
+SRC			= 	main.cpp\
+				Request.cpp\
+				Response.cpp
 OBJ			= 	$(SRC:%.cpp=%.o)
 FLAGS		=	-Wall -Wextra
 LIBS		=	-o

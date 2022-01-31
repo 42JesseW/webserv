@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 17:14:05 by kfu           #+#    #+#                 */
-/*   Updated: 2022/01/29 17:40:46 by kfu           ########   odam.nl         */
+/*   Updated: 2022/01/31 12:10:55 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,14 @@
 # define SA struct sockaddr
 # define forever for(;;)
 
+typedef enum e_Method
+{
+	GET,
+	POST,
+	DELETE,
+	INVALID
+} e_Method;
+
 void err_n_die(const char *fmt, ...);
-char *bin2hex(const unsigned char *input, size_t len);
 
 #endif

@@ -6,13 +6,13 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 12:29:41 by kfu           #+#    #+#                 */
-/*   Updated: 2022/01/29 17:45:11 by kfu           ########   odam.nl         */
+/*   Updated: 2022/01/31 10:46:39 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-int main(int argc, char **argv) {
+int main(void) {
     int                     listenfd, connfd, n;
     struct sockaddr_in      servaddr;
     uint8_t                 buff[MAXLINE + 1];
@@ -35,16 +35,21 @@ int main(int argc, char **argv) {
     forever {
         struct sockaddr_in  addr;
         socklen_t           addr_len;
+		char				client_address[MAXLINE + 1];
 
         printf("Waiting for a connection on port %d\n", SERVER_PORT);
         fflush(stdout);
-        connfd = accept(listenfd, (SA *) NULL, NULL);
+        connfd = accept(listenfd, (SA *) &addr, &addr_len);
+
+		// Getting the IP address from client
+		inet_ntop(AF_INET, &addr, client_address, MAXLINE);
+		printf("Client connecting: %s\n", client_address);
 
         memset(recvline, 0, MAXLINE);
 
-        while ((n = read(connfd, recvline, MAXLINE - 1)) > 0)
+        while ((n = recv(connfd, recvline, MAXLINE - 1, 0)) > 0)
         {
-            fprintf(stdout, "\n%s\n\n%s", bin2hex(recvline, n), recvline);
+            fprintf(stdout, "\n%s\n\n", recvline);
             if (recvline[n - 1] == '\n')
                 break ;
             memset(recvline, 0, MAXLINE);
@@ -53,33 +58,11 @@ int main(int argc, char **argv) {
         if (n < 0)
             err_n_die("Read error");
 
-        snprintf((char *)buff, sizeof(buff), "HTTP 1.1 200 OK\r\n\r\nHello");
-        write(connfd, (char *)buff, strlen((char *)buff));
+        snprintf((char *)buff, sizeof(buff), "HTTP 1.1 404 OK\r\n\r\nHoi Lor");
+        send(connfd, (char *)buff, strlen((char *)buff), 0);
         close(connfd);
     }
     exit (0);
-}
-
-char *bin2hex(const unsigned char *input, size_t len)
-{
-    char *result;
-    char *hexits = "0123456789ABCDEF";
-    
-    if (input == NULL || len <= 0)
-        return (NULL);
-
-    int resultlength = (len * 3) + 1;
-    result = (char *)malloc(resultlength);
-    bzero(result, resultlength);
-
-    for (size_t i = 0; i < len; i++)
-    {
-        result[i * 3] = hexits[input[i]] >> 4;
-        result[(i * 3) + 1] = hexits[input[i]] & 0x0F;
-        result[(i * 3) + 2]  = ' ';
-    }
-
-    return (result);
 }
 
 void err_n_die(const char *fmt, ...)
