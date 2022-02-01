@@ -116,9 +116,9 @@ int      Socket::addSocketToQueue(void)
     return (SOCK_SUCCESS);
 }
 
-int     Socket::receiveNewConnection(void)
+int     Socket::receiveNewConnection(int i)
 {
-    int fd;
+    accept_fd = accept(evList[i].ident, (struct sockadd *)&addr, );
 
 
 }
@@ -137,7 +137,7 @@ int     Socket::pollingLoop(void)
         for (int i = 0; i < num_events; i++)
         {
             if (evList[i].ident = m_sock_fd)
-                receiveNewConnection();
+                receiveNewConnection(i);
         }
     }
 }

@@ -52,7 +52,7 @@ public:
     int         getFileDescriptor() const;
     int         addSocketToQueue(void);
     int         pollingLoop(void);
-    int         receiveNewConnection(void);
+    int         receiveNewConnection(int i);
     int         clientDisconnected(void);
     int         readMsg(void);
 
