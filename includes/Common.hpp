@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   main.hpp                                           :+:    :+:            */
+/*   Common.hpp                                         :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 17:14:05 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/01 11:37:20 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/01 13:54:13 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 # include <map>
 # include <vector>
 
-# define SERVER_PORT 18000
+# define SERVER_PORT 1800
 # define MAXLINE 4096
 # define SA struct sockaddr
 # define forever for(;;)
