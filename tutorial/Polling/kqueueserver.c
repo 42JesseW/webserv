@@ -20,7 +20,7 @@ struct client_data
 // A bit obscure to me..? 
 int get_conn(int fd)
 {
-	for (int i = 0; i < NUM_CLIENTS]; i++)
+	for (int i = 0; i < NUM_CLIENTS; i++)
 	{
 		if (clients[i].fd == fd)
 			return (i);
@@ -65,7 +65,7 @@ void recv_msg(int s)
 	char buf[MAX_MSG_SIZE];
 	int bytes_read = recv(s, buf, sizeof(buf) - 1, 0);
 	buf[bytes_read] = 0;
-	pprintf("Client #%d: %s", get_conn(s), buf);
+	printf("Client #%d: %s", get_conn(s), buf);
 	fflush(stdout);
 }
 
