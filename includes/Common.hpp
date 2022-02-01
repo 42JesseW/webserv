@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 17:14:05 by kfu           #+#    #+#                 */
-/*   Updated: 2022/01/31 12:10:55 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/01 11:37:20 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@
 # include <sys/time.h>
 # include <sys/ioctl.h>
 # include <netdb.h>
+# include <iostream>
+# include <fstream>
+# include <map>
+# include <vector>
 
 # define SERVER_PORT 18000
 # define MAXLINE 4096
