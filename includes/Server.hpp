@@ -2,13 +2,24 @@
 
 # define SERVER_HPP
 
-# define MAX_RECV_LINE 4096
-
+# define MAX_RECV_LINE  4096
+# define POLL_TIMEOUT   -1
+    
 # include "Route.hpp"
 # include "Socket.hpp"
 # include "Client.hpp"
 
+# include <vector>
 # include <map>
+# include <poll.h>
+
+struct polling_opts
+{
+	// std::vector<struct pollfd>	pfds;
+    struct pollfd	            *pfds;
+    int							fd_count;
+	int							fd_size;            
+};
 
 class Server
 {
@@ -17,6 +28,7 @@ private:
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
     std::map<int, Client>       m_clients;
+	struct polling_opts			m_poll;
 
 public:
     Server();
@@ -25,19 +37,16 @@ public:
 
     Server& operator = (const Server& server);
 
-    // TODO maybe a getSocketFd function ??
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
 
-    /* returns sys_error if failed */
+	// struct pollfd				*getPointer();
+
     int                         initListener(const std::string& host);
-    int                         acceptNewConnection(void);
-    // TODO could match with Client object
-    int                         handleConnection(int client_socket);
+	int							doPolling(void);
 
-private:
-    char                        *_bin2Hex(const unsigned char *input, size_t len);
-
+    int							acceptNewConnection(void);
+    void						handleConnection(int client_socket, int i);
 };
 
 namespace ft {
