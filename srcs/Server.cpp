@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../includes/Server.hpp"
 
 Server::Server()
 {
@@ -25,11 +25,6 @@ Server&     Server::operator = (const Server &server)
         *this = server;
     }
     return (*this);
-}
-
-Socket&                     Server::getSocket()
-{
-    return (m_sock);
 }
 
 std::vector<std::string>&   Server::getNames()
@@ -129,7 +124,8 @@ int                         Server::handleConnection(int client_socket) {
 char                        *Server::_bin2Hex(const unsigned char *input, size_t len) {
     int     result_length;
     char    *result;
-    char    *hexits = "0123456789ABCDEF";
+    // char    *hexits = "0123456789ABCDEF";
+    char    hexits[17] = "0123456789ABCDEF";
 
     if (!input || len <= 0)
         return (NULL);
@@ -137,7 +133,7 @@ char                        *Server::_bin2Hex(const unsigned char *input, size_t
     result = (char *)std::calloc(result_length, sizeof(char));
     if (!result)
         return (NULL);
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         result[i * 3]       = hexits[input[i] >> 4];
         result[(i * 3) + 1] = hexits[input[i] & 0x0F];
         result[(i * 3) + 2] = ' ';

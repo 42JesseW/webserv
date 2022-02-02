@@ -1,4 +1,4 @@
-#include "Socket.hpp"
+#include "../includes/Socket.hpp"
 
 Socket::Socket() : m_sock_fd(SOCK_FD_EMPTY)
 {
@@ -100,7 +100,7 @@ int        Socket::init(const std::string& address, const short sin_port)
     return (SOCK_SUCCESS);
 }
 
-const int       Socket::getFileDescriptor()
+int       Socket::getFileDescriptor() const
 {
     return (m_sock_fd);
 }
