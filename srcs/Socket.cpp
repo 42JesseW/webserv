@@ -29,7 +29,7 @@ Socket::~Socket()
 
 Socket&     Socket::operator = (const Socket &sock)
 {
-    if (this != &sock)
+    if (this != &sock && m_sock_fd != sock.m_sock_fd)
     {
         close(m_sock_fd);
         m_sock_fd = sock.m_sock_fd;
