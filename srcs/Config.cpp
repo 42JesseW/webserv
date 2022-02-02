@@ -31,6 +31,11 @@ Config&                         Config::operator = (const Config &config)
     return (*this);
 }
 
+std::string&                    Config::getFilePath(void)
+{
+    return (m_file_path);
+}
+
 std::map<int, std::string>&     Config::getErrorFiles(void)
 {
     return (m_error_files);
