@@ -2,44 +2,151 @@
 #include <Config.hpp>
 
 #include <utility>
+#include <fstream>
+#include <sys/stat.h>
 
-TEST_CASE("Default construction")
+#define SYS_ERROR -1
+
+static std::string  basic_conf = ""
+         "# start the configuration file. Only one http block is allowed\n"
+         "http {\n"
+         "\n"
+         "\t# describes the maximum body size of a request in MB\n"
+         "\tclient_max_body_size 10\n"
+         "\n"
+         "\t# error page in the form \"error_page <http_error_number> <full_path_to_file>.html\"\n"
+         "\terror_page 400 /full/path/to/file.html\n"
+         "\n"
+         "\t# define a server block\n"
+         "\tserver {\n"
+         "\n"
+         "\t\t# address to listen on in the form <address>:<port>. Only one listen is allowed\n"
+         "\t\tlisten          *.80\n"
+         "\n"
+         "\t\t# server_name(s) used for matching server using \"Host\" Request header\n"
+         "\t\tserver_name     example.org www.example.org\n"
+         "\n"
+         "        # setup a location with a base_pathname to match incoming request\n"
+         "        location / {\n"
+         "\n"
+         "            # HTTP methods allowed for this (only GET POST DELETE are allowed)\n"
+         "            allowed_methods GET POST DELETE\n"
+         "\n"
+         "            # sets the file_path to start looking for requested files\n"
+         "            root            /data/w3\n"
+         "\n"
+         "            # provide directory listing if requested file is not found (either \"on\" or \"off\")\n"
+         "            autoindex       on\n"
+         "\n"
+         "            # default file to answer if the request is a directory\n"
+         "            index           index.html index.htm\n"
+         "\n"
+         "            # possible file extensions for which to pass to CGI\n"
+         "            cgi_extensions  .php .py\n"
+         "\n"
+         "            # file_path of where to upload files. When set will allow uploading files\n"
+         "            upload_path     /data/upload\n"
+         "\n"
+         "            # return a redirect in the form \"return 3<xx> <redirect_url>\"\n"
+         "            return          301 www.google.com\n"
+         "        }\n"
+         "\t}\n"
+         "}";
+
+TEST_CASE("Default handle")
 {
-    Config  default_config;
-
-    CHECK(default_config.getFilePath().empty());
-    CHECK(default_config.getErrorFiles().empty());
-    CHECK(default_config.getServers().empty());
+    CHECK(Config::getHandle().getFilePath().empty());
+    CHECK(Config::getHandle().getErrorFiles().empty());
+    CHECK(Config::getHandle().getServers().empty());
 }
 
-TEST_CASE("Copy construction")
+TEST_CASE(".loadFile() without m_file_path")
 {
-    Config  config_with_stuff;
-    Server  some_server;
-
-    config_with_stuff.setFilePath("some_file.conf");
-    config_with_stuff.getErrorFiles().insert(std::make_pair(500, "some_error_file.html"));
-    config_with_stuff.getServers().push_back(some_server);
-
-    Config  copy_config(config_with_stuff);
-    //CHECK(config_with_stuff.getServers() == copy_config.getServers());
-    CHECK(config_with_stuff.getErrorFiles() == copy_config.getErrorFiles());
-    CHECK(config_with_stuff.getFilePath() == copy_config.getFilePath());
+    CHECK_THROWS(Config::getHandle().loadFile());
 }
 
-TEST_CASE("Assignment operation")
+TEST_CASE(".loadFile() with file that does not exists")
 {
-    Config  config_with_stuff;
-    Server  some_server;
+    Config::getHandle().setFilePath("FILE_THAT_DOES_NOT_EXIST");
+    CHECK_THROWS(Config::getHandle().loadFile());
+}
 
-    config_with_stuff.setFilePath("some_file.conf");
-    config_with_stuff.getErrorFiles().insert(std::make_pair(500, "some_error_file.html"));
-    config_with_stuff.getServers().push_back(some_server);
+TEST_CASE(".loadFile() with file that has invalid permissions")
+{
+    std::string     file_name("INVALID_FILE");
+    std::ofstream   invalid_file(file_name);
 
-    Config  assign_config;
+    REQUIRE(chmod(file_name.c_str(), 0000) != SYS_ERROR);
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
 
-    assign_config = config_with_stuff;
-    //CHECK(config_with_stuff.getServers() == assign_config.getServers());
-    CHECK(config_with_stuff.getErrorFiles() == assign_config.getErrorFiles());
-    CHECK(config_with_stuff.getFilePath() == assign_config.getFilePath());
+TEST_CASE(".loadFile() with file that is valid")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+
+    brackets_file << basic_conf;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_NOTHROW(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with file that has invalid brackets [1]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "    server {\n"
+        "    \n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with file that has invalid brackets [2]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "    server {\n"
+        "\n"
+        "        }\n"
+        "    }\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with file that has invalid brackets [3]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "    server {\n"
+        "\n"
+        "            }\n"
+        "        }\n"
+        "    {\n"
+        "    }\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
 }
