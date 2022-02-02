@@ -2,13 +2,15 @@
 
 Server::Server()
 {
-
+    server.m_poll.fd_count = 0;
+    server.m_poll.fd_size = 
 }
 
 Server::Server(const Server &server) :
     m_sock(server.m_sock),
     m_names(server.m_names),
-    m_routes(server.m_routes)
+    m_routes(server.m_routes),
+    m_poll(server.m_poll)
 {
 
 }
@@ -61,6 +63,23 @@ int                         Server::initListener(const std::string& host)
     }
     return (SOCK_SUCCESS);
 }
+
+int                         Server::doPolling(void)
+{
+    // Add the listener to the set
+    m_poll.pfds[0].fd = m_sock;
+    pfds[0].events = POLLIN;
+
+    for (;;)
+    {
+
+    }
+
+
+}
+
+
+
 
 int                         Server::acceptNewConnection(void) {
     int     client_socket;
