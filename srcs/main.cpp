@@ -15,5 +15,7 @@ int     main(void)
     std::cout << "Connecting to " << host << '\n';
     default_server.initListener(host);
 
+    default_server.poll();
+
     return (EXIT_SUCCESS);
 }
