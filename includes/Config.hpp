@@ -6,12 +6,13 @@
 # define DFL_SERVER_PORT 80                     /* HTTP default port */
 # define DFL_CONFIG_FILE_PATH "default.conf"
 
-# include "Server.hpp"
 # include <map>
 # include <stdexcept>
 # include <exception>
 # include <iostream>
 # include <fstream>
+
+# include "Server.hpp"
 
 class Config
 {
@@ -27,6 +28,7 @@ public:
 
     Config&     operator = (const Config& config);
 
+    std::string&                    getFilePath();
     std::map<int, std::string>&     getErrorFiles(void);
     std::vector<Server>&            getServers(void);
 

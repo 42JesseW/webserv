@@ -24,7 +24,10 @@ Server&     Server::operator = (const Server &server)
 {
     if (this != &server)
     {
-        *this = server;
+        m_sock = server.m_sock;
+        m_names = server.m_names;
+        m_routes = server.m_routes;
+        m_clients = server.m_clients;
     }
     return (*this);
 }
