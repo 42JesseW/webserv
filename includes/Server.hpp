@@ -6,6 +6,9 @@
 
 # include "Route.hpp"
 # include "Socket.hpp"
+# include "Client.hpp"
+
+# include <map>
 
 class Server
 {
@@ -13,7 +16,7 @@ private:
     Socket                      m_sock;
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
-    // TODO maybe hold a list of Client Objects
+    std::map<int, Client>       m_clients;
 
 public:
     Server();
@@ -22,7 +25,6 @@ public:
 
     Server& operator = (const Server& server);
 
-    Socket&                     getSocket();
     // TODO maybe a getSocketFd function ??
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
