@@ -4,7 +4,8 @@ RM			=	rm -f
 
 SRC			= 	main.cpp\
 				Request.cpp\
-				Response.cpp
+				Response.cpp\
+				Request/ParseRequest.cpp
 OBJ			= 	$(SRC:%.cpp=%.o)
 FLAGS		=	-Wall -Wextra
 LIBS		=	-o

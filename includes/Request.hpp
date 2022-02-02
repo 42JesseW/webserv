@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/01 11:42:13 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/02 17:55:02 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,17 @@
 
 # include "Common.hpp"
 
-# define stringMap std::map<std::string, std::string>
-# define stringVector std::vector<std::string>
+# define BUFF_SIZE 1024
+# define ENDLINE '\n'
 
 class Request
 {
 	private:
-		e_Method 		m_method;
-		std::string		m_start_line;
-		stringMap		m_header_lines;
-		stringVector	m_body_lines;
+		e_Method 								m_method;
+		std::string								m_request;
+		std::string								m_start_line;
+		std::map<std::string, std::string>		m_header;
+		std::string								m_body;
 
 	public:
 		Request();
@@ -33,10 +34,19 @@ class Request
 
 		Request& operator = (const Request &Copy);
 
-		e_Method					getMethod();
-		std::string					getStartLine();
-		stringMap					getHeader();
-		std::vector<std::string>	getBody();
+		// Getters
+		std::string							getRequest();
+		e_Method							getMethod();
+		std::string							getStartLine();
+		std::map<std::string, std::string>	getHeader();
+		std::string							getBody();
+
+		// Parsing
+		void								copyRequest(int socket);
+		void								divideRequest();
+		void 								parseAndSetStartLine();
+		void 								parseAndSetHeader();
+		void								printRequest();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:27:00 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/01 11:44:15 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/02 17:49:39 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ Request::Request(const Request &copy)
 {
     m_method = copy.m_method;
     m_start_line = copy.m_start_line;
-    m_header_lines = copy.m_header_lines;
-    m_body_lines = copy.m_body_lines;
+    m_header = copy.m_header;
+    m_body = copy.m_body;
 }
 
 Request::~Request() {}
@@ -29,6 +29,11 @@ Request & Request::operator=(const Request &copy)
     if (this != &copy)
         *this = copy;
     return (*this);
+}
+
+std::string Request::getRequest()
+{
+    return (m_request);
 }
 
 e_Method Request::getMethod()
@@ -41,12 +46,12 @@ std::string Request::getStartLine()
     return (m_start_line);
 }
 
-stringMap Request::getHeader()
+std::map<std::string, std::string> Request::getHeader()
 {
-    return (m_header_lines);
+    return (m_header);
 }
 
-std::vector<std::string> Request::getBody()
+std::string Request::getBody()
 {
-    return (m_body_lines);
+    return (m_body);
 }
