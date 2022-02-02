@@ -2,6 +2,8 @@
 
 # define SERVER_HPP
 
+# define MAX_RECV_LINE 4096
+
 # include "Route.hpp"
 # include "Socket.hpp"
 
@@ -11,6 +13,7 @@ private:
     Socket                      m_sock;
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
+    // TODO maybe hold a list of Client Objects
 
 public:
     Server();
@@ -19,12 +22,19 @@ public:
 
     Server& operator = (const Server& server);
 
-    const Socket&               getSocket();
+    Socket&                     getSocket();
+    // TODO maybe a getSocketFd function ??
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
 
     /* returns sys_error if failed */
     int                         initListener(const std::string& host);
+    int                         acceptNewConnection(void);
+    // TODO could match with Client object
+    int                         handleConnection(int client_socket);
+
+private:
+    char                        *_bin2Hex(const unsigned char *input, size_t len);
 
 };
 

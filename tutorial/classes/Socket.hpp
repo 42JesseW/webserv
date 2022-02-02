@@ -17,6 +17,7 @@
 # include <cstring>
 # include <unistd.h>
 # include <netdb.h>
+# include <fcntl.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
 
@@ -29,6 +30,7 @@ private:
 
 public:
     Socket();
+    Socket(int sock_fd, struct sockaddr_in sock_addr);
     Socket(const Socket &sock);
     ~Socket();
 
