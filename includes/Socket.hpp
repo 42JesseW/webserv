@@ -37,7 +37,7 @@ public:
     Socket& operator = (const Socket& sock);
 
     int         init(const std::string& address, const short sin_port);
-    const int   getFileDescriptor();
+    int         getFileDescriptor();
 
 };
 

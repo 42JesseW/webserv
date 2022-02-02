@@ -14,3 +14,5 @@ add_library(tester STATIC ${TEST_SOURCES})
 file(GLOB_RECURSE SOURCES main.cpp unittests/*.cpp)
 
 add_executable(tests ${SOURCES})
+
+target_link_libraries(tests tester)

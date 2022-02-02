@@ -100,7 +100,7 @@ int        Socket::init(const std::string& address, const short sin_port)
     return (SOCK_SUCCESS);
 }
 
-int       Socket::getFileDescriptor() const
+int       Socket::getFileDescriptor()
 {
     return (m_sock_fd);
 }
