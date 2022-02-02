@@ -96,33 +96,12 @@ int       Socket::getFileDescriptor() const
     return (m_sock_fd);
 }
 
-int      Socket::addSocketToQueue(void)
-{
-    // Initialize kqueue instance
-    if ((kq = kqueue()) < 0)
-    {
-        /* do some error handling */
-        std::exit(EXIT_FAILURE);
-    }
-
-    // Add listening socket to kqueue
-    EV_SET(&evSet, m_sock_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-    if (kevent(kq, &evSet, 1, NULL, 0, NULL) < 0)
-    {
-        /* do some error handling */
-        std::exit(EXIT_FAILURE);
-    }
-
-    return (SOCK_SUCCESS);
-}
-
 int     Socket::receiveNewConnection(int i)
 {
     accept_fd = accept(evList[i].ident, (struct sockadd *)&addr, );
 
 
 }
-
 
 int     Socket::pollingLoop(void)
 {
