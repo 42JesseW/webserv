@@ -1,9 +1,10 @@
 #include "../includes/Server.hpp"
+#include <unistd.h>
 
 Server::Server()
 {
     m_poll.fd_count = 0;
-    // Initialized to max clients that a server can get
+    m_poll.connections = 0;
     m_poll.fd_size = DFL_BACKLOG;
     m_poll.pfds = (struct pollfd *)malloc(sizeof(*m_poll.pfds) * m_poll.fd_size);
 }
@@ -44,11 +45,6 @@ std::vector<Route>&         Server::getRoutes()
     return (m_routes);
 }
 
-// struct pollfd               *Server::getPointer()
-// {
-//     return &(m_poll.pfds[0]);
-// }
-
 /*
 ** defaults are passed from Config (DFL_SERVER_*)
 ** host species a full host <host>:<port>
@@ -83,9 +79,9 @@ int                         Server::doPolling(void)
 
     for (;;)
     {
-        // int poll_count = poll(getPointer(), m_poll.fd_count, POLL_TIMEOUT);
-        int poll_count = poll(m_poll.pfds, m_poll.fd_count, POLL_TIMEOUT);
+        m_poll.fd_count = m_poll.connections + 1;
 
+        int poll_count = poll(m_poll.pfds, m_poll.fd_count, POLL_NO_TIMEOUT);
         if (poll_count == -1)
         {
             /* do some error handling */
@@ -96,13 +92,20 @@ int                         Server::doPolling(void)
         for (int i = 0; i < m_poll.fd_count; i++)
         {
             // Error flags
-            if (m_poll.pfds[i].revents & POLLERR || m_poll.pfds[i].revents & POLLNVAL || m_poll.pfds[i].revents & POLLHUP)
+            if (m_poll.pfds[i].revents & (POLLERR | POLLNVAL))
 			{
+                std::cout << "I am in error" << std::endl;
 				/* handle flags */
 			}
 
+            if (m_poll.pfds[i].revents & POLLHUP)
+            {
+		        close(m_poll.pfds[i].fd);
+		        delFromPfds(i);
+            }
+
             // Check if someone's ready to send request
-            else if (m_poll.pfds[i].revents & POLLIN)
+            if (m_poll.pfds[i].revents & POLLIN)
             {
 				// New connection
                 if (m_poll.pfds[i].fd == m_sock.getFileDescriptor())
@@ -119,12 +122,16 @@ int                         Server::doPolling(void)
             }
 
             // Check if someone's ready to receive response
-			else if (m_poll.pfds[i].revents & POLLOUT)
+			if (m_poll.pfds[i].revents & POLLOUT)
 			{
 				// build response object to the specific pfds[i].fd socket
-				char buf[10] = "Hello";
-				if (send(m_poll.pfds[i].revents, buf, 10, 0) == -1)
-					std::exit(EXIT_FAILURE);
+				char buff[4096];
+				// if (send(m_poll.pfds[i].revents, buf, 10, 0) == -1)
+				// 	std::exit(EXIT_FAILURE);
+                
+                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
+                write(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff));
+                close(m_poll.pfds[i].fd);
 			}
         }
     }
@@ -133,18 +140,10 @@ int                         Server::doPolling(void)
 
 void                 		Server::addToPfds(int client_socket)
 {
-    // Realloc in case there is no room in the array - not sure if needed since we are using the 
-    // DFL_BACKLOG in order to alloc initially
-    if (m_poll.fd_count == m_poll.fd_size)
-    {
-        m_poll.fd_size *= 2;
-        m_poll.pfds = (struct pollfd *)realloc(m_poll.pfds, sizeof(*m_poll.pfds) * m_poll.fd_size);
-    }
-
     m_poll.pfds[m_poll.fd_count].fd = client_socket;
-    m_poll.pfds[m_poll.fd_count].events = POLLIN;
+    m_poll.pfds[m_poll.fd_count].events = (POLLIN | POLLOUT);
 
-    m_poll.fd_count++;
+    m_poll.connections++;
 }
 
 int                         Server::acceptNewConnection(void) 
@@ -166,12 +165,11 @@ int                         Server::acceptNewConnection(void)
 
     addToPfds(client_socket);
     
-    std::cout << "New connection on socket: " << m_sock.getFileDescriptor() << std::endl;
     /* set the socket to be non blocking so recv() and send() functions don't block */
     if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
     {
         /* some error handling */
-        // std::exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);
     }
     return (SOCK_SUCCESS);
 }
@@ -180,15 +178,14 @@ void					    Server::delFromPfds(int i)
 {
 	m_poll.pfds[i] = m_poll.pfds[m_poll.fd_count - 1];
 
-	m_poll.fd_count--;
+	m_poll.connections--;
 }
 
-void                         Server::handleConnection(int client_socket, int i)
+void						Server::handleConnection(int client_socket, int i)
 {
     int     nbytes;
-    char    buf[256]; 
+    char    buf[4096]; 
 
-    (void)i;
     nbytes = recv(client_socket, buf, sizeof(buf), 0);
     // Connection closed by client (==0) or got error
     if (nbytes <= 0)
@@ -196,4 +193,6 @@ void                         Server::handleConnection(int client_socket, int i)
 		close(client_socket);
 		delFromPfds(i);
 	}
+    buf[nbytes] = 0;
+    std::cout << buf << std::endl;
 }

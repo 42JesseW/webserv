@@ -3,7 +3,7 @@
 # define SOCKET_HPP
 # define SOCK_TCP_T     0
 # define SOCK_FD_EMPTY  -1
-# define DFL_BACKLOG    10
+# define DFL_BACKLOG    128
 # define SOCK_ERROR     -1
 # define SOCK_SUCCESS   1
 

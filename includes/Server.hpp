@@ -3,7 +3,7 @@
 # define SERVER_HPP
 
 # define MAX_RECV_LINE  4096
-# define POLL_TIMEOUT   -1
+# define POLL_NO_TIMEOUT   -1
     
 # include "Route.hpp"
 # include "Socket.hpp"
@@ -15,9 +15,10 @@
 
 struct polling_opts
 {
-	// std::vector<struct pollfd>	pfds;
     struct pollfd	            *pfds;
     int							fd_count;
+    int                         connections;
+    int                         flag;
 	int							fd_size;            
 };
 
@@ -39,8 +40,6 @@ public:
 
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
-
-	// struct pollfd				*getPointer();
 
     int                         initListener(const std::string& host);
 	int							doPolling(void);
