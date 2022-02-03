@@ -47,6 +47,10 @@ public:
 
     int							acceptNewConnection(void);
     void						handleConnection(int client_socket, int i);
+
+private:
+    void                        addToPfds(int client_socket);
+    void                        delFromPfds(int i);
 };
 
 namespace ft {
