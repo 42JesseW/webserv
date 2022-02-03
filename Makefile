@@ -5,9 +5,9 @@ RM			=	rm -f
 SRC			= 	main.cpp\
 				Request.cpp\
 				Response.cpp\
-				Request/ParseRequest.cpp\
-				Tests/RequestTests.cpp
-OBJ			= 	$(SRC:%.cpp=%.o)
+				Request/ParseRequest.cpp
+TEST		=	Tests/RequestTests.cpp
+OBJ			= 	$(SRC:%.cpp=%.o) $(TEST:%.cpp=%.o)
 FLAGS		=	-std=c++11
 LIBS		=	-o
 
