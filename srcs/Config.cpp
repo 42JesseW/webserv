@@ -43,10 +43,7 @@ void                            Config::loadFile(void)
     std::ifstream           file_handle;
     std::stringstream       buffer;
     std::string             config_data;
-    std::string             current_buffer;
-    std::stack<char>        brackets;
-    config_map_t            config_map;
-    short                   parse_level;
+    std::deque<std::string> tokens;
 
     if (m_file_path.empty())
         throw std::logic_error("File path is not yet set");
@@ -55,72 +52,119 @@ void                            Config::loadFile(void)
     file_handle.exceptions( std::ifstream::badbit | std::ifstream::failbit );
     file_handle.open(m_file_path);
 
-    /* parse file structure line by line */
-
-    /* PARSING RULES */
-    /* comments start with #. Everything after # is ignored */
-    /* empty lines are ignored */
-    /* brackets {} must be used to define blocks */
-
     /* read whole file into stringstream buffer and copy to string object */
     buffer << file_handle.rdbuf();
     config_data = buffer.str();
+    file_handle.close();
 
-    parse_level = NONE;
-    config_map = _getConfigOptions();
-    for (std::string::iterator it = config_data.begin(); it != config_data.end(); ++it)
+    /* strip the config file data for easier tokenization */
+    _stripFileData(config_data);
+    _tokenizeFileData(tokens, config_data);
+
+    /* modifies the Config instance using the file data split into tokens */
+    _loadFile(tokens);
+}
+
+ConfigOption::map_config_t&   Config::_getConfigMap(void)
+{
+    static ConfigOption::map_config_t   config_map;
+
+    config_map["http"] = &ft::option_http;
+    config_map["client_max_body_size"] = &ft::option_client_max_body_size;
+    config_map["error_page"] = &ft::option_error_page;
+    config_map["server"] = &ft::option_server;
+    config_map["listen"] = &ft::option_listen;
+    config_map["server_name"] = &ft::option_server_name;
+    config_map["location"] = &ft::option_location;
+    config_map["allowed_methods"] = &ft::option_allowed_methods;
+    config_map["root"] = &ft::option_root;
+    config_map["autoindex"] = &ft::option_autoindex;
+    config_map["index"] = &ft::option_index;
+    config_map["cgi_extensions"] = &ft::option_cgi_extension;
+    config_map["upload_path"] = &ft::option_upload_path;
+    config_map["return"] = &ft::option_return;
+    return (config_map);
+}
+
+/*
+** 1. replace both '\n' and '\t' characters with ' '
+** 2. reduce all consecutive spaces to one space
+*/
+std::string&                Config::_stripFileData(std::string &buffer)
+{
+    std::string::iterator   new_end;
+
+    std::replace(buffer.begin(), buffer.end(), '\n', ' ');
+    std::replace(buffer.begin(), buffer.end(), '\t', ' ');
+    new_end = ft::uniqueSpaces(buffer.begin(), buffer.end());
+    buffer.erase(new_end, buffer.end());
+    return (buffer);
+}
+
+std::deque<std::string>&    Config::_tokenizeFileData(std::deque<std::string>& tokens, std::string &data)
+{
+    std::string::size_type  pos;
+    std::string             delim = " ";
+
+    while ( ( pos = data.find( delim ) ) != std::string::npos )
     {
-        if (*it == '{')
+        tokens.push_back(data.substr(0, pos));
+        data.erase(0, pos + delim.length());
+    }
+    return (tokens);
+}
+
+void                        Config::_loadFile(std::deque<std::string> &tokens)
+{
+    short                                   parse_level;
+    std::stack<char>                        brackets;
+    ConfigOption                            *option;
+    ConfigOption::map_config_t::iterator    it;
+    ConfigOption::map_config_t              config;
+
+    config = _getConfigMap();
+    while (!tokens.empty())
+    {
+        std::cout << "TOKWORD: " << tokens.front() << "\n\n";
+        it = config.find(tokens.front());
+        if (it == config.end())
         {
-            brackets.push(*it);
-            parse_level++;
-        }
-        else if (*it == '}')
-        {
-            if (brackets.empty() || brackets.top() != '{')
-                throw std::logic_error("Invalid config file");
-            brackets.pop();
-            parse_level--;
+            //std::cerr << tok_words.front() << " is not a valid option" << '\n';
         }
         else
         {
-
+            std::cout << "Option found: " << tokens.front() << '\n';
+            option = (*it).second;
+            std::cout << "arg amount " << option->m_arg_amount << '\n';
+            std::cout << "is nested " << option->m_is_nested << '\n';
+            std::cout << "parse level " << option->m_parse_level << "\n\n";
         }
+        tokens.pop_front();
     }
-    if (parse_level != NONE || !brackets.empty())
-        throw std::logic_error("Invalid config file");
-
-    file_handle.close();
 }
 
-std::map<Config::t_levels, std::vector<std::string> >       Config::_getConfigOptions()
+ConfigOption::ConfigOption(bool is_nested,
+                           int arg_amount,
+                           int parse_level,
+                           int (*parse_func)(void *, int)) :
+        m_is_nested(is_nested),
+        m_arg_amount(arg_amount),
+        m_parse_level(parse_level),
+        m_parse_func(parse_func)
 {
-    static std::map<t_levels, std::vector<std::string> >    config_map;
-    std::vector<std::string>                                base_options;
-    std::vector<std::string>                                http_options;
-    std::vector<std::string>                                server_options;
-    std::vector<std::string>                                location_options;
 
-    if (config_map.empty())
-    {
-        base_options.push_back("http");
-        config_map[BASE] = base_options;
-        http_options.push_back("client_max_body_size");
-        http_options.push_back("error_page");
-        http_options.push_back("server");
-        config_map[HTTP] = http_options;
-        server_options.push_back("listen");
-        server_options.push_back("server_name");
-        server_options.push_back("location");
-        config_map[SERVER] = server_options;
-        location_options.push_back("allowed_methods");
-        location_options.push_back("root");
-        location_options.push_back("autoindex");
-        location_options.push_back("index");
-        location_options.push_back("cgi_extensions");
-        location_options.push_back("upload_path");
-        location_options.push_back("return");
-        config_map[LOCATION] = location_options;
-    }
-    return (config_map);
+}
+
+ConfigOption::ConfigOption(const ConfigOption& cpy) :
+        m_is_nested(cpy.m_is_nested),
+        m_arg_amount(cpy.m_arg_amount),
+        m_parse_level(cpy.m_parse_level),
+        m_parse_func(cpy.m_parse_func)
+{
+
+}
+
+ConfigOption::~ConfigOption()
+{
+
 }

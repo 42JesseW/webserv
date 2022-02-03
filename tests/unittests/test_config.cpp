@@ -104,6 +104,7 @@ TEST_CASE(".loadFile() with file that has invalid brackets [1]")
         "    \n"
         "}";
 
+    REQUIRE(brackets_file.good());
     brackets_file << invalid_bracket_file_data;
     brackets_file.close();
     Config::getHandle().setFilePath(file_name);
