@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/02 17:55:02 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/03 11:29:37 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Request
 		e_Method 								m_method;
 		std::string								m_request;
 		std::string								m_start_line;
-		std::map<std::string, std::string>		m_header;
+		std::map<std::string, std::string>		m_headers;
 		std::string								m_body;
 
 	public:
@@ -38,15 +38,18 @@ class Request
 		std::string							getRequest();
 		e_Method							getMethod();
 		std::string							getStartLine();
-		std::map<std::string, std::string>	getHeader();
+		std::map<std::string, std::string>	getHeaders();
 		std::string							getBody();
 
 		// Parsing
 		void								copyRequest(int socket);
 		void								divideRequest();
 		void 								parseAndSetStartLine();
-		void 								parseAndSetHeader();
+		void 								parseAndSetHeaders();
+		
+		// Utils
 		void								printRequest();
+		void								initMethod();
 };
 
 #endif

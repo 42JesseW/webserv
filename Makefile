@@ -5,9 +5,10 @@ RM			=	rm -f
 SRC			= 	main.cpp\
 				Request.cpp\
 				Response.cpp\
-				Request/ParseRequest.cpp
+				Request/ParseRequest.cpp\
+				Tests/RequestTests.cpp
 OBJ			= 	$(SRC:%.cpp=%.o)
-FLAGS		=	-Wall -Wextra
+FLAGS		=	-std=c++11
 LIBS		=	-o
 
 all: $(NAME)

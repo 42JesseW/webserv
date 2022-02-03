@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/02/02 14:06:29 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/02 17:55:59 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/03 11:30:35 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void Request::copyRequest(int socket)
 void Request::divideRequest()
 {
     this->parseAndSetStartLine();
-    this->parseAndSetHeader();
+    this->parseAndSetHeaders();
     if (!m_request.empty())
     {
         // Remove the enter after the header
@@ -40,12 +40,11 @@ void Request::divideRequest()
 
 void Request::parseAndSetStartLine()
 {
-    std::string token = m_request.substr(0, m_request.find(ENDLINE));
-    m_start_line = token;
+    m_start_line = m_request.substr(0, m_request.find(ENDLINE));
     m_request.erase(0,  m_request.find(ENDLINE) + 1);
 }
 
-void Request::parseAndSetHeader()
+void Request::parseAndSetHeaders()
 {
     std::string token;
     std::string key;
@@ -67,7 +66,7 @@ void Request::parseAndSetHeader()
         value = m_request.substr(0, m_request.find(ENDLINE));
         
         // Insert the pair into the map and then deleting it from m_request
-        m_header.insert(std::pair<std::string, std::string>(key, value));
+        m_headers.insert(std::pair<std::string, std::string>(key, value));
         m_request.erase(0, m_request.find(ENDLINE) + 1);
     }
 }
@@ -76,12 +75,18 @@ void Request::printRequest()
 {
     std::cout << "------------------ START LINE ------------------" << std::endl;
     std::cout << m_start_line << "\n" << std::endl;
-    
+
     std::cout << "------------------ HEADERS ------------------" << std::endl;
-    for (auto it = m_header.begin(); it != m_header.end(); ++it)
+    for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
         std::cout << "{" << it->first << "} {" << it->second << "}\n";
     std::cout << std::endl;
 
     std::cout << "------------------ BODY ------------------" << std::endl;
     std::cout << m_body << std::endl;
+}
+
+void Request::initMethod()
+{
+    std::string method = m_start_line.substr(0, ' ');
+    std::cout << method << std::endl;
 }

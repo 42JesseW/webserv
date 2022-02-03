@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:27:00 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/02 17:49:39 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/03 11:31:09 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Request::Request(const Request &copy)
 {
     m_method = copy.m_method;
     m_start_line = copy.m_start_line;
-    m_header = copy.m_header;
+    m_headers = copy.m_headers;
     m_body = copy.m_body;
 }
 
@@ -46,9 +46,9 @@ std::string Request::getStartLine()
     return (m_start_line);
 }
 
-std::map<std::string, std::string> Request::getHeader()
+std::map<std::string, std::string> Request::getHeaders()
 {
-    return (m_header);
+    return (m_headers);
 }
 
 std::string Request::getBody()
