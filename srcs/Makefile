@@ -4,7 +4,8 @@ SRC =	main.cpp\
 		Config.cpp\
 		Route.cpp\
 		Server.cpp\
-		Socket.cpp
+		Socket.cpp\
+		Client.cpp
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)

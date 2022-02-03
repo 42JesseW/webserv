@@ -7,7 +7,7 @@ Client::Client()
 
 Client::Client(const Client &client)
 {
-
+    *this = client;
 }
 
 Client::~Client()
