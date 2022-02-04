@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-#include <unistd.h>
 
 Server::Server()
 {
@@ -94,7 +93,7 @@ int                         Server::doPolling(void)
             // Error flags
             if (m_poll.pfds[i].revents & (POLLERR | POLLNVAL))
 			{
-                std::cout << "I am in error" << std::endl;
+                
 				/* handle flags */
 			}
 
@@ -164,7 +163,8 @@ int                         Server::acceptNewConnection(void)
     m_clients.insert(std::pair<int, Client>(client_socket, new_client));
 
     addToPfds(client_socket);
-    
+
+    std::cout << "New connection established on client socket: " << client_socket << std::endl;
     /* set the socket to be non blocking so recv() and send() functions don't block */
     if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
     {
@@ -186,13 +186,14 @@ void						Server::handleConnection(int client_socket, int i)
     int     nbytes;
     char    buf[4096]; 
 
-    nbytes = recv(client_socket, buf, sizeof(buf), 0);
+    nbytes = recv(client_socket, buf, sizeof(buf), MSG_DONTWAIT);
     // Connection closed by client (==0) or got error
     if (nbytes <= 0)
 	{
 		close(client_socket);
 		delFromPfds(i);
 	}
-    buf[nbytes] = 0;
+    else 
+        buf[nbytes] = 0;
     std::cout << buf << std::endl;
 }
