@@ -131,6 +131,7 @@ int                         Server::doPolling(void)
                 snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
                 write(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff));
                 close(m_poll.pfds[i].fd);
+		        delFromPfds(i);
 			}
         }
     }
