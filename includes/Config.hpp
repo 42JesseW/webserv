@@ -82,30 +82,30 @@ private:
 
 private:
     static int                      m_client_max_body_size;
+    static ConfigOption             *m_option_http;
+    static ConfigOption             *m_option_client_max_body_size;
+    static ConfigOption             *m_option_error_page;
+    static ConfigOption             *m_option_server;
+    static ConfigOption             *m_option_listen;
+    static ConfigOption             *m_option_server_name;
+    static ConfigOption             *m_option_location;
+    static ConfigOption             *m_option_allowed_methods;
+    static ConfigOption             *m_option_root;
+    static ConfigOption             *m_option_autoindex;
+    static ConfigOption             *m_option_index;
+    static ConfigOption             *m_option_cgi_extension;
+    static ConfigOption             *m_option_upload_path;
+    static ConfigOption             *m_option_return;
 
 };
 
 namespace ft {
 
-    ConfigOption option_http(true, 0, Config::BASE, NULL);
-    ConfigOption option_client_max_body_size(false, 1, Config::HTTP, NULL);
-    ConfigOption option_error_page(false, 2, Config::HTTP, NULL);
-    ConfigOption option_server(true, 0, Config::HTTP, NULL);
-    ConfigOption option_listen(false, 1, Config::SERVER, NULL);
-    ConfigOption option_server_name(false, OPTION_ARG_INF, Config::SERVER, NULL);
-    ConfigOption option_location(true, 1, Config::SERVER, NULL);
-    ConfigOption option_allowed_methods(false, OPTION_ARG_INF, Config::LOCATION, NULL);
-    ConfigOption option_root(false, 1, Config::LOCATION, NULL);
-    ConfigOption option_autoindex(false, 1, Config::LOCATION, NULL);
-    ConfigOption option_index(false, OPTION_ARG_INF, Config::LOCATION, NULL);
-    ConfigOption option_cgi_extension(false, OPTION_ARG_INF, Config::LOCATION, NULL);
-    ConfigOption option_upload_path(false, 1, Config::LOCATION, NULL);
-    ConfigOption option_return(false, 2, Config::LOCATION, NULL);
-
-    bool bothAreSpaces(char lhs, char rhs) { return (lhs == rhs) && (lhs == ' '); }
+    bool            bothAreChar(char lhs, char rhs, int c);
+    std::string&    stringReplaceMultiple(std::string& str, const std::string& from, const std::string& to);
 
     template<class ForwardIt>
-    ForwardIt uniqueSpaces(ForwardIt first, ForwardIt last)
+    ForwardIt uniqueChars(ForwardIt first, ForwardIt last, int c)
     {
         ForwardIt result;
 
@@ -114,7 +114,7 @@ namespace ft {
         result = first;
         while (++first != last)
         {
-            if (!bothAreSpaces(*result, *first) && ++result != first)
+            if (!bothAreChar(*result, *first, c) && ++result != first)
                 *result = *first;
         }
         result++;
