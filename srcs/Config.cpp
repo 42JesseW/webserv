@@ -87,14 +87,16 @@ void                            Config::loadFile(void)
     config_data = buffer.str();
     file_handle.close();
 
-    // TODO clean this up a bit (what should be a class method and what a util method in ft::)
-    /* strip the config file data for easier tokenization */
+    /* tokenize the string */
+    std::replace(config_data.begin(), config_data.end(), '\t', ' ');
     ft::stringReplaceMultiple(config_data, "\n", " \n ");
-    _stripFileData(config_data);
-    _tokenizeFileData(tokens, config_data);
+    ft::tokenizeString(tokens, config_data, " ");
 
-    /* modifies the Config instance using the file data split into tokens */
-    _loadFile(tokens);
+    while (!tokens.empty())
+    {
+        std::cout << tokens.front() << '\n';
+        tokens.pop_front();
+    }
 }
 
 ConfigOption::map_config_t&   Config::_getConfigMap(void)
@@ -116,65 +118,6 @@ ConfigOption::map_config_t&   Config::_getConfigMap(void)
     config_map["upload_path"] = m_option_upload_path;
     config_map["return"] = m_option_return;
     return (config_map);
-}
-
-/*
-** 1. replace all '\t' characters with ' '
-** 2. reduce all consecutive spaces to one space
-** 3. reduce all consecutive newlines to one newline
-*/
-std::string&                Config::_stripFileData(std::string &buffer)         // TODO write testcase
-{
-    std::string::iterator   new_end;
-
-    std::replace(buffer.begin(), buffer.end(), '\t', ' ');
-    new_end = ft::uniqueChars(buffer.begin(), buffer.end(), ' ');
-    buffer.erase(new_end, buffer.end());
-    new_end = ft::uniqueChars(buffer.begin(), buffer.end(), '\n');
-    buffer.erase(new_end, buffer.end());
-    return (buffer);
-}
-
-std::deque<std::string>&    Config::_tokenizeFileData(std::deque<std::string>& tokens, std::string &data) // TODO write testcase
-{
-    std::string::size_type  pos;
-    std::string             delim = " ";        // TODO pass via argument ??
-
-    while ( ( pos = data.find( delim ) ) != std::string::npos )
-    {
-        tokens.push_back(data.substr(0, pos));
-        data.erase(0, pos + delim.length());
-    }
-    return (tokens);
-}
-
-void                        Config::_loadFile(std::deque<std::string> &tokens)
-{
-    short                                   parse_level;
-    std::stack<char>                        brackets;
-    ConfigOption                            *option;
-    ConfigOption::map_config_t::iterator    it;
-    ConfigOption::map_config_t              config;
-
-    config = _getConfigMap();
-    while (!tokens.empty())
-    {
-        std::cout << "TOKWORD: " << tokens.front() << "\n\n";
-        it = config.find(tokens.front());
-        if (it == config.end())
-        {
-            //std::cerr << tok_words.front() << " is not a valid option" << '\n';
-        }
-        else
-        {
-            std::cout << "Option found: " << tokens.front() << '\n';
-            option = (*it).second;
-            std::cout << "arg amount " << option->m_arg_amount << '\n';
-            std::cout << "is nested " << option->m_is_nested << '\n';
-            std::cout << "parse level " << option->m_parse_level << "\n\n";
-        }
-        tokens.pop_front();
-    }
 }
 
 ConfigOption::ConfigOption(bool is_nested,
@@ -200,29 +143,5 @@ ConfigOption::ConfigOption(const ConfigOption& cpy) :
 
 ConfigOption::~ConfigOption()
 {
-
-}
-
-namespace ft {
-
-    bool bothAreChar(char lhs, char rhs, int c)
-    {
-        return ((lhs == rhs) && (lhs == c));
-    }
-
-    std::string&    stringReplaceMultiple(std::string& str, const std::string& from, const std::string& to)
-    {
-        std::string::size_type  index;
-
-        index = 0;
-        while (true) {
-            index = str.find(from, index);
-            if (index == std::string::npos)
-                break;
-            str.replace(index, from.size(), to);
-            index += 3;
-        }
-        return (str);
-    }
 
 }

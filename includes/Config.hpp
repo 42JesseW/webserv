@@ -17,7 +17,8 @@
 # include <fstream>
 # include <sstream>
 
-# include "Server.hpp"
+# include <Server.hpp>
+# include <Utils.hpp>
 
 class ConfigOption
 {
@@ -75,11 +76,6 @@ public:
     void                            loadFile(void);
 
 private:
-    std::string&                    _stripFileData(std::string& buffer);
-    std::deque<std::string>&        _tokenizeFileData(std::deque<std::string>& tokens, std::string& data);
-    void                            _loadFile(std::deque<std::string>& tokens);
-
-private:
     static int                      m_client_max_body_size;
     static ConfigOption             *m_option_http;
     static ConfigOption             *m_option_client_max_body_size;
@@ -99,28 +95,5 @@ private:
     static ConfigOption::map_config_t&     _getConfigMap(void);
 
 };
-
-namespace ft {
-
-    bool            bothAreChar(char lhs, char rhs, int c);
-    std::string&    stringReplaceMultiple(std::string& str, const std::string& from, const std::string& to);
-
-    template<class ForwardIt>
-    ForwardIt uniqueChars(ForwardIt first, ForwardIt last, int c)
-    {
-        ForwardIt result;
-
-        if (first == last)
-            return (last);
-        result = first;
-        while (++first != last)
-        {
-            if (!bothAreChar(*result, *first, c) && ++result != first)
-                *result = *first;
-        }
-        result++;
-        return (result);
-    }
-}
 
 #endif
