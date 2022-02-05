@@ -75,7 +75,6 @@ public:
     void                            loadFile(void);
 
 private:
-    ConfigOption::map_config_t&     _getConfigMap(void);
     std::string&                    _stripFileData(std::string& buffer);
     std::deque<std::string>&        _tokenizeFileData(std::deque<std::string>& tokens, std::string& data);
     void                            _loadFile(std::deque<std::string>& tokens);
@@ -96,6 +95,8 @@ private:
     static ConfigOption             *m_option_cgi_extension;
     static ConfigOption             *m_option_upload_path;
     static ConfigOption             *m_option_return;
+
+    static ConfigOption::map_config_t&     _getConfigMap(void);
 
 };
 
