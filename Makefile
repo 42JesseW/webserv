@@ -8,7 +8,6 @@ SRC =	main.cpp\
 		# Config.cpp\
 
 OBJS = $(SRC:.cpp=.o)
-FT_OBJS = $(FT_SRC:.cpp=.o)
 # CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 
 CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 -g -fsanitize=address 
 
