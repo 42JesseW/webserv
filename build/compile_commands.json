@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/home/danali/Documents/Codam/webserv/build",
+  "command": "/bin/clang++-10    -g   -o CMakeFiles/webserv.dir/main.cpp.o -c /home/danali/Documents/Codam/webserv/main.cpp",
+  "file": "/home/danali/Documents/Codam/webserv/main.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv/build",
+  "command": "/bin/clang++-10    -g   -o CMakeFiles/webserv.dir/srcs/Client.cpp.o -c /home/danali/Documents/Codam/webserv/srcs/Client.cpp",
+  "file": "/home/danali/Documents/Codam/webserv/srcs/Client.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv/build",
+  "command": "/bin/clang++-10    -g   -o CMakeFiles/webserv.dir/srcs/Server.cpp.o -c /home/danali/Documents/Codam/webserv/srcs/Server.cpp",
+  "file": "/home/danali/Documents/Codam/webserv/srcs/Server.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv/build",
+  "command": "/bin/clang++-10    -g   -o CMakeFiles/webserv.dir/srcs/Socket.cpp.o -c /home/danali/Documents/Codam/webserv/srcs/Socket.cpp",
+  "file": "/home/danali/Documents/Codam/webserv/srcs/Socket.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv/build",
+  "command": "/bin/clang++-10    -g   -o CMakeFiles/webserv.dir/srcs/Route.cpp.o -c /home/danali/Documents/Codam/webserv/srcs/Route.cpp",
+  "file": "/home/danali/Documents/Codam/webserv/srcs/Route.cpp"
+}
+]

@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.17)
-project(webserv_github)
+cmake_minimum_required(VERSION 3.0.0)
+project(webserv VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 98)
+include(CTest)
+enable_testing()
 
-add_executable(webserv main.cpp)
+add_executable(webserv main.cpp srcs/Client.cpp srcs/Server.cpp srcs/Socket.cpp srcs/Route.cpp)
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
