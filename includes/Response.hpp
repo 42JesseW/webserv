@@ -8,7 +8,7 @@
 
 class Response
 {
-	private:
+	protected:
 		Request 								m_request;
 		std::string								m_start_line;
 		std::map<std::string, std::string>		m_headers;
@@ -16,6 +16,7 @@ class Response
 		std::string 							m_response;
 
 	public:
+		Response();
 		Response(const Request &r);
 		Response(const Response &copy);
 		virtual ~Response();
@@ -29,11 +30,11 @@ class Response
 		std::string								getResponse();
 
 		// For each child class to define
-		void									handleMethod() = 0;
-		void									buildStartLine() = 0;
-		void									buildHeaders() = 0;
-		void									buildBody() = 0;
-		void									buildResponse();
+		virtual int								handleMethod() = 0;
+		virtual void							buildStartLine() = 0;
+		virtual void							buildHeaders() = 0;
+		virtual void							buildBody() = 0;
+		virtual void							buildResponse();
 };
 
 #endif

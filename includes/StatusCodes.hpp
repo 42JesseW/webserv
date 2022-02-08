@@ -19,6 +19,6 @@ class StatusCodes
 		std::map<int, std::string>	getStatusCodesMap();
 
 		std::map<int, std::string>	initStatusCodes();
-}
+};
 
 #endif

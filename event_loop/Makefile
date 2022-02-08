@@ -4,11 +4,8 @@ SRC =	main.cpp\
 		srcs/Route.cpp\
 		srcs/Server.cpp\
 		srcs/Socket.cpp\
-		srcs/Client.cpp\
-		srcs/Request.cpp\
-		srcs/ParseRequest.cpp\
-		srcs/Response.cpp\
-		srcs/GetResponse.cpp\
+		srcs/Client.cpp
+		# Config.cpp\
 
 OBJS = $(SRC:.cpp=.o)
 # CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 

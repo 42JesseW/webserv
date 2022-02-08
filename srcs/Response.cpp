@@ -1,6 +1,11 @@
 #include "../includes/Response.hpp"
 
-Response::Response(const Request &r) : m_request(r) {}
+Response::Response() {}
+
+Response::Response(const Request &r)
+{
+	m_request = r;
+}
 
 Response::Response(const Response &copy)
 {
@@ -27,5 +32,5 @@ std::string Response::getResponse()
 
 void		Response::buildResponse()
 {
-	m_response = m_start_line + m_headers + m_body;
+	// m_response = m_start_line + m_headers + m_body;
 }
