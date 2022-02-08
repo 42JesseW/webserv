@@ -1,15 +1,15 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
+# define HTTP_VERSION "HTTP/1.1"
+
 # include "Common.hpp"
-# include "StatusCodes.hpp"
 # include "Request.hpp"
 
 class Response
 {
 	private:
 		Request 								m_request;
-		// std::map<int, std::string>*		m_status_codes;
 		std::string								m_start_line;
 		std::map<std::string, std::string>		m_headers;
 		std::string								m_body;
@@ -18,7 +18,7 @@ class Response
 	public:
 		Response(const Request &r);
 		Response(const Response &copy);
-		~Response();
+		virtual ~Response();
 
 		Response& operator = (const Response &copy);
 
@@ -30,6 +30,10 @@ class Response
 
 		// For each child class to define
 		void									handleMethod() = 0;
+		void									buildStartLine() = 0;
+		void									buildHeaders() = 0;
+		void									buildBody() = 0;
+		void									buildResponse();
 };
 
 #endif
