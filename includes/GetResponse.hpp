@@ -3,6 +3,7 @@
 
 # include "Response.hpp"
 # include "StatusCodes.hpp"
+# include <sstream>
 
 class GetResponse : public Response
 {
@@ -18,12 +19,12 @@ class GetResponse : public Response
 
 		GetResponse& operator = (const GetResponse &copy);
 
-		int				handleMethod();
-		void			buildStartLine();
-		void			buildHeaders();
-		void			buildBody();
+		int					handleMethod();
+		void				buildStartLine();
+		void				buildHeaders();
+		void				buildBody();
 
-		static int		ft_stoi(std::string input);
+		static std::string	ft_itos(int nbr);
 };
 
 #endif

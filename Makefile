@@ -9,6 +9,7 @@ SRC =	main.cpp\
 		srcs/ParseRequest.cpp\
 		srcs/Response.cpp\
 		srcs/GetResponse.cpp\
+		srcs/StatusCodes.cpp
 
 OBJS = $(SRC:.cpp=.o)
 # CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 

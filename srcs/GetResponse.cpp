@@ -25,54 +25,38 @@ GetResponse & GetResponse::operator=(const GetResponse &copy)
 	return (*this);
 }
 
-int			GetResponse::handleMethod()
+int					GetResponse::handleMethod()
 {
 	// Processes the GET Method and returns the status code
 	m_status_code = 200;
 	return (m_status_code);
 }
 
-int			GetResponse::ft_stoi(std::string input)
+std::string			GetResponse::ft_itos(int nbr)
 {
-	int	nbr;
-	int	sign;
-	int	i;
-
-	nbr = 0;
-	sign = 1;
-	i = 0;
-	if (input[i] == '+' || input[i] == '-')
-	{
-		if (input[i] == '-')
-			sign = -1;
-		i++;
-	}
-	while (input[i] >= '0' && input[i] <= '9')
-	{
-		nbr = nbr * 10 + (input[i] - 48);
-		i++;
-	}
-	return(nbr * sign);
+	// return(static);
+	return (static_cast<std::ostringstream&>((std::ostringstream() << std::dec << nbr)).str());
 }
 
-void		GetResponse::buildStartLine()
+void				GetResponse::buildStartLine()
 {
 	std::string								str_status_code;
 	std::string 							reason_phrase;
 	std::map<int, std::string>::iterator	it;
 
-	str_status_code = ft_stoi(m_status_code);
+	str_status_code = ft_itos(m_status_code);
+	std::cout << "Status code is: " << str_status_code << std::endl;
 
-	it = m_status_codes.find(str_status_code);
-	if (it != m_status_codes.end())
-		reason_phrase = m_status_codes->second;
-	else
-	{
-		// throw exception?
-		std::cout << "Error: status code" <<std::cout;
-		std::exit(EXIT_FAILURE);
-	}
+	// it = m_status_map.find(str_status_code);
+	// if (it != m_status_map.end())
+	// 	reason_phrase = m_status_map->second;
+	// else
+	// {
+	// 	// throw exception?
+	// 	std::cout << "Error: status code" <<std::endl;
+	// 	std::exit(EXIT_FAILURE);
+	// }
 
-	m_start_line = HTTP_VERSION + str_status_code + reason_phrase;
-	std::cout << m_start_line << std::out;
+	// m_start_line = HTTP_VERSION + str_status_code + reason_phrase;
+	// std::cout << m_start_line << std::endl;
 }
