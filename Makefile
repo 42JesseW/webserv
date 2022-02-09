@@ -1,28 +1,31 @@
-NAME		= 	webserve
-CC			= 	clang++
-RM			=	rm -f
+NAME = webserv
 
-SRC			= 	main.cpp\
-				Request.cpp\
-				Response.cpp\
-				Request/ParseRequest.cpp
-TEST		=	Tests/RequestTests.cpp
-OBJ			= 	$(SRC:%.cpp=%.o) $(TEST:%.cpp=%.o)
-FLAGS		=	-std=c++11
-LIBS		=	-o
+SRC =	main.cpp\
+		srcs/Route.cpp\
+		srcs/Server.cpp\
+		srcs/Socket.cpp\
+		srcs/Client.cpp
+		# Config.cpp\
+
+OBJS = $(SRC:.cpp=.o)
+FT_OBJS = $(FT_SRC:.cpp=.o)
+# CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 
+CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 -g -fsanitize=address 
+
+CC = clang++
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	$(CC) $(OBJ) $(LIBS) $(NAME)
+$(NAME):	$(OBJS)
+			$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
-%.o: %.cpp
-	$(CC) $(FLAGS) -c $(LIBS) $@ $< -I includes
+%.o:	%.cpp
+			$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJ)
+			rm -f $(OBJS)
 
-fclean: clean
-	$(RM) $(NAME)
+fclean: 	clean
+			rm -f $(NAME)
 
 re: fclean all

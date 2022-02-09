@@ -1,17 +1,22 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   main.cpp                                           :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: kfu <kfu@student.codam.nl>                   +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/01/29 12:29:41 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/03 16:14:46 by kfu           ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
+#include "includes/Config.hpp"
+#include "includes/Server.hpp"
+#include <sys/poll.h>
 
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "catch.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
- 
+#define SERVER_PORT 18000
+
+int     main(void)
+{
+    Server      default_server;
+    std::string host;       // should come from "listen" directive
+    std::string dfl_port = "1800";
+
+    host += DFL_SERVER_HOST;
+    host += ":";
+    host += dfl_port;
+    std::cout << "Connecting to " << host << '\n';
+    default_server.initListener(host);
+
+    default_server.doPolling();
+
+    return (EXIT_SUCCESS);
+}
