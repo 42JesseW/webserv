@@ -129,8 +129,8 @@ int                         Server::doPolling(void)
 				// if (send(m_poll.pfds[i].revents, buf, 10, 0) == -1)
 				// 	std::exit(EXIT_FAILURE);
                 
-                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-                write(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff));
+                snprintf((char *)buff, sizeof(buff), "HTTP/1.1 200 OK\r\n\r\nThey see me pollin', they hatin'");
+                send(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
                 close(m_poll.pfds[i].fd);
 		        delFromPfds(i);
 			}
@@ -188,4 +188,5 @@ void						Server::handleConnection(int client_socket, int i)
     Request new_request;
 
     new_request.handleRequest(client_socket);
+    new_request.printRequest();
 }

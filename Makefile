@@ -6,13 +6,11 @@ SRC =	main.cpp\
 		srcs/Socket.cpp\
 		srcs/Client.cpp\
 		Request/ParseRequest.cpp\
-		Request/Request.cpp\
-		Response/Response.cpp
-		# Config.cpp\
+		Request/ErrorHandling.cpp\
+		Request/Request.cpp
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)
-# CFLAGS = -Wall -Werror -Wextra -pedantic -std=c++98 
 CFLAGS = -Wall -Wextra -pedantic -g -fsanitize=address 
 
 CC = clang++

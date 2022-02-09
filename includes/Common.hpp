@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 17:14:05 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/02 13:59:57 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/09 14:00:41 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,6 @@
 # define MAXLINE 4096
 # define SA struct sockaddr
 # define forever for(;;)
-
-typedef enum e_Method
-{
-	GET,
-	POST,
-	DELETE,
-	INVALID
-} e_Method;
 
 void err_n_die(const char *fmt, ...);
 
