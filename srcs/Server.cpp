@@ -170,7 +170,7 @@ void						Server::handleConnection(int client_socket, int i)
     int     nbytes;
     char    buf[4096]; 
 
-    nbytes = recv(client_socket, buf, 4095, MSG_DONTWAIT);
+    nbytes = recv(client_socket, buf, sizeof(buf), MSG_DONTWAIT);
     if (nbytes < 0)
 	{
 	    close(client_socket);
