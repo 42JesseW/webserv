@@ -1,4 +1,5 @@
-#include "../includes/Server.hpp"
+#include "Server.hpp"
+#include "Request.hpp"
 
 Server::Server()
 {
@@ -184,17 +185,7 @@ void					    Server::delFromPfds(int i)
 
 void						Server::handleConnection(int client_socket, int i)
 {
-    int     nbytes;
-    char    buf[4096]; 
+    Request new_request;
 
-    nbytes = recv(client_socket, buf, sizeof(buf), MSG_DONTWAIT);
-    // Connection closed by client (==0) or got error
-    if (nbytes <= 0)
-	{
-		close(client_socket);
-		delFromPfds(i);
-	}
-    else 
-        buf[nbytes] = 0;
-    std::cout << buf << std::endl;
+    new_request.handleRequest(client_socket);
 }

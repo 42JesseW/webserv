@@ -12,7 +12,7 @@
 
 #include "Request.hpp"
 
-void Request::copyRequest(int socket)
+void Request::handleRequest(int socket)
 {
     char    buffer[BUFF_SIZE];
     int     bytes_read;
@@ -32,7 +32,7 @@ void Request::divideRequest()
     if (!m_request.empty())
     {
         // Remove the enter after the header
-        m_request.erase(0, 1);
+        m_request.erase(0, 2);
         m_body = m_request;
     }
     m_request.clear();
@@ -40,8 +40,8 @@ void Request::divideRequest()
 
 void Request::parseAndSetStartLine()
 {
-    m_start_line = m_request.substr(0, m_request.find(ENDLINE));
-    m_request.erase(0,  m_request.find(ENDLINE) + 1);
+    m_start_line = m_request.substr(0, m_request.find(LF));
+    m_request.erase(0,  m_request.find(LF) + 1);
 }
 
 void Request::parseAndSetHeaders()
@@ -50,24 +50,24 @@ void Request::parseAndSetHeaders()
     std::string key;
     std::string value;
 
-    // CR (Carriage return) = ascii 13
-    // LF (Line feed) = ascii 10
+    // CR (\r) = ascii 13
+    // LF (\n) = ascii 10
 
-    while (m_request[0] != 10 && !m_request.empty())
+    while (m_request[0] != 13 && !m_request.empty())
     {
         // Putting a line untill \n into token
-        token = m_request.substr(0, m_request.find(ENDLINE));
+        token = m_request.substr(0, m_request.find(LF));
 
         // Setting the key value and then deleting it from m_request
         key = m_request.substr(0, m_request.find(':'));
         m_request.erase(0, m_request.find(':') + 2);
-         
+
         // Setting the value of the key
-        value = m_request.substr(0, m_request.find(ENDLINE));
-        
+        value = m_request.substr(0, m_request.find(CR));
+
         // Insert the pair into the map and then deleting it from m_request
         m_headers.insert(std::pair<std::string, std::string>(key, value));
-        m_request.erase(0, m_request.find(ENDLINE) + 1);
+        m_request.erase(0, m_request.find(LF) + 1);
     }
 }
 
@@ -83,6 +83,7 @@ void Request::printRequest()
 
     std::cout << "------------------ BODY ------------------" << std::endl;
     std::cout << m_body << std::endl;
+    std::cout << "------------------ END ------------------" << std::endl;
 }
 
 void Request::initMethod()

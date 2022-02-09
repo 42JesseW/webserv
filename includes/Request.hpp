@@ -16,7 +16,8 @@
 # include "Common.hpp"
 
 # define BUFF_SIZE 1024
-# define ENDLINE '\n'
+# define CR '\r'
+# define LF '\n'
 
 class Request
 {
@@ -42,7 +43,7 @@ class Request
 		std::string							getBody();
 
 		// Parsing
-		void								copyRequest(int socket);
+		void								handleRequest(int socket);
 		void								divideRequest();
 		void 								parseAndSetStartLine();
 		void 								parseAndSetHeaders();
