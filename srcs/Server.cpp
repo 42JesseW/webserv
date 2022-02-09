@@ -44,11 +44,6 @@ std::vector<Route>&         Server::getRoutes()
     return (m_routes);
 }
 
-/*
-** defaults are passed from Config (DFL_SERVER_*)
-** host species a full host <host>:<port>
-*/
-
 int                         Server::initListener(const std::string& host)
 {
     std::string address;
@@ -57,7 +52,6 @@ int                         Server::initListener(const std::string& host)
     if (ft::count(host.begin(), host.end(), ':') > 1)
         throw std::invalid_argument("Host " + host + " is invalid");
 
-    /* convert the <port> from <host>:<port> to an integer */
     sin_port = std::atoi(host.substr(host.find(":") + 1).c_str());
 
     address = host.substr(0, host.find(":"));
@@ -71,7 +65,6 @@ int                         Server::initListener(const std::string& host)
 
 int                         Server::doPolling(void)
 {
-    // Add the listener to the set
     m_poll.pfds[0].fd = m_sock.getFileDescriptor();
     m_poll.pfds[0].events = POLLIN;
     m_poll.fd_count = 1;
@@ -87,10 +80,8 @@ int                         Server::doPolling(void)
             std::exit(EXIT_FAILURE);
         }
 
-        // Run through the existing connections looking for requests and responses
         for (int i = 0; i < m_poll.fd_count; i++)
         {
-            // Error flags
             if (m_poll.pfds[i].revents & (POLLERR | POLLNVAL))
 			{
                 
@@ -103,10 +94,8 @@ int                         Server::doPolling(void)
 		        delFromPfds(i);
             }
 
-            // Check if someone's ready to send request
             if (m_poll.pfds[i].revents & POLLIN)
             {
-				// New connection
                 if (m_poll.pfds[i].fd == m_sock.getFileDescriptor())
                 {
                     if (acceptNewConnection() < 0)
@@ -115,18 +104,13 @@ int                         Server::doPolling(void)
                         std::exit(EXIT_FAILURE);
                     }
 				}
-				// Existing connection - recv
                 else
 					handleConnection(m_poll.pfds[i].fd, i);
             }
 
-            // Check if someone's ready to receive response
 			if (m_poll.pfds[i].revents & POLLOUT)
 			{
-				// build response object to the specific pfds[i].fd socket
 				char buff[4096];
-				// if (send(m_poll.pfds[i].revents, buf, 10, 0) == -1)
-				// 	std::exit(EXIT_FAILURE);
                 
                 snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
                 write(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff));
@@ -166,7 +150,6 @@ int                         Server::acceptNewConnection(void)
     addToPfds(client_socket);
 
     std::cout << "New connection established on client socket: " << client_socket << std::endl;
-    /* set the socket to be non blocking so recv() and send() functions don't block */
     if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
     {
         /* some error handling */
@@ -187,12 +170,11 @@ void						Server::handleConnection(int client_socket, int i)
     int     nbytes;
     char    buf[4096]; 
 
-    nbytes = recv(client_socket, buf, sizeof(buf), MSG_DONTWAIT);
-    // Connection closed by client (==0) or got error
-    if (nbytes <= 0)
+    nbytes = recv(client_socket, buf, 4095, MSG_DONTWAIT);
+    if (nbytes < 0)
 	{
-		close(client_socket);
-		delFromPfds(i);
+	    close(client_socket);
+	    delFromPfds(i);
 	}
     else 
         buf[nbytes] = 0;
