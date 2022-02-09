@@ -30,3 +30,8 @@ Route&      Route::operator = (const Route &route)
     }
     return (*this);
 }
+
+void        Route::setBaseUrl(const std::string &base_url)
+{
+    m_base_url = base_url;
+}

@@ -1,0 +1,341 @@
+#include <Config.hpp>
+
+/*
+ * ( Option )
+ */
+Config::Option::Option(int parse_level) : m_parse_level(parse_level) { }
+
+Config::Option::Option(const Option &cpy) : m_parse_level(cpy.m_parse_level) { }
+
+Config::Option::~Option() { }
+
+Config::Option&     Config::Option::operator = (const Config::Option &rhs)
+{
+    if (this != &rhs)
+        m_parse_level = rhs.m_parse_level;
+    return (*this);
+}
+
+int         Config::Option::getParseLevel(void)
+{
+    return (m_parse_level);
+}
+
+/*
+ *                      ( OptionHttp)
+ * Must be provided at least once for the config file since
+ * all options are wrapped inside of it.
+ */
+Config::OptionHttp::OptionHttp(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionHttp::OptionHttp(const Config::OptionHttp &cpy) : Config::Option(cpy) { }
+
+Config::OptionHttp::~OptionHttp() { }
+
+Config::OptionHttp&     Config::OptionHttp::operator = (const Config::OptionHttp &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* should sign the start of an http block. TODO there can only be one http block in the Config */
+void            Config::OptionHttp::parse(void *obj, tokens_t &tokens)
+{
+
+}
+
+/*
+*                  ( OptionClientMaxBodySize )
+ * Can change the value of Option::m_client_max_body_size
+ */
+Config::OptionClientMaxBodySize::OptionClientMaxBodySize(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionClientMaxBodySize::OptionClientMaxBodySize(const OptionClientMaxBodySize &cpy) : Config::Option(cpy) { }
+
+Config::OptionClientMaxBodySize::~OptionClientMaxBodySize() { }
+
+Config::OptionClientMaxBodySize&    Config::OptionClientMaxBodySize::operator = (const Config::OptionClientMaxBodySize &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
+{
+    int size;
+
+    (void)obj;
+    if (tokens.size() < 2)
+        throw std::logic_error("failed to parse client_max_body_size: Not enough arguments.");
+    tokens.pop_front();
+    size = std::atoi(tokens.front().c_str());
+    if (size == 0)
+        throw std::logic_error("Failed to parse client_max_body_size: Invalid size.");
+    tokens.pop_front();
+    m_client_max_body_size = size;
+}
+
+Config::OptionErrorPage::OptionErrorPage(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionErrorPage::OptionErrorPage(const Config::OptionErrorPage &cpy) : Config::Option(cpy) { }
+
+Config::OptionErrorPage::~OptionErrorPage() { }
+
+Config::OptionErrorPage&     Config::OptionErrorPage::operator = (const Config::OptionErrorPage &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* expects a Config* object and two arguments */
+void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
+{
+    Config  *config;
+    int status_code;
+
+    config = (Config *)obj;
+    tokens.pop_front();
+    if (tokens.size() < 2)
+        throw std::logic_error("Failed to parse error_page: Not enough arguments.");
+    status_code = std::atoi(tokens.front().c_str());
+    if (status_code == 0)
+        throw std::logic_error("Failed to parse error_page: Invalid status_code.");
+    tokens.pop_front();
+    config->m_error_files.insert(std::make_pair(status_code, tokens.front()));
+}
+
+Config::OptionServer::OptionServer(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionServer::OptionServer(const Config::OptionServer &cpy) : Config::Option(cpy) { }
+
+Config::OptionServer::~OptionServer() { }
+
+Config::OptionServer&     Config::OptionServer::operator = (const Config::OptionServer &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionServer::parse(void *obj, tokens_t &tokens)
+{
+    (void)obj;
+    (void)tokens;
+}
+
+Config::OptionListen::OptionListen(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionListen::OptionListen(const Config::OptionListen &cpy) : Config::Option(cpy) { }
+
+Config::OptionListen::~OptionListen() { }
+
+Config::OptionListen&     Config::OptionListen::operator = (const Config::OptionListen &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
+{
+    Server  *server;
+
+    if (tokens.size() < 2)
+        throw std::logic_error("Failed to parse listen directive: Not enough arguments");
+    tokens.pop_front();
+    server = (Server*)obj;
+    // TODO *.80 parse according to nginx format
+}
+
+Config::OptionServerName::OptionServerName(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionServerName::OptionServerName(const Config::OptionServerName &cpy) : Config::Option(cpy) { }
+
+Config::OptionServerName::~OptionServerName() { }
+
+Config::OptionServerName&     Config::OptionServerName::operator = (const Config::OptionServerName &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionServerName::parse(void *obj, tokens_t &tokens)
+{
+    Server  *server;
+
+    tokens.pop_front();
+    server = (Server*)obj;
+    while (!tokens.empty() && !(tokens.front() == "\n"))
+    {
+        server->getNames().push_back(tokens.front());
+        tokens.pop_front();
+    }
+    if (tokens.empty())
+        throw std::logic_error("Invalid config file");
+}
+
+Config::OptionLocation::OptionLocation(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionLocation::OptionLocation(const Config::OptionLocation &cpy) : Config::Option(cpy) { }
+
+Config::OptionLocation::~OptionLocation() { }
+
+Config::OptionLocation&     Config::OptionLocation::operator = (const Config::OptionLocation &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionLocation::parse(void *obj, tokens_t &tokens)
+{
+    Route   *route;
+
+    if (tokens.size() < 2)
+        throw std::logic_error("failed to parse location directive: Not enough arguments");
+    tokens.pop_front();
+    route = (Route *)obj;
+    route->setBaseUrl(tokens.front());
+}
+
+Config::OptionAllowedMethods::OptionAllowedMethods(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionAllowedMethods::OptionAllowedMethods(const Config::OptionAllowedMethods &cpy) : Config::Option(cpy) { }
+
+Config::OptionAllowedMethods::~OptionAllowedMethods() { }
+
+Config::OptionAllowedMethods&     Config::OptionAllowedMethods::operator = (const Config::OptionAllowedMethods &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
+{
+    int                         count;
+    std::vector<std::string>    vec;
+
+    count = 0;
+    // TODO refactor to some static definition
+    vec.push_back("GET");
+    vec.push_back("POST");
+    vec.push_back("DELETE");
+    tokens.pop_front();
+    while (!(tokens.front() == "\n" || count >= 3)) // TODO testcase
+    {
+        if (std::find(vec.begin(), vec.end(), tokens.front()) == vec.end())
+            throw std::logic_error("Failed to parse allowed_methods");
+        tokens.pop_front();
+        count++;
+    }
+}
+
+Config::OptionRoot::OptionRoot(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionRoot::OptionRoot(const Config::OptionRoot &cpy) : Config::Option(cpy) { }
+
+Config::OptionRoot::~OptionRoot() { }
+
+Config::OptionRoot&     Config::OptionRoot::operator = (const Config::OptionRoot &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* should sign the start of an http block. TODO there can only be one http block in the Config */
+void            Config::OptionRoot::parse(void *obj, tokens_t &tokens)
+{
+    tokens.pop_front();
+    // TODO /data/w3
+}
+
+Config::OptionAutoIndex::OptionAutoIndex(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionAutoIndex::OptionAutoIndex(const Config::OptionAutoIndex &cpy) : Config::Option(cpy) { }
+
+Config::OptionAutoIndex::~OptionAutoIndex() { }
+
+Config::OptionAutoIndex&     Config::OptionAutoIndex::operator = (const Config::OptionAutoIndex &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* should sign the start of an http block. TODO there can only be one http block in the Config */
+void            Config::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
+{
+    tokens.pop_front();
+    if (!(tokens.front() == "on" || tokens.front() == "off"))
+        throw std::logic_error("Failed to parse autoindex directive: Invalid option.");
+}
+
+Config::OptionIndex::OptionIndex(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionIndex::OptionIndex(const Config::OptionIndex &cpy) : Config::Option(cpy) { }
+
+Config::OptionIndex::~OptionIndex() { }
+
+Config::OptionIndex&     Config::OptionIndex::operator = (const Config::OptionIndex &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionIndex::parse(void *obj, tokens_t &tokens)
+{
+    while (!(tokens.front() == "\n"))
+        tokens.pop_front();
+}
+
+Config::OptionCgiExtension::OptionCgiExtension(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionCgiExtension::OptionCgiExtension(const Config::OptionCgiExtension &cpy) : Config::Option(cpy) { }
+
+Config::OptionCgiExtension::~OptionCgiExtension() { }
+
+Config::OptionCgiExtension&     Config::OptionCgiExtension::operator = (const Config::OptionCgiExtension &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+void            Config::OptionCgiExtension::parse(void *obj, tokens_t &tokens)
+{
+    while (!(tokens.front() == "\n"))
+        tokens.pop_front();
+}
+
+Config::OptionUploadPath::OptionUploadPath(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionUploadPath::OptionUploadPath(const Config::OptionUploadPath &cpy) : Config::Option(cpy) { }
+
+Config::OptionUploadPath::~OptionUploadPath() { }
+
+Config::OptionUploadPath&     Config::OptionUploadPath::operator = (const Config::OptionUploadPath &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* should sign the start of an http block. TODO there can only be one http block in the Config */
+void            Config::OptionUploadPath::parse(void *obj, tokens_t &tokens)
+{
+    tokens.pop_front();
+}
+
+Config::OptionReturn::OptionReturn(int parse_level) : Config::Option(parse_level) { }
+
+Config::OptionReturn::OptionReturn(const Config::OptionReturn &cpy) : Config::Option(cpy) { }
+
+Config::OptionReturn::~OptionReturn() { }
+
+Config::OptionReturn&     Config::OptionReturn::operator = (const Config::OptionReturn &rhs)
+{
+    Config::Option::operator = (rhs);
+    return (*this);
+}
+
+/* should sign the start of an http block. TODO there can only be one http block in the Config */
+void            Config::OptionReturn::parse(void *obj, tokens_t &tokens)
+{
+    tokens.pop_front();
+    tokens.pop_front();
+}
+

@@ -2,12 +2,10 @@
 
 # define CONFIG_HPP
 
+# define DFL_CONFIG_FILE_PATH "default.conf"
 # define DFL_MAX_BODY_SIZE 1
 # define DFL_SERVER_HOST "*"                    /* translates to INADDR_ANY 0.0.0.0 */
 # define DFL_SERVER_PORT 80                     /* HTTP default port */
-# define DFL_CONFIG_FILE_PATH "default.conf"
-
-# define OPTION_ARG_INF -1
 
 # include <map>
 # include <algorithm>
@@ -19,25 +17,6 @@
 
 # include <Server.hpp>
 # include <Utils.hpp>
-
-class ConfigOption
-{
-public:
-    bool    m_is_nested;      /* if option has nested options */
-    int     m_arg_amount;     /* amount of options following this option after keyword found */
-    int     m_parse_level;    /* parse_level at which to find option */
-    // some function that can be used to modify either [Config, Server, Location] objects
-    int     (*m_parse_func)(void *, int);     // void * = Object to modify and int = position of argument
-
-    typedef std::map<std::string, ConfigOption*> map_config_t;
-
-public:
-    ConfigOption(bool is_nested, int arg_amount, int parse_level, int (*parse_func)(void *, int));
-    ConfigOption(const ConfigOption& cpy);
-    ~ConfigOption();
-
-};
-
 
 class Config
 {
@@ -56,7 +35,6 @@ private:
 public:
     typedef enum e_levels
     {
-        NONE,
         BASE,
         HTTP,
         SERVER,
@@ -77,23 +55,231 @@ public:
 
 private:
     static int                      m_client_max_body_size;
-    static ConfigOption             *m_option_http;
-    static ConfigOption             *m_option_client_max_body_size;
-    static ConfigOption             *m_option_error_page;
-    static ConfigOption             *m_option_server;
-    static ConfigOption             *m_option_listen;
-    static ConfigOption             *m_option_server_name;
-    static ConfigOption             *m_option_location;
-    static ConfigOption             *m_option_allowed_methods;
-    static ConfigOption             *m_option_root;
-    static ConfigOption             *m_option_autoindex;
-    static ConfigOption             *m_option_index;
-    static ConfigOption             *m_option_cgi_extension;
-    static ConfigOption             *m_option_upload_path;
-    static ConfigOption             *m_option_return;
 
-    static ConfigOption::map_config_t&     _getConfigMap(void);
+    void                            _mapTokens(std::deque<std::string>& tokens);
 
+public:
+    class Option
+    {
+    private:
+        int     m_parse_level;    /* parse_level at which to find option */
+
+    public:
+        typedef std::deque<std::string>         tokens_t;
+        typedef std::map<std::string, Option*>  map_config_t;
+
+    public:
+        explicit Option(int parse_level);
+        Option(const Option& cpy);
+        ~Option();
+
+        Option&         operator = (const Option& rhs);
+
+        int             getParseLevel(void);
+
+        // some function that can be used to modify either [Config, Server, Route] objects
+        virtual void    parse(void *obj, tokens_t& tokens) = 0;
+
+    };
+
+    class OptionHttp : public Option
+    {
+    public:
+        OptionHttp(int parse_level);
+        OptionHttp(const OptionHttp& cpy);
+        ~OptionHttp();
+
+        OptionHttp&     operator = (const OptionHttp& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionClientMaxBodySize : public Option
+    {
+    public:
+        OptionClientMaxBodySize(int parse_level);
+        OptionClientMaxBodySize(const OptionClientMaxBodySize& cpy);
+        ~OptionClientMaxBodySize();
+
+        OptionClientMaxBodySize&     operator = (const OptionClientMaxBodySize& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionErrorPage : public Option
+    {
+    public:
+        OptionErrorPage(int parse_level);
+        OptionErrorPage(const OptionErrorPage& cpy);
+        ~OptionErrorPage();
+
+        OptionErrorPage&     operator = (const OptionErrorPage& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionServer : public Option
+    {
+    public:
+        OptionServer(int parse_level);
+        OptionServer(const OptionServer& cpy);
+        ~OptionServer();
+
+        OptionServer&     operator = (const OptionServer& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionListen : public Option
+    {
+    public:
+        OptionListen(int parse_level);
+        OptionListen(const OptionListen& cpy);
+        ~OptionListen();
+
+        OptionListen&     operator = (const OptionListen& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionServerName : public Option
+    {
+    public:
+        OptionServerName(int parse_level);
+        OptionServerName(const OptionServerName& cpy);
+        ~OptionServerName();
+
+        OptionServerName&     operator = (const OptionServerName& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionLocation : public Option
+    {
+    public:
+        OptionLocation(int parse_level);
+        OptionLocation(const OptionLocation& cpy);
+        ~OptionLocation();
+
+        OptionLocation&     operator = (const OptionLocation& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionAllowedMethods : public Option
+    {
+    public:
+        OptionAllowedMethods(int parse_level);
+        OptionAllowedMethods(const OptionAllowedMethods& cpy);
+        ~OptionAllowedMethods();
+
+        OptionAllowedMethods&     operator = (const OptionAllowedMethods& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionRoot : public Option
+    {
+    public:
+        OptionRoot(int parse_level);
+        OptionRoot(const OptionRoot& cpy);
+        ~OptionRoot();
+
+        OptionRoot&     operator = (const OptionRoot& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionAutoIndex : public Option
+    {
+    public:
+        OptionAutoIndex(int parse_level);
+        OptionAutoIndex(const OptionAutoIndex& cpy);
+        ~OptionAutoIndex();
+
+        OptionAutoIndex&     operator = (const OptionAutoIndex& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionIndex : public Option
+    {
+    public:
+        OptionIndex(int parse_level);
+        OptionIndex(const OptionIndex& cpy);
+        ~OptionIndex();
+
+        OptionIndex&     operator = (const OptionIndex& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionCgiExtension : public Option
+    {
+    public:
+        OptionCgiExtension(int parse_level);
+        OptionCgiExtension(const OptionCgiExtension& cpy);
+        ~OptionCgiExtension();
+
+        OptionCgiExtension&     operator = (const OptionCgiExtension& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionUploadPath : public Option
+    {
+    public:
+        OptionUploadPath(int parse_level);
+        OptionUploadPath(const OptionUploadPath& cpy);
+        ~OptionUploadPath();
+
+        OptionUploadPath&     operator = (const OptionUploadPath& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    class OptionReturn : public Option
+    {
+    public:
+        OptionReturn(int parse_level);
+        OptionReturn(const OptionReturn& cpy);
+        ~OptionReturn();
+
+        OptionReturn&     operator = (const OptionReturn& rhs);
+
+        void            parse(void *obj, tokens_t& tokens);
+
+    };
+
+    static Config::Option                   *m_option_http;
+    static Config::Option                   *m_option_client_max_body_size;
+    static Config::Option                   *m_option_error_page;
+    static Config::Option                   *m_option_server;
+    static Config::Option                   *m_option_listen;
+    static Config::Option                   *m_option_server_name;
+    static Config::Option                   *m_option_location;
+    static Config::Option                   *m_option_allowed_methods;
+    static Config::Option                   *m_option_root;
+    static Config::Option                   *m_option_autoindex;
+    static Config::Option                   *m_option_index;
+    static Config::Option                   *m_option_cgi_extension;
+    static Config::Option                   *m_option_upload_path;
+    static Config::Option                   *m_option_return;
+
+    static Config::Option::map_config_t&    _getConfigMap(void);
 };
 
 #endif

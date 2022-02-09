@@ -30,6 +30,9 @@ public:
     ~Route();
 
     Route&  operator = (const Route& route);
+
+    void    setBaseUrl(const std::string& base_url);
+
 };
 
 #endif
