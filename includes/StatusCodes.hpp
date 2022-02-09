@@ -3,7 +3,8 @@
 
 # define code_pair std::pair<int, std::string>
 
-#include <map>
+# include <map>
+# include <string>
 
 class StatusCodes
 {

@@ -32,5 +32,7 @@ std::string Response::getResponse()
 
 void		Response::buildResponse()
 {
+	handleMethod();
+	buildStartLine();
 	// m_response = m_start_line + m_headers + m_body;
 }

@@ -15,7 +15,12 @@ Request::~Request() {}
 Request & Request::operator=(const Request &copy)
 {
     if (this != &copy)
-        *this = copy;
+    {
+        m_method = copy.m_method;
+        m_start_line = copy.m_start_line;
+        m_headers = copy.m_headers;
+        m_body = copy.m_body;
+    }
     return (*this);
 }
 

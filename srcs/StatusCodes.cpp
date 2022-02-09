@@ -34,7 +34,7 @@ std::map<int, std::string>		StatusCodes::initStatusCodes()
 	status_codes.insert(code_pair(102, "Processing"));
 	status_codes.insert(code_pair(103, "Early Hints"));
 
-	//------ 2xx - Successful ------
+// 	//------ 2xx - Successful ------
 	status_codes.insert(code_pair(200, "OK"));
 	status_codes.insert(code_pair(201, "Created"));
 	status_codes.insert(code_pair(202, "Accepted"));
@@ -46,7 +46,7 @@ std::map<int, std::string>		StatusCodes::initStatusCodes()
 	status_codes.insert(code_pair(208, "Already Reported"));
 	status_codes.insert(code_pair(226, "IM Used"));
 
-	//------ 3xx - Redirection ------
+// 	//------ 3xx - Redirection ------
 	status_codes.insert(code_pair(300, "Multiple Choices"));
 	status_codes.insert(code_pair(301, "Moved Permanently"));
 	status_codes.insert(code_pair(302, "Found"));
@@ -56,7 +56,7 @@ std::map<int, std::string>		StatusCodes::initStatusCodes()
 	status_codes.insert(code_pair(307, "Temporary Redirect"));
 	status_codes.insert(code_pair(308, "Permanent Redirect"));
 
- //------ 4xx - Client Error ------
+//  //------ 4xx - Client Error ------
 	status_codes.insert(code_pair(400, "Bad Request"));
 	status_codes.insert(code_pair(401, "Unauthorized"));
 	status_codes.insert(code_pair(402, "Payment Required"));
@@ -87,7 +87,7 @@ std::map<int, std::string>		StatusCodes::initStatusCodes()
 	status_codes.insert(code_pair(431, "Request Header Fields Too Large"));
 	status_codes.insert(code_pair(451, "Unavailable For Legal Reasons"));
 
-	//------ 5xx - Server Error ------
+// 	//------ 5xx - Server Error ------
 	status_codes.insert(code_pair(500, "Internal Server Error"));
 	status_codes.insert(code_pair(501, "Not Implemented"));
 	status_codes.insert(code_pair(502, "Bad Gateway"));

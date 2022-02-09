@@ -21,8 +21,8 @@ class GetResponse : public Response
 
 		int					handleMethod();
 		void				buildStartLine();
-		void				buildHeaders();
-		void				buildBody();
+		// void				buildHeaders();
+		// void				buildBody();
 
 		static std::string	ft_itos(int nbr);
 };

@@ -32,8 +32,8 @@ class Response
 		// For each child class to define
 		virtual int								handleMethod() = 0;
 		virtual void							buildStartLine() = 0;
-		virtual void							buildHeaders() = 0;
-		virtual void							buildBody() = 0;
+		// virtual void							buildHeaders() = 0;
+		// virtual void							buildBody() = 0;
 		virtual void							buildResponse();
 };
 
