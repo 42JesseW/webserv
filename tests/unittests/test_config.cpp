@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sys/stat.h>
 
-#define SYS_ERROR -1
+#define SYS_ERROR (-1)
 
 static std::string  basic_conf = ""
          "# start the configuration file. Only one http block is allowed\n"
@@ -21,7 +21,7 @@ static std::string  basic_conf = ""
          "\tserver {\n"
          "\n"
          "\t\t# address to listen on in the form <address>:<port>. Only one listen is allowed\n"
-         "\t\tlisten          *.80\n"
+         "\t\tlisten          *:80\n"
          "\n"
          "\t\t# server_name(s) used for matching server using \"Host\" Request header\n"
          "\t\tserver_name     example.org www.example.org\n"

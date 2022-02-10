@@ -41,6 +41,8 @@ public:
         LOCATION
     } t_levels;
 
+    typedef std::deque<std::string>         tokens_t;
+
     ~Config(void);
 
     /* implement a singleton pattern since Config references 1 file */
@@ -53,11 +55,6 @@ public:
     void                            setFilePath(const std::string& file_path);
     void                            loadFile(void);
 
-private:
-    static int                      m_client_max_body_size;
-
-    void                            _mapTokens(std::deque<std::string>& tokens);
-
 public:
     class Option
     {
@@ -65,7 +62,6 @@ public:
         int     m_parse_level;    /* parse_level at which to find option */
 
     public:
-        typedef std::deque<std::string>         tokens_t;
         typedef std::map<std::string, Option*>  map_config_t;
 
     public:
@@ -80,8 +76,26 @@ public:
         // some function that can be used to modify either [Config, Server, Route] objects
         virtual void    parse(void *obj, tokens_t& tokens) = 0;
 
+        // each parser must also provide a way to set defaults if directive is missing in file
+        virtual void    setDefault(void *obj) = 0;
+
     };
 
+private:
+    static int                      m_client_max_body_size;
+
+    void                            _mapTokens(tokens_t& tokens);
+    void                            _mapTokenToObject(tokens_t& tokens,
+                                                      Option *option,
+                                                      Server **server,
+                                                      Route **route,
+                                                      int parse_level);
+
+public:
+    /*
+     *          ( Option )
+     * All subclass based on abstract Option
+     */
     class OptionHttp : public Option
     {
     public:
@@ -141,9 +155,12 @@ public:
         OptionListen(const OptionListen& cpy);
         ~OptionListen();
 
-        OptionListen&     operator = (const OptionListen& rhs);
+        OptionListen&   operator = (const OptionListen& rhs);
 
         void            parse(void *obj, tokens_t& tokens);
+
+    private:
+        void            _parseArg(const std::string& arg, std::string& address, short *sin_port);
 
     };
 

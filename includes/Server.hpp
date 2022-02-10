@@ -9,6 +9,7 @@
 # include "Client.hpp"
 
 # include <map>
+# include <sstream>
 
 class Server
 {

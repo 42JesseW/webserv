@@ -96,7 +96,16 @@ void                            Config::loadFile(void)
     _mapTokens(tokens);
 }
 
-void                            Config::_mapTokens(Option::tokens_t& tokens)
+/*
+ * Gradually add components to the Config class using
+ * using the provided tokens read from the file.
+ *
+ * Will throw std::invalid_argument in the following cases:
+ * - Invalid brackets (i.e. not closing or invalid order)
+ * - Unknown keyword or keyword in wrong parse level
+ * - Could not convert string if numeric argument expected
+ */
+void                            Config::_mapTokens(tokens_t& tokens)
 {
     int                             parse_level;
     Option                          *option;
@@ -113,7 +122,7 @@ void                            Config::_mapTokens(Option::tokens_t& tokens)
     {
         if (tokens.front() == "#")
         {
-            while (tokens.front() != "\n")
+            while (!tokens.empty() && tokens.front() != "\n")
                 tokens.pop_front();
         }
         else if (tokens.front() == "{")
@@ -124,8 +133,8 @@ void                            Config::_mapTokens(Option::tokens_t& tokens)
         else if (tokens.front() == "}")
         {
             if (brackets.empty() || brackets.top() != '{')
-                throw std::logic_error("Invalid brackets in config file");
-            // TODO add object at current level to corresponding list
+                throw std::invalid_argument("Invalid brackets in config file");
+            // TODO add defaults to specific object
             brackets.pop();
             parse_level--;
         }
@@ -137,7 +146,7 @@ void                            Config::_mapTokens(Option::tokens_t& tokens)
                 if (it == config.end())
                 {
                     err_ss << "Invalid keyword '" << tokens.front() << "'";
-                    throw std::logic_error(err_ss.str());
+                    throw std::invalid_argument(err_ss.str());
                 }
                 else
                 {
@@ -146,47 +155,55 @@ void                            Config::_mapTokens(Option::tokens_t& tokens)
                     if (parse_level != option->getParseLevel())
                     {
                         err_ss << "Option '" << tokens.front() << "' at wrong parse level";
-                        throw std::logic_error(err_ss.str());
+                        throw std::invalid_argument(err_ss.str());
                     }
-
-                    switch (parse_level)
-                    {
-                        case (BASE):
-                        case (HTTP):
-                            if (tokens.front() == "server")
-                            {
-                                m_servers.push_back(Server());
-                                current_server = &m_servers.at(m_servers.size() - 1);
-                            }
-                            option->parse(this, tokens);
-                            break ;
-
-                        case (SERVER):
-                            if (tokens.front() == "location")
-                            {
-                                current_server->getRoutes().push_back(Route());
-                                current_route = &current_server->getRoutes().at(current_server->getRoutes().size() - 1);
-                                option->parse(current_route, tokens);
-                            }
-                            else
-                                option->parse(current_server, tokens);
-                            break ;
-
-                        case (LOCATION):
-                            option->parse(current_route, tokens);
-                            break ;
-
-                        default:
-                            break ;
-                    }
-                    std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
+                    _mapTokenToObject(tokens, option, &current_server, &current_route, parse_level);
                 }
             }
         }
         tokens.pop_front();
     }
     if (!brackets.empty())
-        throw std::logic_error("Invalid brackets in config file");
+        throw std::invalid_argument("Invalid brackets in config file");
+}
+
+void                                    Config::_mapTokenToObject(tokens_t& tokens,
+                                                                  Option *option,
+                                                                  Server **server,
+                                                                  Route **route,
+                                                                  int parse_level)
+{
+    switch (parse_level)
+    {
+        case (BASE):
+        case (HTTP):
+            if (tokens.front() == "server")
+            {
+                m_servers.push_back(Server());
+                *server = &m_servers.at(m_servers.size() - 1);
+            }
+            option->parse(this, tokens);
+            break ;
+
+        case (SERVER):
+            if (tokens.front() == "location")
+            {
+                (*server)->getRoutes().push_back(Route());
+                *route = &(*server)->getRoutes().at((*server)->getRoutes().size() - 1);
+                option->parse(*route, tokens);
+            }
+            else
+                option->parse(*server, tokens);
+            break ;
+
+        case (LOCATION):
+            option->parse(*route, tokens);
+            break ;
+
+        default:
+            break ;
+    }
+    std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
 }
 
 Config::Option::map_config_t&           Config::_getConfigMap(void)

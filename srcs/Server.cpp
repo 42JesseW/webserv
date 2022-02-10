@@ -47,8 +47,9 @@ std::vector<Route>&         Server::getRoutes()
 
 int                         Server::initListener(const std::string& host)
 {
-    std::string address;
-    short       sin_port;
+    std::stringstream   err_ss;
+    std::string         address;
+    short               sin_port;
 
     if (ft::count(host.begin(), host.end(), ':') > 1)
         throw std::invalid_argument("Host " + host + " is invalid");
@@ -59,8 +60,9 @@ int                         Server::initListener(const std::string& host)
     address = host.substr(0, host.find(":"));
     if (sin_port == 0 || m_sock.init(address, sin_port) == SOCK_ERROR)
     {
+        err_ss << "Failed to create socket on port: " << sin_port;
         /* do some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(err_ss.str());
     }
     return (SOCK_SUCCESS);
 }

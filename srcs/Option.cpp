@@ -66,11 +66,11 @@ void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
 
     (void)obj;
     if (tokens.size() < 2)
-        throw std::logic_error("failed to parse client_max_body_size: Not enough arguments.");
+        throw std::invalid_argument("failed to parse client_max_body_size: Not enough arguments.");
     tokens.pop_front();
     size = std::atoi(tokens.front().c_str());
     if (size == 0)
-        throw std::logic_error("Failed to parse client_max_body_size: Invalid size.");
+        throw std::invalid_argument("Failed to parse client_max_body_size: Invalid size.");
     tokens.pop_front();
     m_client_max_body_size = size;
 }
@@ -96,10 +96,10 @@ void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
     config = (Config *)obj;
     tokens.pop_front();
     if (tokens.size() < 2)
-        throw std::logic_error("Failed to parse error_page: Not enough arguments.");
+        throw std::invalid_argument("Failed to parse error_page: Not enough arguments.");
     status_code = std::atoi(tokens.front().c_str());
     if (status_code == 0)
-        throw std::logic_error("Failed to parse error_page: Invalid status_code.");
+        throw std::invalid_argument("Failed to parse error_page: Invalid status_code.");
     tokens.pop_front();
     config->m_error_files.insert(std::make_pair(status_code, tokens.front()));
 }
@@ -134,15 +134,85 @@ Config::OptionListen&     Config::OptionListen::operator = (const Config::Option
     return (*this);
 }
 
+/*
+ * Sets the address and port for IP
+ *
+ * DEFAULTS to *:80
+ *
+ * Valid combinations are:
+ * - *:<port>
+ * - <address>:<port>
+ * - <address>
+ * - <port>
+ *
+ */
 void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
 {
-    Server  *server;
+    Server                  *server;
+    std::string             address;
+    std::stringstream       full_ip;
+    short                   sin_port;
 
     if (tokens.size() < 2)
-        throw std::logic_error("Failed to parse listen directive: Not enough arguments");
+        throw std::invalid_argument("Failed to parse listen directive: Not enough arguments");
     tokens.pop_front();
     server = (Server*)obj;
-    // TODO *.80 parse according to nginx format
+    try
+    {
+        _parseArg(tokens.front(), address, &sin_port);
+        full_ip << address << ":" << std::to_string(sin_port);
+        server->initListener(full_ip.str());
+    }
+    catch (const std::invalid_argument& e)
+    {
+        /* Failed to parse arguments */
+    }
+    catch (const std::runtime_error& e)
+    {
+        /* failed to create socket */
+    }
+}
+
+void            Config::OptionListen::_parseArg(const std::string &arg, std::string& address, short *sin_port)
+{
+    std::string             arg_cpy;
+    std::stringstream       arg_ss;
+    std::string::size_type  pos;
+
+    arg_ss << arg;
+    arg_cpy = arg_ss.str();
+    arg_ss.exceptions( std::ios::failbit | std::ios::badbit );
+    switch (ft::count(arg_cpy.begin(), arg_cpy.end(), ':'))
+    {
+        case 0:
+            try
+            {
+                arg_ss >> *sin_port;
+            }
+            catch (const std::ios::failure& e)
+            {
+                *sin_port = DFL_SERVER_PORT;
+                address += arg_ss.str();
+            }
+            break ;
+
+        case 1:
+            pos = arg_cpy.find(':');
+            arg_ss.seekg(pos + 1);
+            try
+            {
+                arg_ss >> *sin_port;
+                address += arg_cpy.substr(0, pos);
+            }
+            catch (const std::ios::failure& e)
+            {
+                throw std::invalid_argument("Failed to convert port in arg: " + arg_cpy);
+            }
+            break ;
+
+        default:
+            throw std::invalid_argument("Directive " + arg_cpy + " is invalid");
+    }
 }
 
 Config::OptionServerName::OptionServerName(int parse_level) : Config::Option(parse_level) { }
@@ -169,7 +239,7 @@ void            Config::OptionServerName::parse(void *obj, tokens_t &tokens)
         tokens.pop_front();
     }
     if (tokens.empty())
-        throw std::logic_error("Invalid config file");
+        throw std::invalid_argument("Invalid config file");
 }
 
 Config::OptionLocation::OptionLocation(int parse_level) : Config::Option(parse_level) { }
@@ -189,7 +259,7 @@ void            Config::OptionLocation::parse(void *obj, tokens_t &tokens)
     Route   *route;
 
     if (tokens.size() < 2)
-        throw std::logic_error("failed to parse location directive: Not enough arguments");
+        throw std::invalid_argument("failed to parse location directive: Not enough arguments");
     tokens.pop_front();
     route = (Route *)obj;
     route->setBaseUrl(tokens.front());
@@ -221,7 +291,7 @@ void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
     while (!(tokens.front() == "\n" || count >= 3)) // TODO testcase
     {
         if (std::find(vec.begin(), vec.end(), tokens.front()) == vec.end())
-            throw std::logic_error("Failed to parse allowed_methods");
+            throw std::invalid_argument("Failed to parse allowed_methods");
         tokens.pop_front();
         count++;
     }
@@ -263,7 +333,7 @@ void            Config::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
 {
     tokens.pop_front();
     if (!(tokens.front() == "on" || tokens.front() == "off"))
-        throw std::logic_error("Failed to parse autoindex directive: Invalid option.");
+        throw std::invalid_argument("Failed to parse autoindex directive: Invalid option.");
 }
 
 Config::OptionIndex::OptionIndex(int parse_level) : Config::Option(parse_level) { }
