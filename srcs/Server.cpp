@@ -1,26 +1,18 @@
 #include "../includes/Server.hpp"
 
-Server::Server()
-{
-    m_poll.fd_count = 0;
-    m_poll.connections = 0;
-    m_poll.fd_size = DFL_BACKLOG;
-    // m_poll.pfds = (struct pollfd *)malloc(sizeof(*m_poll.pfds) * m_poll.fd_size);
-}
+Server::Server() {}
 
 Server::Server(const Server &server) :
     m_sock(server.m_sock),
     m_names(server.m_names),
     m_routes(server.m_routes),
-    m_poll(server.m_poll)
+	m_clients(server.m_clients),
+    m_pfds(server.m_pfds)
 {
 
 }
 
-Server::~Server()
-{
-
-}
+Server::~Server() {}
 
 Server&     Server::operator = (const Server &server)
 {
@@ -30,6 +22,7 @@ Server&     Server::operator = (const Server &server)
         m_names = server.m_names;
         m_routes = server.m_routes;
         m_clients = server.m_clients;
+        m_pfds = server.m_pfds;
     }
     return (*this);
 }
@@ -70,31 +63,31 @@ int                         Server::doPolling(void)
 
     listen_socket_pollfd.fd = m_sock.getFileDescriptor();
     listen_socket_pollfd.events = POLLIN;
-    m_poll.pfds.push_back(listen_socket_pollfd);
+    m_pfds.push_back(listen_socket_pollfd);
 
     for (;;)
     {
-        int poll_count = poll(&m_poll.pfds[0], m_poll.pfds.size(), POLL_NO_TIMEOUT);
+        int poll_count = poll(&m_pfds[0], m_pfds.size(), POLL_NO_TIMEOUT);
         if (poll_count == -1)
         {
             /* do some error handling */
             std::exit(EXIT_FAILURE);
         }
 
-    	iter = m_poll.pfds.begin();
-        for (size_t i = 0; i < m_poll.pfds.size(); i++)
+    	iter = m_pfds.begin();
+        for (size_t i = 0; i < m_pfds.size(); i++)
         {
-            if ((m_poll.pfds[i].revents & (POLLERR | POLLNVAL)) || 
-                ((m_poll.pfds[i].revents & POLLHUP) && !(m_poll.pfds[i].revents & POLLIN)))
+            if ((m_pfds[i].revents & (POLLERR | POLLNVAL)) || 
+                ((m_pfds[i].revents & POLLHUP) && !(m_pfds[i].revents & POLLIN)))
 			{
 				/* handle flags */
-		        close(m_poll.pfds[i].fd);
-		        m_poll.pfds.erase(iter);
+		        close(m_pfds[i].fd);
+		        m_pfds.erase(iter);
 			}
 
-            if (m_poll.pfds[i].revents & POLLIN)
+            if (m_pfds[i].revents & POLLIN)
             {
-                if (m_poll.pfds[i].fd == m_sock.getFileDescriptor())
+                if (m_pfds[i].fd == m_sock.getFileDescriptor())
                 {
                     if (acceptNewConnection() < 0)
                     {
@@ -103,18 +96,18 @@ int                         Server::doPolling(void)
                     }
 				}
                 else
-					handleConnection(m_poll.pfds[i].fd, iter);
+					handleConnection(m_pfds[i].fd, iter);
             }
 
-			if (m_poll.pfds[i].revents & POLLOUT &&
-                !(m_poll.pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
+			if (m_pfds[i].revents & POLLOUT &&
+                !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
 			{
 				char buff[4096];
                 
                 snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-                write(m_poll.pfds[i].fd, (char *)buff, strlen((char *)buff));
-                close(m_poll.pfds[i].fd);
-		        m_poll.pfds.erase(iter);
+                write(m_pfds[i].fd, (char *)buff, strlen((char *)buff));
+                close(m_pfds[i].fd);
+		        m_pfds.erase(iter);
 			}
 			iter++;
         }
@@ -128,7 +121,7 @@ void                 		Server::addToPfds(int client_socket)
 
     client_socket_pollfd.fd = client_socket;
     client_socket_pollfd.events = (POLLIN | POLLOUT);
-    m_poll.pfds.push_back(client_socket_pollfd);
+    m_pfds.push_back(client_socket_pollfd);
 }
 
 int                         Server::acceptNewConnection(void) 
@@ -168,7 +161,7 @@ void						Server::handleConnection(int client_socket, std::vector<struct pollfd>
     if (nbytes < 0)
 	{
 	    close(client_socket);
-        m_poll.pfds.erase(iter);
+        m_pfds.erase(iter);
 	}
     else 
         buf[nbytes] = 0;

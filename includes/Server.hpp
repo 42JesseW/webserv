@@ -13,15 +13,6 @@
 # include <map>
 # include <poll.h>
 
-struct polling_opts
-{
-    std::vector<struct pollfd>	pfds;
-    int							fd_count;
-    int                         connections;
-    int                         flag;
-	int							fd_size;            
-};
-
 class Server
 {
 private:
@@ -29,7 +20,7 @@ private:
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
     std::map<int, Client>       m_clients;
-	struct polling_opts			m_poll;
+    std::vector<struct pollfd>	m_pfds;
 
 public:
     Server();
