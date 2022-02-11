@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 13:54:58 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/11 15:48:08 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Request
 		std::string								m_version;
 		std::string								m_request;
 		std::map<std::string, std::string>		m_headers;
+		int										m_port;
 		std::string								m_body;
 
 	public:

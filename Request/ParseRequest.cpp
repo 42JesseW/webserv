@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/02/02 14:06:29 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/11 14:06:14 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/11 16:46:23 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void Request::parseAndSetStartLine()
 
 	m_target = m_request.substr(0, m_request.find(' '));
 
-	if (m_target.find('?'))
+	if (m_target.find('?') != std::string::npos)
 	{
 		m_query = m_target.substr(m_target.find('?') + 1, m_target.find(' '));
 		m_target = m_target.substr(0, m_target.find('?'));
@@ -83,6 +83,14 @@ void Request::parseAndSetHeaders()
 		m_headers.insert(std::pair<std::string, std::string>(key, value));
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
+
+	// Set host and ports
+	std::string	host = m_headers["Host"];
+	if (host.find(':') != std::string::npos)
+	{
+		host = host.substr(host.find(':') + 1, host.length() - 1);
+		std::istringstream(host) >> m_port;
+	}
 }
 
 void Request::printRequest()
@@ -94,9 +102,9 @@ void Request::printRequest()
 	std::cout << "Version: " << m_version << std::endl;
 
 	std::cout << "------------------ HEADERS ------------------" << std::endl;
+	std::cout << "Port: " << m_port << std::endl;
 	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
-		std::cout << "{" << it->first << "} {" << it->second << "}\n";
-	std::cout << std::endl;
+		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 
 	std::cout << "------------------ BODY ------------------" << std::endl;
 	std::cout << m_body << std::endl;
