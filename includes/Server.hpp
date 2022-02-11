@@ -36,7 +36,7 @@ public:
 	int							doPolling(void);
 
     int							acceptNewConnection(void);
-    void						handleConnection(int client_socket, std::vector<struct pollfd>::iterator iter);
+    void						handleConnection(int client_socket);
 
 private:
     void                        addToPfds(int client_socket);

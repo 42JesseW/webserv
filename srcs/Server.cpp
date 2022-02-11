@@ -97,7 +97,7 @@ int                         Server::doPolling(void)
                     }
 				}
                 else
-					handleConnection(m_pfds[i].fd, iter);
+					handleConnection(m_pfds[i].fd);
             }
 
 			if (m_pfds[i].revents & POLLOUT &&
@@ -122,6 +122,7 @@ void                 		Server::addToPfds(int client_socket)
 
     client_socket_pollfd.fd = client_socket;
     client_socket_pollfd.events = (POLLIN | POLLOUT);
+    client_socket_pollfd.revents = 0;
     m_pfds.push_back(client_socket_pollfd);
 }
 
@@ -132,7 +133,7 @@ int                         Server::acceptNewConnection(void)
     SA_IN   client_addr;
     int     addr_size;
 
-    addr_size = sizeof(SA_IN);
+    addr_size = sizeof(client_addr);
     client_socket = accept(m_sock.getFileDescriptor(), (SA *)&client_addr, (socklen_t *)&addr_size);
     if (client_socket == SOCK_ERROR)
     {
@@ -140,23 +141,32 @@ int                         Server::acceptNewConnection(void)
         std::exit(EXIT_FAILURE);
     }
 
+    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
+    {
+        /* some error handling */
+        close(client_socket);
+        std::exit(EXIT_FAILURE);
+    }
+
+	int enable = 1;
+	if (setsockopt(client_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+	{
+        /* some error handling */
+		close(client_socket);
+        std::exit(EXIT_FAILURE);
+	}
+
     m_clients.insert(std::pair<int, Client>(client_socket, new_client));
 
     addToPfds(client_socket);
 
     std::cout << "New connection established on client socket: " << client_socket << std::endl;
-    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
-    {
-        /* some error handling */
-        std::exit(EXIT_FAILURE);
-    }
     return (SOCK_SUCCESS);
 }
 
-void						Server::handleConnection(int client_socket, std::vector<struct pollfd>::iterator iter)
+void						Server::handleConnection(int client_socket)
 {
     Request new_request;
 
     new_request.handleRequest(client_socket);
-    new_request.printRequest();
 }
