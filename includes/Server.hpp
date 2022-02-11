@@ -15,7 +15,7 @@
 
 struct polling_opts
 {
-    struct pollfd	            *pfds;
+    std::vector<struct pollfd>	pfds;
     int							fd_count;
     int                         connections;
     int                         flag;
@@ -45,7 +45,7 @@ public:
 	int							doPolling(void);
 
     int							acceptNewConnection(void);
-    void						handleConnection(int client_socket, int i);
+    void						handleConnection(int client_socket, std::vector<struct pollfd>::iterator iter);
 
 private:
     void                        addToPfds(int client_socket);
