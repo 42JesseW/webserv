@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/09 16:04:33 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/11 13:54:58 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Request
 	private:
 		int										m_status;
 		std::string								m_target;
+		std::string								m_query;
 		std::string 							m_method;
 		std::string								m_version;
 		std::string								m_request;
@@ -41,7 +42,6 @@ class Request
 		// Getters
 		std::string							getRequest();
 		std::string 						getMethod();
-		std::string							getStartLine();
 		std::map<std::string, std::string>	getHeaders();
 		std::string							getBody();
 		int									getStatus();
