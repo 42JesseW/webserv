@@ -56,6 +56,7 @@ static std::string  basic_conf = ""
 TEST_CASE("Default handle")
 {
     CHECK(Config::getHandle().getFilePath().empty());
+    // TODO must contain default error pages
     CHECK(Config::getHandle().getErrorFiles().empty());
     CHECK(Config::getHandle().getServers().empty());
 }

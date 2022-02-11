@@ -2,6 +2,9 @@
 
 # define ROUTE_HPP
 
+# define DFL_FILE_SEARCH_PATH "/"
+# define DFL_INDEX_FILE "index.html"
+
 # include <vector>
 # include <string>      // TODO maybe move to more common hpp
 
@@ -18,7 +21,7 @@ class Route
 private:
     std::string                 m_base_url;
     std::vector<std::string>    m_accepted_methods;
-    std::vector<REDIR>          m_redir;
+    REDIR                       *m_redir;
     std::string                 m_file_search_path;
     bool                        m_has_autoindex;
     std::vector<std::string>    m_index_files;
@@ -32,7 +35,10 @@ public:
     Route&  operator = (const Route& route);
 
     void    setBaseUrl(const std::string& base_url);
+    void    setFileSearchPath(const std::string& path);
+    void    setAutoIndex(bool on);
 
+    std::vector<std::string>&   getAcceptedMethods();
 };
 
 #endif

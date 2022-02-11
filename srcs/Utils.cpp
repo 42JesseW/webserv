@@ -49,4 +49,10 @@ namespace ft
         }
         return (str);
     }
+
+	/* simple function to convert num into string */
+	std::string		intToString(int num)
+	{
+		return (static_cast<std::ostringstream *>(&(std::ostringstream() << num))->str());
+	}
 }

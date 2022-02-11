@@ -2,7 +2,7 @@
 
 Server::Server()
 {
-
+    m_names.push_back("");
 }
 
 Server::Server(const Server &server) :

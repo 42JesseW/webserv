@@ -14,7 +14,7 @@ Socket::Socket(const Socket &sock)
 /* create new socket object from existing data */
 Socket::Socket(int sock_fd, struct sockaddr_in sock_addr) :
     m_sock_fd(sock_fd),
-    m_sock_addr(sock_addr)
+    m_sock_addr(sock_addr)  // TODO safe??
 {
 
 }
@@ -37,7 +37,9 @@ Socket&     Socket::operator = (const Socket &sock)
         m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
         m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
         m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
+#ifdef __APPLE__
         m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
+#endif
     }
     return (*this);
 }
@@ -56,7 +58,7 @@ int        Socket::init(const std::string& address, const short sin_port)
     if (m_sock_fd == SOCK_ERROR)
     {
         /* some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string(__func__) + ": Failed to create socket.");
     }
 
     std::cout << "Socket::init -> " << address << ":" << sin_port << std::endl;
@@ -71,9 +73,8 @@ int        Socket::init(const std::string& address, const short sin_port)
     if (m_sock_addr.sin_addr.s_addr == INADDR_NONE ||
         bind(m_sock_fd, (SA *)&m_sock_addr, (socklen_t)sizeof(m_sock_addr)) == SOCK_ERROR)
     {
-        std::cout << "Failed to bind to port " << '\n';
         /* some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string(__func__) + ": Failed to bind to address.");
     }
 
     /* loose the 'address currently in use' error because the kernel hasn't properly cleaned everything up */
@@ -81,21 +82,21 @@ int        Socket::init(const std::string& address, const short sin_port)
     if (setsockopt(m_sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == SOCK_ERROR)
     {
         /* some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string(__func__) + ": Failed to set sock options.");
     }
 
     /* set the socket to be non blocking so recv() and send() functions don't block */
     if (fcntl(m_sock_fd, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
     {
         /* some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string(__func__) + ": Failed to set NONBLOCKING.");
     }
 
     /* set the socket for listening with a max connection backlog of DFL_BACKLOG */
     if (listen(m_sock_fd, DFL_BACKLOG) == SOCK_ERROR)
     {
         /* some error handling */
-        std::exit(EXIT_FAILURE);
+        throw std::runtime_error(std::string(__func__) + ": Failed to listen on socket.");
     }
     return (SOCK_SUCCESS);
 }

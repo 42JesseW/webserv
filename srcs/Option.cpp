@@ -71,7 +71,6 @@ void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
     size = std::atoi(tokens.front().c_str());
     if (size == 0)
         throw std::invalid_argument("Failed to parse client_max_body_size: Invalid size.");
-    tokens.pop_front();
     m_client_max_body_size = size;
 }
 
@@ -160,7 +159,7 @@ void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
     try
     {
         _parseArg(tokens.front(), address, &sin_port);
-        full_ip << address << ":" << std::to_string(sin_port);
+        full_ip << address << ":" << ft::intToString(sin_port);
         server->initListener(full_ip.str());
     }
     catch (const std::invalid_argument& e)
@@ -279,6 +278,7 @@ Config::OptionAllowedMethods&     Config::OptionAllowedMethods::operator = (cons
 
 void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
 {
+    Route                       *route;
     int                         count;
     std::vector<std::string>    vec;
 
@@ -288,10 +288,12 @@ void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
     vec.push_back("POST");
     vec.push_back("DELETE");
     tokens.pop_front();
+    route = (Route *)obj;
     while (!(tokens.front() == "\n" || count >= 3)) // TODO testcase
     {
         if (std::find(vec.begin(), vec.end(), tokens.front()) == vec.end())
             throw std::invalid_argument("Failed to parse allowed_methods");
+        route->getAcceptedMethods().push_back(tokens.front());
         tokens.pop_front();
         count++;
     }
@@ -312,8 +314,11 @@ Config::OptionRoot&     Config::OptionRoot::operator = (const Config::OptionRoot
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
 void            Config::OptionRoot::parse(void *obj, tokens_t &tokens)
 {
+    Route   *route;
+
     tokens.pop_front();
-    // TODO /data/w3
+    route = (Route *)obj;
+    route->setFileSearchPath(tokens.front());
 }
 
 Config::OptionAutoIndex::OptionAutoIndex(int parse_level) : Config::Option(parse_level) { }
@@ -331,9 +336,14 @@ Config::OptionAutoIndex&     Config::OptionAutoIndex::operator = (const Config::
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
 void            Config::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
 {
+    Route   *route;
+
     tokens.pop_front();
+    route = (Route *)obj;
     if (!(tokens.front() == "on" || tokens.front() == "off"))
         throw std::invalid_argument("Failed to parse autoindex directive: Invalid option.");
+    if (tokens.front() == "on")
+        route->setAutoIndex(true);
 }
 
 Config::OptionIndex::OptionIndex(int parse_level) : Config::Option(parse_level) { }
@@ -408,4 +418,3 @@ void            Config::OptionReturn::parse(void *obj, tokens_t &tokens)
     tokens.pop_front();
     tokens.pop_front();
 }
-

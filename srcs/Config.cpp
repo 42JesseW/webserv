@@ -34,7 +34,7 @@ int             Config::m_client_max_body_size = DFL_MAX_BODY_SIZE;
 
 Config::Config(void)
 {
-
+    // TODO set default error_files here
 }
 
 Config::~Config(void)
@@ -80,7 +80,7 @@ void                            Config::loadFile(void)
 
     /* set this ifstream instance to throw if opening file fails */
     file_handle.exceptions( std::ifstream::badbit | std::ifstream::failbit );
-    file_handle.open(m_file_path);
+    file_handle.open(m_file_path.c_str());
 
     /* read whole file into stringstream buffer and copy to string object */
     buffer << file_handle.rdbuf();
@@ -134,7 +134,9 @@ void                            Config::_mapTokens(tokens_t& tokens)
         {
             if (brackets.empty() || brackets.top() != '{')
                 throw std::invalid_argument("Invalid brackets in config file");
-            // TODO add defaults to specific object
+            // TODO check if Server | Route object is valid
+            // Server needs a valid socket -> m_sock.sock_fd must not be SOCK_FD_EMPTY
+            // Server needs at least one Route -> m_routes > 0
             brackets.pop();
             parse_level--;
         }

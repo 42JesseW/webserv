@@ -8,6 +8,7 @@
 # define DFL_SERVER_PORT 80                     /* HTTP default port */
 
 # include <map>
+# include <stack>
 # include <algorithm>
 # include <stdexcept>
 # include <exception>
@@ -75,9 +76,6 @@ public:
 
         // some function that can be used to modify either [Config, Server, Route] objects
         virtual void    parse(void *obj, tokens_t& tokens) = 0;
-
-        // each parser must also provide a way to set defaults if directive is missing in file
-        virtual void    setDefault(void *obj) = 0;
 
     };
 
