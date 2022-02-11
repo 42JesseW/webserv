@@ -158,7 +158,7 @@ void						Server::handleConnection(int client_socket, std::vector<struct pollfd>
     char    buf[4096]; 
 
     nbytes = recv(client_socket, buf, sizeof(buf), MSG_DONTWAIT);
-    if (nbytes < 0)
+    if (nbytes <= 0)
 	{
 	    close(client_socket);
         m_pfds.erase(iter);
