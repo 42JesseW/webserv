@@ -173,7 +173,7 @@ void                            Config::_mapTokens(tokens_t& tokens)
         throw std::invalid_argument("Invalid brackets in config file");
 }
 
-void                                    Config::_mapTokenToObject(tokens_t& tokens,
+void                            Config::_mapTokenToObject(tokens_t& tokens,
                                                                   Option *option,
                                                                   Server **server,
                                                                   Route **route,
@@ -212,7 +212,7 @@ void                                    Config::_mapTokenToObject(tokens_t& toke
     std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
 }
 
-Config::Option::map_config_t&           Config::_getConfigMap(void)
+Config::Option::map_config_t&   Config::_getConfigMap(void)
 {
     static Option::map_config_t   config_map;
 

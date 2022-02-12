@@ -47,8 +47,8 @@ public:
 protected:
     static Config                   *handle;
 
-/* don't implement constructors and assignment since singleton */
-Config(void);
+    /* don't implement constructors and assignment since singleton */
+    Config(void);
 
 public:
     /* implement a singleton pattern since Config references 1 file */
