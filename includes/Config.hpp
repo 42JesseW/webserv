@@ -27,8 +27,6 @@ private:
     std::vector<Server>         m_servers;
 
 private:
-    /* don't implement constructors and assignment since singleton */
-    Config(void);
     Config(Config const& config);
 
     void    operator = (const Config& config);
@@ -46,6 +44,13 @@ public:
 
     ~Config(void);
 
+protected:
+    static Config                   *handle;
+
+/* don't implement constructors and assignment since singleton */
+Config(void);
+
+public:
     /* implement a singleton pattern since Config references 1 file */
     static Config&                  getHandle(void);
 

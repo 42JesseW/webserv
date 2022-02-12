@@ -95,6 +95,9 @@ TEST_CASE(".loadFile() with file that is valid")
     std::remove(file_name.c_str());
 }
 
+/*
+ * ( Check invalid brackets )
+ */
 TEST_CASE(".loadFile() with file that has invalid brackets [1]")
 {
     std::string     file_name("BRACKETS_FILE");
@@ -152,3 +155,52 @@ TEST_CASE(".loadFile() with file that has invalid brackets [3]")
     CHECK_THROWS(Config::getHandle().loadFile());
     std::remove(file_name.c_str());
 }
+
+/*
+ * ( Check with wrong directives )
+ * - Non-existing directives
+ * - Directives in the wrong level
+ * - Directives with invalid amount of arguments
+ * - Directives with invalid argument type
+ */
+
+TEST_CASE(".loadFile() with directives in the wrong place [3]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "    server {\n"
+        "\n"
+        "            }\n"
+        "        }\n"
+        "    {\n"
+        "    }\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+/*
+ * ( Check missing directives with defaults )
+ */
+
+/*
+ * ( Check missing directives without defaults )
+ * - http is required
+ * - Only http block is allowed
+ * - http block needs at least 1 server
+ * - server needs at least 1 route
+ */
+
+/*
+ * ( Check multiple route within server )
+ */
+
+/*
+ * ( Check multiple server blocks )
+ */

@@ -30,6 +30,7 @@ Config::Option  *Config::m_option_cgi_extension = &option_cgi_extension;
 Config::Option  *Config::m_option_upload_path = &option_upload_path;
 Config::Option  *Config::m_option_return = &option_return;
 
+Config          *Config::handle = NULL;
 int             Config::m_client_max_body_size = DFL_MAX_BODY_SIZE;
 
 Config::Config(void)
@@ -39,13 +40,14 @@ Config::Config(void)
 
 Config::~Config(void)
 {
-
+    /* can be done safely since only created once */
+    delete Config::handle;
 }
 
 Config&                         Config::getHandle()
 {
-    static Config   singletonInstance;
-    return (singletonInstance);
+    if (!handle) handle = new Config;
+    return (*handle);
 }
 
 std::string&                    Config::getFilePath(void)
@@ -78,6 +80,8 @@ void                            Config::loadFile(void)
     if (m_file_path.empty())
         throw std::logic_error("File path is not yet set");
 
+    m_servers.clear();
+
     /* set this ifstream instance to throw if opening file fails */
     file_handle.exceptions( std::ifstream::badbit | std::ifstream::failbit );
     file_handle.open(m_file_path.c_str());
@@ -98,7 +102,7 @@ void                            Config::loadFile(void)
 
 /*
  * Gradually add components to the Config class using
- * using the provided tokens read from the file.
+ * the provided tokens read from the file.
  *
  * Will throw std::invalid_argument in the following cases:
  * - Invalid brackets (i.e. not closing or invalid order)
