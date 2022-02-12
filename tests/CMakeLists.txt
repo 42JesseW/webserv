@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(${PROJECT_SOURCE_DIR}/includes .)
 
-file(GLOB_RECURSE TEST_SOURCES ../srcs/Config.cpp ../srcs/Route.cpp ../srcs/Socket.cpp ../srcs/Server.cpp ../srcs/Utils.cpp ../srcs/Option.cpp)
+file(GLOB_RECURSE TEST_SOURCES ../srcs/*.cpp ../srcs/**/*.cpp)
 
 add_library(tester STATIC ${TEST_SOURCES})
 

@@ -156,7 +156,7 @@ void                            Config::_mapTokens(tokens_t& tokens)
                 }
                 else
                 {
-                    std::cout << tokens.front() << '\n';
+                    //std::cout << tokens.front() << '\n';
                     option = (*it).second;
                     if (parse_level != option->getParseLevel())
                     {
@@ -209,7 +209,7 @@ void                            Config::_mapTokenToObject(tokens_t& tokens,
         default:
             break ;
     }
-    std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
+    //std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
 }
 
 Config::Option::map_config_t&   Config::_getConfigMap(void)

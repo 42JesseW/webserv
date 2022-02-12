@@ -2,8 +2,7 @@
 
 # define SERVER_HPP
 
-# define MAX_RECV_LINE  4096
-# define POLL_NO_TIMEOUT   -1
+# define POLL_NO_TIMEOUT (-1)
     
 # include "Route.hpp"
 # include "Socket.hpp"
@@ -41,7 +40,7 @@ public:
 
 private:
     void                        addToPfds(int client_socket);
-    void                        delFromPfds(int i);
+
 };
 
 namespace ft {

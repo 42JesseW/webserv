@@ -13,7 +13,8 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include "Common.hpp"
+# include <Common.hpp>
+# include <cstring>
 
 # define BUFF_SIZE 1024
 # define CR '\r'

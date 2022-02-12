@@ -103,6 +103,7 @@ int                         Server::doPolling(void)
 				}
                 else
 					handleConnection(m_pfds[i].fd);
+                usleep(2000);
             }
 
 			if (m_pfds[i].revents & POLLOUT &&

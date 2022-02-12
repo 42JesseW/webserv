@@ -5,7 +5,7 @@
 # define DFL_CONFIG_FILE_PATH "default.conf"
 # define DFL_MAX_BODY_SIZE 1
 # define DFL_SERVER_HOST "*"                    /* translates to INADDR_ANY 0.0.0.0 */
-# define DFL_SERVER_PORT 80                     /* HTTP default port */
+# define DFL_SERVER_PORT 8080                   /* HTTP default port */
 
 # include <map>
 # include <stack>
