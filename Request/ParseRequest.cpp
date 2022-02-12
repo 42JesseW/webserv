@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/02/02 14:06:29 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/11 16:46:23 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/12 12:30:18 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,17 @@
 void Request::handleRequest(int client_socket)
 {
 	char    buffer[BUFF_SIZE];
-	int     bytes_read;
+	int     bytes_read = 0;
 
-	while ((bytes_read = recv(client_socket, buffer, BUFF_SIZE, 0)) > 0)
+	while ((bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT)) > 0)
 	{
 		m_request.append(buffer, bytes_read);
 		std::memset(buffer, 0, BUFF_SIZE);
 	}
-	if (!m_request.empty())
-	{
-		divideRequest();
-		errorChecking();
-	}
-	else
-	{
+	if (bytes_read == -1)
 		m_status = 400;
-	}
+	divideRequest();
+	errorChecking();
 }
 
 void Request::divideRequest()

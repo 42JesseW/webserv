@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 15:48:08 by kfu           ########   odam.nl         */
+/*   Updated: 2022/02/12 12:21:32 by katherine     ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "Common.hpp"
 
-# define BUFF_SIZE 1024
+# define BUFF_SIZE 2048
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
