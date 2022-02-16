@@ -1,5 +1,7 @@
 #include "Config.hpp"
 #include "Server.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
 #include <sys/poll.h>
 
 #define SERVER_PORT 18000

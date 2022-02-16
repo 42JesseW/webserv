@@ -6,7 +6,8 @@
 class DeleteResponse : public Response
 {
 	public:
-		void	handleMethod();
+		int		handleMethod();
+		void	buildStartLine();
 };
 
 #endif

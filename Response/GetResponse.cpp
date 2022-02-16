@@ -5,6 +5,7 @@ GetResponse::GetResponse() {}
 GetResponse::GetResponse(const Request &r)
 {
 	m_request = r;
+	std::cout << "GET REQUEST OBJECT CREATED." << std::endl;
 }
 
 GetResponse::GetResponse(const GetResponse &copy)

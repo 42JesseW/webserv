@@ -6,8 +6,8 @@
 class PostResponse : public Response
 {
 	public:
-		void			handleMethod();
-		std::string		buildStartLine();
+		int				handleMethod();
+		void			buildStartLine();
 };
 
 #endif

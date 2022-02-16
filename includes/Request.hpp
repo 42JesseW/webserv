@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/12 12:21:32 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/16 16:44:17 by dgiannop      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Request
 
 		// Getters
 		std::string							getRequest();
-		std::string 						getMethod();
+		std::string const &	 				getMethod() const;
 		std::map<std::string, std::string>	getHeaders();
 		std::string							getBody();
 		int									getStatus();

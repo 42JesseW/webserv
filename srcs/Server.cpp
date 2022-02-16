@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "Request.hpp"
 
 Server::Server() {}
 
@@ -78,7 +77,7 @@ void						Server::handleErrorEvents(int i, pollfd_vec_t::iterator iter)
 	}
 }
 
-void                        Server::handlePollin(int i)
+void                        Server::handlePollin(int i, Request *new_request)
 {
 	if (m_pfds[i].revents & POLLIN)
 	{
@@ -91,15 +90,22 @@ void                        Server::handlePollin(int i)
 			}
 		}
 		else
-			handleConnection(m_pfds[i].fd);
+			handleConnection(m_pfds[i].fd, new_request);
 		usleep(2000);
 	}
 }
 
-void						Server::handlePollout(int i, pollfd_vec_t::iterator iter)
+void						Server::handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request)
 {
 	if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
 	{
+        std::cout << "REQUEST METHOD IS " << new_request->getMethod() << std::endl;
+		if (new_request->getMethod() == "GET")
+            GetResponse get_response(*new_request);
+		// else if (new_request.getMethod() == "POST")
+        //     PostResponse post_response;
+		// else if (new_request.getMethod() == "DELETE")
+		// 	DeleteResponse	delete_response;
 		char buff[4096];
                 
 		// to be replaced with response object creation
@@ -114,6 +120,7 @@ int                         Server::doPolling(void)
 {
     pollfd_vec_t::iterator		iter;
     struct pollfd				pollfds;
+	Request						new_request;
 
     pollfds.fd = m_sock.getFileDescriptor();
     pollfds.events = POLLIN;
@@ -132,8 +139,8 @@ int                         Server::doPolling(void)
         for (size_t i = 0; i < m_pfds.size(); i++)
         {
 			handleErrorEvents(i, iter);
-            handlePollin(i);
-            handlePollout(i, iter);
+            handlePollin(i, &new_request);
+            handlePollout(i, iter, &new_request);
 			iter++;
         }
     }
@@ -178,11 +185,9 @@ int                         Server::acceptNewConnection(void)
     return (SOCK_SUCCESS);
 }
 
-void						Server::handleConnection(int client_socket)
+void						Server::handleConnection(int client_socket, Request *new_request)
 {
-    Request new_request;
-
-    new_request.handleRequest(client_socket);
+    new_request->handleRequest(client_socket);
     std::cout << "Succes!" << std::endl;
     // new_request.printRequest();
 }

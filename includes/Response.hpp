@@ -27,7 +27,7 @@ class Response
 		// std::string								getStartLine();
 		// std::map<std::string, std::string>		getHeaders();
 		// std::string								getBody();
-		std::string								getResponse();
+		std::string const &							getResponse() const;
 
 		// For each child class to define
 		virtual int								handleMethod() = 0;

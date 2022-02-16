@@ -25,12 +25,12 @@ Response & Response::operator=(const Response &copy)
 	return (*this);
 }
 
-std::string Response::getResponse()
+std::string const &		Response::getResponse() const
 {
 	return (m_response);
 }
 
-void		Response::buildResponse()
+void					Response::buildResponse()
 {
 	handleMethod();
 	buildStartLine();

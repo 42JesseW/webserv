@@ -8,6 +8,11 @@
 # include "Route.hpp"
 # include "Socket.hpp"
 # include "Client.hpp"
+# include "Request.hpp"
+# include "Response.hpp"
+# include "GetResponse.hpp"
+# include "PostResponse.hpp"
+# include "DeleteResponse.hpp"
 
 # include <vector>
 # include <map>
@@ -38,13 +43,13 @@ public:
 	int							doPolling(void);
 
     int							acceptNewConnection(void);
-    void						handleConnection(int client_socket);
+    void						handleConnection(int client_socket, Request *new_request);
 
 private:
     void                        addToPfds(int client_socket);
     void						handleErrorEvents(int i, pollfd_vec_t::iterator iter);
-    void						handlePollin(int i);
-	void						handlePollout(int i, pollfd_vec_t::iterator iter);
+    void						handlePollin(int i, Request *new_request);
+	void						handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request);
 };
 
 namespace ft {

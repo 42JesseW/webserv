@@ -7,7 +7,10 @@ SRC =	main.cpp\
 		srcs/Client.cpp\
 		Request/ParseRequest.cpp\
 		Request/ErrorHandling.cpp\
-		Request/Request.cpp
+		Request/Request.cpp\
+		Response/GetResponse.cpp\
+		Response/Response.cpp\
+		Response/StatusCodes.cpp
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)

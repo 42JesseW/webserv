@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:27:00 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 13:57:54 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/16 17:03:24 by dgiannop      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,14 @@ Request::~Request() {}
 Request & Request::operator=(const Request &copy)
 {
 	if (this != &copy)
-		*this = copy;
+	{
+		m_status = copy.m_status;
+		m_method = copy.m_method;
+		m_target = copy.m_target;
+		m_version = copy.m_version;
+		m_headers = copy.m_headers;
+		m_body = copy.m_body;
+	}
 	return (*this);
 }
 
@@ -38,7 +45,7 @@ std::string Request::getRequest()
 	return (m_request);
 }
 
-std::string  Request::getMethod()
+std::string const&  Request::getMethod() const
 {
 	return (m_method);
 }
