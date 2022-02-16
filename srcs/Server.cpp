@@ -99,18 +99,17 @@ void						Server::handlePollout(int i, pollfd_vec_t::iterator iter, Request *new
 {
 	if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
 	{
-        std::cout << "REQUEST METHOD IS " << new_request->getMethod() << std::endl;
-		if (new_request->getMethod() == "GET")
-            GetResponse get_response(*new_request);
-		// else if (new_request.getMethod() == "POST")
-        //     PostResponse post_response;
-		// else if (new_request.getMethod() == "DELETE")
-		// 	DeleteResponse	delete_response;
-		char buff[4096];
-                
-		// to be replaced with response object creation
-		snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-		send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
+		// if (new_request->getMethod() == "GET")
+            GetResponse new_response(*new_request);
+		// else if (new_request->getMethod() == "POST")
+        //     PostResponse new_response(*new_request);
+		// else if (new_request->getMethod() == "DELETE")
+		// 	DeleteResponse	new_response(*new_request);
+
+        new_response.buildResponse();
+		// char buff[4096];
+
+		send(m_pfds[i].fd, new_response.getResponse().c_str(), new_response.getResponse().length(), 0);
 		close(m_pfds[i].fd);
 		m_pfds.erase(iter);
 	}

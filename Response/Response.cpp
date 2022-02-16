@@ -34,5 +34,7 @@ void					Response::buildResponse()
 {
 	handleMethod();
 	buildStartLine();
+	buildBody();
 	// m_response = m_start_line + m_headers + m_body;
+	m_response = m_start_line + "\r\n\r\n" + m_body;
 }

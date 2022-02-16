@@ -10,6 +10,7 @@ class GetResponse : public Response
 	private:
 		StatusCodes		m_status_map;
 		int				m_status_code;
+		std::string		m_response;
 
 	public:
 		GetResponse();
@@ -22,7 +23,7 @@ class GetResponse : public Response
 		int					handleMethod();
 		void				buildStartLine();
 		// void				buildHeaders();
-		// void				buildBody();
+		void				buildBody();
 
 		static std::string	ft_itos(int nbr);
 };
