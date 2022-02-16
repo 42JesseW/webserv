@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 18:52:57 by dgiannop      ########   odam.nl         */
+/*   Updated: 2022/02/16 12:56:47 by dgiannop      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "Common.hpp"
 
-# define BUFF_SIZE 1024
+# define BUFF_SIZE 2048
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
@@ -30,6 +30,7 @@ class Request
 		std::string								m_version;
 		std::string								m_request;
 		std::map<std::string, std::string>		m_headers;
+		int										m_port;
 		std::string								m_body;
 
 	public:

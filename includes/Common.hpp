@@ -6,7 +6,7 @@
 /*   By: kfu <kfu@student.codam.nl>                   +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/29 17:14:05 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/09 14:00:41 by katherine     ########   odam.nl         */
+/*   Updated: 2022/02/11 15:55:36 by kfu           ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 # include <netdb.h>
 # include <iostream>
 # include <fstream>
+#include <sstream>
 # include <map>
 # include <vector>
 

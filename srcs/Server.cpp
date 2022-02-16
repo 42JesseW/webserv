@@ -97,7 +97,9 @@ int                         Server::doPolling(void)
                     }
 				}
                 else
-					handleConnection(m_pfds[i].fd);
+                {
+					handleConnection(m_pfds[i].fd, iter);
+                }
                 usleep(2000);
             }
 
@@ -170,5 +172,6 @@ void						Server::handleConnection(int client_socket)
     Request new_request;
 
     new_request.handleRequest(client_socket);
+    std::cout << "Succes!" << std::endl;
     // new_request.printRequest();
 }
