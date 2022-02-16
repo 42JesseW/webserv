@@ -98,7 +98,7 @@ int                         Server::doPolling(void)
 				}
                 else
                 {
-					handleConnection(m_pfds[i].fd, iter);
+					handleConnection(m_pfds[i].fd);
                 }
                 usleep(2000);
             }
@@ -111,7 +111,7 @@ int                         Server::doPolling(void)
                 snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
                 send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
                 close(m_pfds[i].fd);
-		        // m_pfds.erase(iter);
+		        m_pfds.erase(iter);
 			}
 			iter++;
         }

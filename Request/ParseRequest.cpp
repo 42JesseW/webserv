@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   ParseRequest.cpp                                   :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: kfu <kfu@student.codam.nl>                   +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/02/02 14:06:29 by kfu           #+#    #+#                 */
-/*   Updated: 2022/02/16 12:56:57 by dgiannop      ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Request.hpp"
 
 void Request::handleRequest(int client_socket)
@@ -88,20 +76,20 @@ void Request::parseAndSetHeaders()
 	}
 }
 
-void Request::printRequest()
-{
-	std::cout << "------------------ START LINE ------------------" << std::endl;
-	std::cout << "Method: " << m_method << std::endl;
-	std::cout << "Target: " << m_target << std::endl;
-	std::cout << "Query: " << m_query << std::endl;
-	std::cout << "Version: " << m_version << std::endl;
+// void Request::printRequest()
+// {
+// 	std::cout << "------------------ START LINE ------------------" << std::endl;
+// 	std::cout << "Method: " << m_method << std::endl;
+// 	std::cout << "Target: " << m_target << std::endl;
+// 	std::cout << "Query: " << m_query << std::endl;
+// 	std::cout << "Version: " << m_version << std::endl;
 
-	std::cout << "------------------ HEADERS ------------------" << std::endl;
-	std::cout << "Port: " << m_port << std::endl;
-	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
-		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
+// 	std::cout << "------------------ HEADERS ------------------" << std::endl;
+// 	std::cout << "Port: " << m_port << std::endl;
+// 	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
+// 		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 
-	std::cout << "------------------ BODY ------------------" << std::endl;
-	std::cout << m_body << std::endl;
-	std::cout << "------------------ END ------------------" << std::endl;
-}
+// 	std::cout << "------------------ BODY ------------------" << std::endl;
+// 	std::cout << m_body << std::endl;
+// 	std::cout << "------------------ END ------------------" << std::endl;
+// }
