@@ -11,17 +11,15 @@ SRC =	main.cpp\
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)
-CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address 
-
-CC = clang++
+CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address 
 
 all: $(NAME)
 
 $(NAME):	$(OBJS)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
 
 %.o:	%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@ -I includes
+	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
 
 clean:
 	rm -f $(OBJS)

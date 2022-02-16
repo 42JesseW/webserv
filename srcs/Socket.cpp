@@ -37,7 +37,9 @@ Socket&     Socket::operator = (const Socket &sock)
         m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
         m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
         m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
-        m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
+        #ifdef __APPLE
+            m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
+		#endif
     }
     return (*this);
 }

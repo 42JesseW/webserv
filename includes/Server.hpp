@@ -13,6 +13,8 @@
 # include <map>
 # include <poll.h>
 
+typedef std::vector<struct pollfd> pollfd_vec_t;
+
 class Server
 {
 private:
@@ -20,7 +22,7 @@ private:
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
     std::map<int, Client>       m_clients;
-    std::vector<struct pollfd>	m_pfds;
+    pollfd_vec_t                m_pfds;
 
 public:
     Server();
@@ -40,7 +42,7 @@ public:
 
 private:
     void                        addToPfds(int client_socket);
-    void                        delFromPfds(int i);
+    void						handleErrorEvents(int i, pollfd_vec_t::iterator iter);
 };
 
 namespace ft {

@@ -57,14 +57,35 @@ int                         Server::initListener(const std::string& host)
     return (SOCK_SUCCESS);
 }
 
+void                 		Server::addToPfds(int client_socket)
+{
+    struct pollfd	pollfds;
+
+    pollfds.fd = client_socket;
+    pollfds.events = (POLLIN | POLLOUT);
+    pollfds.revents = 0;
+    m_pfds.push_back(pollfds);
+}
+
+void						Server::handleErrorEvents(int i, pollfd_vec_t::iterator iter)
+{
+    if ((m_pfds[i].revents & (POLLERR | POLLNVAL)) || ((m_pfds[i].revents & POLLHUP) 
+			&& !(m_pfds[i].revents & POLLIN)))
+	{
+		/* handle flags */
+		close(m_pfds[i].fd);
+		m_pfds.erase(iter);
+	}
+}
+
 int                         Server::doPolling(void)
 {
-    std::vector<struct pollfd>::iterator    iter;
-    struct pollfd                           listen_socket_pollfd;
+    pollfd_vec_t::iterator		iter;
+    struct pollfd				pollfds;
 
-    listen_socket_pollfd.fd = m_sock.getFileDescriptor();
-    listen_socket_pollfd.events = POLLIN;
-    m_pfds.push_back(listen_socket_pollfd);
+    pollfds.fd = m_sock.getFileDescriptor();
+    pollfds.events = POLLIN;
+    m_pfds.push_back(pollfds);
 
     for (;;)
     {
@@ -78,14 +99,7 @@ int                         Server::doPolling(void)
     	iter = m_pfds.begin();
         for (size_t i = 0; i < m_pfds.size(); i++)
         {
-            if ((m_pfds[i].revents & (POLLERR | POLLNVAL)) || 
-                ((m_pfds[i].revents & POLLHUP) && !(m_pfds[i].revents & POLLIN)))
-			{
-				/* handle flags */
-		        close(m_pfds[i].fd);
-		        m_pfds.erase(iter);
-			}
-
+			handleErrorEvents(i, iter);
             if (m_pfds[i].revents & POLLIN)
             {
                 if (m_pfds[i].fd == m_sock.getFileDescriptor())
@@ -117,16 +131,6 @@ int                         Server::doPolling(void)
         }
     }
     return (SOCK_SUCCESS);
-}
-
-void                 		Server::addToPfds(int client_socket)
-{
-    struct pollfd	client_socket_pollfd;
-
-    client_socket_pollfd.fd = client_socket;
-    client_socket_pollfd.events = (POLLIN | POLLOUT);
-    client_socket_pollfd.revents = 0;
-    m_pfds.push_back(client_socket_pollfd);
 }
 
 int                         Server::acceptNewConnection(void) 
