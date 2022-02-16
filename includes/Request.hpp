@@ -1,18 +1,36 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        ::::::::            */
+/*   Request.hpp                                        :+:    :+:            */
+/*                                                     +:+                    */
+/*   By: katherine <katherine@student.codam.nl>       +#+                     */
+/*                                                   +#+                      */
+/*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
+/*   Updated: 2022/02/12 12:21:32 by katherine     ########   odam.nl         */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
 # include "Common.hpp"
 
-# define BUFF_SIZE 1024
-# define ENDLINE '\n'
+# define BUFF_SIZE 2048
+# define CR '\r'
+# define LF '\n'
+# define ALLOWED_VERSION "HTTP/1.1"
 
 class Request
 {
 	private:
-		e_Method 								m_method;
+		int										m_status;
+		std::string								m_target;
+		std::string								m_query;
+		std::string 							m_method;
+		std::string								m_version;
 		std::string								m_request;
-		std::string								m_start_line;
 		std::map<std::string, std::string>		m_headers;
+		int										m_port;
 		std::string								m_body;
 
 	public:
@@ -24,20 +42,24 @@ class Request
 
 		// Getters
 		std::string							getRequest();
-		e_Method							getMethod();
-		std::string							getStartLine();
+		std::string 						getMethod();
 		std::map<std::string, std::string>	getHeaders();
 		std::string							getBody();
+		int									getStatus();
 
 		// Parsing
-		void								copyRequest(int socket);
+		void								handleRequest(int client_socket);
 		void								divideRequest();
 		void 								parseAndSetStartLine();
 		void 								parseAndSetHeaders();
 		
+		// Error handling
+		void								errorChecking();
+		void								checkStatusLine();
+		void								checkHeaders();
+
 		// Utils
 		void								printRequest();
-		void								initMethod();
 };
 
 #endif

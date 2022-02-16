@@ -1,1 +1,0 @@
-/bin/clang++-10  -g  -rdynamic CMakeFiles/webserv.dir/main.cpp.o CMakeFiles/webserv.dir/srcs/Client.cpp.o CMakeFiles/webserv.dir/srcs/Server.cpp.o CMakeFiles/webserv.dir/srcs/Socket.cpp.o CMakeFiles/webserv.dir/srcs/Route.cpp.o  -o webserv 

@@ -17,6 +17,7 @@
 # include <netdb.h>
 # include <iostream>
 # include <fstream>
+#include <sstream>
 # include <map>
 # include <vector>
 
@@ -24,14 +25,6 @@
 # define MAXLINE 4096
 # define SA struct sockaddr
 # define forever for(;;)
-
-typedef enum e_Method
-{
-	GET,
-	POST,
-	DELETE,
-	INVALID
-} e_Method;
 
 void err_n_die(const char *fmt, ...);
 

@@ -1,15 +1,22 @@
-#include "includes/GetResponse.hpp"
+#include "Config.hpp"
+#include "Server.hpp"
+#include <sys/poll.h>
+
+#define SERVER_PORT 18000
 
 int     main(void)
 {
-    Request     req_object;
-    
-    int fd = open("RequestFile.txt", O_RDONLY);
-    req_object.copyRequest(fd);
+    Server      default_server;
+    std::string host;       // should come from "listen" directive
+    std::string dfl_port = "1800";
 
-    GetResponse res_object(req_object);
+    host += DFL_SERVER_HOST;
+    host += ":";
+    host += dfl_port;
+    std::cout << "Connecting to " << host << '\n';
+    default_server.initListener(host);
 
-    res_object.buildResponse();
+    default_server.doPolling();
 
     return (EXIT_SUCCESS);
 }

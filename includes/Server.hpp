@@ -13,14 +13,7 @@
 # include <map>
 # include <poll.h>
 
-struct polling_opts
-{
-    struct pollfd	            *pfds;
-    int							fd_count;
-    int                         connections;
-    int                         flag;
-	int							fd_size;            
-};
+typedef std::vector<struct pollfd> pollfd_vec_t;
 
 class Server
 {
@@ -29,7 +22,7 @@ private:
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
     std::map<int, Client>       m_clients;
-	struct polling_opts			m_poll;
+    pollfd_vec_t                m_pfds;
 
 public:
     Server();
@@ -45,11 +38,13 @@ public:
 	int							doPolling(void);
 
     int							acceptNewConnection(void);
-    void						handleConnection(int client_socket, int i);
+    void						handleConnection(int client_socket);
 
 private:
     void                        addToPfds(int client_socket);
-    void                        delFromPfds(int i);
+    void						handleErrorEvents(int i, pollfd_vec_t::iterator iter);
+    void						handlePollin(int i);
+	void						handlePollout(int i, pollfd_vec_t::iterator iter);
 };
 
 namespace ft {
