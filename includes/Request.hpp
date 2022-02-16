@@ -6,7 +6,7 @@
 /*   By: katherine <katherine@student.codam.nl>       +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/31 10:04:57 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 17:25:22 by dgiannop      ########   odam.nl         */
+/*   Updated: 2022/02/11 18:52:57 by dgiannop      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class Request
 		void								checkHeaders();
 
 		// Utils
-		// void								printRequest();
+		void								printRequest();
 };
 
 #endif
