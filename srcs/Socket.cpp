@@ -1,6 +1,10 @@
-#include "../includes/Socket.hpp"
+#include <Socket.hpp>
+#include <Server.hpp>
 
-Socket::Socket() : m_sock_fd(SOCK_FD_EMPTY)
+Socket::Socket() :
+    m_sock_fd(SOCK_FD_EMPTY),
+    m_address(DFL_SERVER_HOST),
+    m_port(DFL_SERVER_PORT)
 {
 
 }
@@ -9,14 +13,6 @@ Socket::Socket() : m_sock_fd(SOCK_FD_EMPTY)
 Socket::Socket(const Socket &sock)
 {
     *this = sock;
-}
-
-/* create new socket object from existing data */
-Socket::Socket(int sock_fd, struct sockaddr_in sock_addr) :
-    m_sock_fd(sock_fd),
-    m_sock_addr(sock_addr)  // TODO safe??
-{
-
 }
 
 Socket::~Socket()
@@ -40,8 +36,22 @@ Socket&     Socket::operator = (const Socket &sock)
 #ifdef __APPLE__
         m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
 #endif
+        m_address = sock.m_address;
+        m_port = sock.m_port;
     }
     return (*this);
+}
+
+/* overwrite default address */
+void    Socket::setAddress(const std::string &address)
+{
+    m_address = address;
+}
+
+/* overwrite default port */
+void    Socket::setPort(unsigned short port)
+{
+    m_port = port;
 }
 
 /*
@@ -50,7 +60,7 @@ Socket&     Socket::operator = (const Socket &sock)
 ** https://beej.us/guide/bgnet/html/#system-calls-or-bust
 */
 
-int        Socket::init(const std::string& address, const short sin_port)
+int        Socket::init()
 {
     int yes;
 
@@ -61,13 +71,13 @@ int        Socket::init(const std::string& address, const short sin_port)
         throw std::runtime_error(std::string(__func__) + ": Failed to create socket.");
     }
 
-    std::cout << "Socket::init -> " << address << ":" << sin_port << std::endl;
+    std::cout << "Socket::init -> " << m_address << ":" << m_port << std::endl;
     std::memset(&m_sock_addr, 0, sizeof(m_sock_addr));
     m_sock_addr.sin_family      = AF_INET;          /* IPv4 */
-    m_sock_addr.sin_port        = htons(sin_port);
+    m_sock_addr.sin_port        = htons(m_port);
     m_sock_addr.sin_addr.s_addr = INADDR_ANY;       /* listen for anything 0.0.0.0 */
-    if (address != "*")
-        m_sock_addr.sin_addr.s_addr = inet_addr(address.c_str());
+    if (m_address != DFL_SERVER_HOST)
+        m_sock_addr.sin_addr.s_addr = inet_addr(m_address.c_str());
 
     /* bind address to currently nameless socket */
     if (m_sock_addr.sin_addr.s_addr == INADDR_NONE ||
@@ -101,7 +111,7 @@ int        Socket::init(const std::string& address, const short sin_port)
     return (SOCK_SUCCESS);
 }
 
-int       Socket::getFileDescriptor()
+int&        Socket::getFd()
 {
     return (m_sock_fd);
 }

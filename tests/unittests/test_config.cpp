@@ -8,60 +8,57 @@
 #define SYS_ERROR (-1)
 
 static std::string  basic_conf = ""
-         "# start the configuration file. Only one http block is allowed\n"
-         "http {\n"
-         "\n"
-         "\t# describes the maximum body size of a request in MB\n"
-         "\tclient_max_body_size 10\n"
-         "\n"
-         "\t# error page in the form \"error_page <http_error_number> <full_path_to_file>.html\"\n"
-         "\terror_page 400 /full/path/to/file.html\n"
-         "\n"
-         "\t# define a server block\n"
-         "\tserver {\n"
-         "\n"
-         "\t\t# address to listen on in the form <address>:<port>. Only one listen is allowed\n"
-         "\t\tlisten          *:80\n"
-         "\n"
-         "\t\t# server_name(s) used for matching server using \"Host\" Request header\n"
-         "\t\tserver_name     example.org www.example.org\n"
-         "\n"
-         "        # setup a location with a base_pathname to match incoming request\n"
-         "        location / {\n"
-         "\n"
-         "            # HTTP methods allowed for this (only GET POST DELETE are allowed)\n"
-         "            allowed_methods GET POST DELETE\n"
-         "\n"
-         "            # sets the file_path to start looking for requested files\n"
-         "            root            /data/w3\n"
-         "\n"
-         "            # provide directory listing if requested file is not found (either \"on\" or \"off\")\n"
-         "            autoindex       on\n"
-         "\n"
-         "            # default file to answer if the request is a directory\n"
-         "            index           index.html index.htm\n"
-         "\n"
-         "            # possible file extensions for which to pass to CGI\n"
-         "            cgi_extensions  .php .py\n"
-         "\n"
-         "            # file_path of where to upload files. When set will allow uploading files\n"
-         "            upload_path     /data/upload\n"
-         "\n"
-         "            # return a redirect in the form \"return 3<xx> <redirect_url>\"\n"
-         "            return          301 www.google.com\n"
-         "        }\n"
-         "\t}\n"
-         "}";
+             "# start the configuration file. Only one http block is allowed\n"
+             "http {\n"
+             "\n"
+             "\t# define a server block\n"
+             "\tserver {\n"
+             "\n"
+             "\t\t# address to listen on in the form <address>:<port>. Only one listen is allowed\n"
+             "\t\tlisten          *:8082\n"
+             "\n"
+             "\t\t# server_name(s) used for matching server using \"Host\" Request header\n"
+             "\t\tserver_name     example.org www.example.org\n"
+             "\n"
+             "        # describes the maximum body size of a request in MB\n"
+             "        client_max_body_size 10\n"
+             "\n"
+             "        # error page in the form \"error_page <http_error_number> <full_path_to_file>.html\"\n"
+             "        error_page 400 /full/path/to/file.html\n"
+             "\n"
+             "        # setup a location with a base_pathname to match incoming request\n"
+             "        location / {\n"
+             "\n"
+             "            # HTTP methods allowed for this (only GET POST DELETE are allowed)\n"
+             "            allowed_methods GET POST DELETE\n"
+             "\n"
+             "            # sets the file_path to start looking for requested files\n"
+             "            root            /data/w3\n"
+             "\n"
+             "            # provide directory listing if requested file is not found (either \"on\" or \"off\")\n"
+             "            autoindex       on\n"
+             "\n"
+             "            # default file to answer if the request is a directory\n"
+             "            index           index.html index.htm\n"
+             "\n"
+             "            # possible file extensions for which to pass to CGI\n"
+             "            cgi_extensions  .php .py\n"
+             "\n"
+             "            # file_path of where to upload files. When set will allow uploading files\n"
+             "            upload_path     /data/upload\n"
+             "\n"
+             "            # return a redirect in the form \"return 3<xx> <redirect_url>\"\n"
+             "            return          301 www.google.com\n"
+             "        }\n"
+             "\t}\n"
+             "}";
 
 TEST_CASE("Default handle")
 {
-    CHECK(Config::getHandle().getFilePath().empty());
-    // TODO must contain default error pages
-    CHECK(Config::getHandle().getErrorFiles().empty());
     CHECK(Config::getHandle().getServers().empty());
 }
 
-TEST_CASE(".loadFile() without m_file_path")
+TEST_CASE(".loadFile() with default m_file_path")
 {
     CHECK_THROWS(Config::getHandle().loadFile());
 }
@@ -83,12 +80,43 @@ TEST_CASE(".loadFile() with file that has invalid permissions")
     std::remove(file_name.c_str());
 }
 
-TEST_CASE(".loadFile() with file that is valid")
+TEST_CASE(".loadFile() with file that is valid [COMMENTS]")
 {
     std::string     file_name("BRACKETS_FILE");
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
 
     brackets_file << basic_conf;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_NOTHROW(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with file that is valid [CLEAN]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "\t\tlisten          *:8082\n"
+        "\t\tserver_name     example.org www.example.org\n"
+        "        client_max_body_size 10\n"
+        "        error_page 400 /full/path/to/file.html\n"
+        "        location / {\n"
+        "            allowed_methods GET POST DELETE\n"
+        "            root            /data/w3\n"
+        "            autoindex       on\n"
+        "            index           index.html index.htm\n"
+        "            cgi_extensions  .php .py\n"
+        "            upload_path     /data/upload\n"
+        "            return          301 www.google.com\n"
+        "        }\n"
+        "\t}\n"
+        "}";
+
+    REQUIRE(brackets_file.good());
+    brackets_file << invalid_bracket_file_data;
     brackets_file.close();
     Config::getHandle().setFilePath(file_name);
     CHECK_NOTHROW(Config::getHandle().loadFile());
@@ -164,18 +192,121 @@ TEST_CASE(".loadFile() with file that has invalid brackets [3]")
  * - Directives with invalid argument type
  */
 
-TEST_CASE(".loadFile() with directives in the wrong place [3]")
+TEST_CASE(".loadFile() with directives in the wrong place [BASE]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "listen  *:8083\n"
+        "http {\n"
+        "\tserver {\n"
+        "\t\tlisten          *:8082\n"
+        "\t\tserver_name     example.org www.example.org\n"
+        "        client_max_body_size 10\n"
+        "        error_page 400 /full/path/to/file.html\n"
+        "        location / {\n"
+        "            allowed_methods GET POST DELETE\n"
+        "            root            /data/w3\n"
+        "            autoindex       on\n"
+        "            index           index.html index.htm\n"
+        "            cgi_extensions  .php .py\n"
+        "            upload_path     /data/upload\n"
+        "            return          301 www.google.com\n"
+        "        }\n"
+        "\t}\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with directives in the wrong place [HTTP]")
 {
     std::string     file_name("BRACKETS_FILE");
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
-        "    server {\n"
-        "\n"
-        "            }\n"
+        "\tlisten  *:8083\n"
+        "\tserver {\n"
+        "\t\tlisten          *:8082\n"
+        "\t\tserver_name     example.org www.example.org\n"
+        "        client_max_body_size 10\n"
+        "        error_page 400 /full/path/to/file.html\n"
+        "        location / {\n"
+        "            allowed_methods GET POST DELETE\n"
+        "            root            /data/w3\n"
+        "            autoindex       on\n"
+        "            index           index.html index.htm\n"
+        "            cgi_extensions  .php .py\n"
+        "            upload_path     /data/upload\n"
+        "            return          301 www.google.com\n"
         "        }\n"
-        "    {\n"
-        "    }\n"
+        "\t}\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with directives in the wrong place [SERVER]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+            "http {\n"
+            "\tserver {\n"
+            "\t\tlisten          *:8082\n"
+            "\t\tserver_name     example.org www.example.org\n"
+            "        client_max_body_size 10\n"
+            "        root            on\n"
+            "        error_page 400 /full/path/to/file.html\n"
+            "        location / {\n"
+            "            allowed_methods GET POST DELETE\n"
+            "            root            /data/w3\n"
+            "            autoindex       on\n"
+            "            index           index.html index.htm\n"
+            "            cgi_extensions  .php .py\n"
+            "            upload_path     /data/upload\n"
+            "            return          301 www.google.com\n"
+            "        }\n"
+            "\t}\n"
+            "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() with directives in the wrong place [LOCATION]")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "\t\tlisten          *:8082\n"
+        "\t\tserver_name     example.org www.example.org\n"
+        "        client_max_body_size 10\n"
+        "        error_page 400 /full/path/to/file.html\n"
+        "        location / {\n"
+        "            allowed_methods GET POST DELETE\n"
+        "            root            /data/w3\n"
+        "            autoindex       on\n"
+        "            index           index.html index.htm\n"
+        "            server_name     lol.com\n"
+        "            cgi_extensions  .php .py\n"
+        "            upload_path     /data/upload\n"
+        "            return          301 www.google.com\n"
+        "        }\n"
+        "\t}\n"
         "}";
 
     brackets_file << invalid_bracket_file_data;
@@ -186,13 +317,31 @@ TEST_CASE(".loadFile() with directives in the wrong place [3]")
 }
 
 /*
- * ( Check missing directives with defaults )
+ * ( Check defaults )
  */
+TEST_CASE(".loadFile() using only defaults")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "        location / {\n"
+        "        }\n"
+        "\t}\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_NOTHROW(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
 
 /*
  * ( Check missing directives without defaults )
  * - http is required
- * - Only http block is allowed
+ * - Only one http block is allowed
  * - http block needs at least 1 server
  * - server needs at least 1 route
  */

@@ -50,9 +50,11 @@ namespace ft
         return (str);
     }
 
-	/* simple function to convert num into string */
+	/* simple function to convert num into string TODO testcase */
 	std::string		intToString(int num)
 	{
-		return (static_cast<std::ostringstream *>(&(std::ostringstream() << num))->str());
+	    std::ostringstream ss;
+
+		return (static_cast<std::ostringstream *>(&(ss << num))->str());
 	}
 }

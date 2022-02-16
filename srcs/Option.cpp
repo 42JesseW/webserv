@@ -62,16 +62,18 @@ Config::OptionClientMaxBodySize&    Config::OptionClientMaxBodySize::operator = 
 
 void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
 {
-    int size;
+    Server *server;
+    int     size;
 
     (void)obj;
     if (tokens.size() < 2)
         throw std::invalid_argument("failed to parse client_max_body_size: Not enough arguments.");
     tokens.pop_front();
+    server = (Server *)obj;
     size = std::atoi(tokens.front().c_str());
     if (size == 0)
         throw std::invalid_argument("Failed to parse client_max_body_size: Invalid size.");
-    m_client_max_body_size = size;
+    server->setClientMaxBodySize(size);
 }
 
 Config::OptionErrorPage::OptionErrorPage(int parse_level) : Config::Option(parse_level) { }
@@ -89,10 +91,10 @@ Config::OptionErrorPage&     Config::OptionErrorPage::operator = (const Config::
 /* expects a Config* object and two arguments */
 void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
 {
-    Config  *config;
+    Server  *server;
     int status_code;
 
-    config = (Config *)obj;
+    server = (Server *)obj;
     tokens.pop_front();
     if (tokens.size() < 2)
         throw std::invalid_argument("Failed to parse error_page: Not enough arguments.");
@@ -100,7 +102,7 @@ void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
     if (status_code == 0)
         throw std::invalid_argument("Failed to parse error_page: Invalid status_code.");
     tokens.pop_front();
-    config->m_error_files.insert(std::make_pair(status_code, tokens.front()));
+    server->getErrorFiles().insert(std::make_pair(status_code, tokens.front()));
 }
 
 Config::OptionServer::OptionServer(int parse_level) : Config::Option(parse_level) { }
@@ -278,20 +280,17 @@ Config::OptionAllowedMethods&     Config::OptionAllowedMethods::operator = (cons
 
 void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
 {
-    Route                       *route;
-    int                         count;
-    std::vector<std::string>    vec;
+    Route                           *route;
+    int                             count;
+    const std::vector<std::string>  *methods;
 
     count = 0;
-    // TODO refactor to some static definition
-    vec.push_back("GET");
-    vec.push_back("POST");
-    vec.push_back("DELETE");
     tokens.pop_front();
     route = (Route *)obj;
+    methods = &getDefaultMethods();
     while (!(tokens.front() == "\n" || count >= 3)) // TODO testcase
     {
-        if (std::find(vec.begin(), vec.end(), tokens.front()) == vec.end())
+        if (std::find(methods->begin(), methods->end(), tokens.front()) == methods->end())
             throw std::invalid_argument("Failed to parse allowed_methods");
         route->getAcceptedMethods().push_back(tokens.front());
         tokens.pop_front();

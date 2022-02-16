@@ -1,9 +1,10 @@
 #include "Server.hpp"
 #include "Request.hpp"
 
-Server::Server()
+Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
-    m_names.push_back("");
+    m_names.push_back(DFL_SERVER_NAME);
+    // TODO set m_error_files to default
 }
 
 Server::Server(const Server &server) :
@@ -11,6 +12,8 @@ Server::Server(const Server &server) :
     m_names(server.m_names),
     m_routes(server.m_routes),
 	m_clients(server.m_clients),
+	m_error_files(server.m_error_files),
+    m_client_max_body_size(server.m_client_max_body_size),
     m_pfds(server.m_pfds)
 {
 
@@ -26,9 +29,16 @@ Server&     Server::operator = (const Server &server)
         m_names = server.m_names;
         m_routes = server.m_routes;
         m_clients = server.m_clients;
+        m_error_files = server.m_error_files;
+        m_client_max_body_size = server.m_client_max_body_size;
         m_pfds = server.m_pfds;
     }
     return (*this);
+}
+
+int&                        Server::getSockFd()
+{
+    return (m_sock.getFd());
 }
 
 std::vector<std::string>&   Server::getNames()
@@ -41,6 +51,17 @@ std::vector<Route>&         Server::getRoutes()
     return (m_routes);
 }
 
+Server::err_file_map_t&     Server::getErrorFiles()
+{
+    return (m_error_files);
+}
+
+void                        Server::setClientMaxBodySize(unsigned int size)
+{
+    // TODO maybe some bounds ??
+    m_client_max_body_size = size;
+}
+
 int                         Server::initListener(const std::string& host)
 {
     std::stringstream   err_ss;
@@ -50,10 +71,15 @@ int                         Server::initListener(const std::string& host)
     if (ft::count(host.begin(), host.end(), ':') > 1)
         throw std::invalid_argument("Host " + host + " is invalid");
 
-    sin_port = std::atoi(host.substr(host.find(":") + 1).c_str());
+    if (!host.empty())
+    {
+        sin_port = std::atoi(host.substr(host.find(":") + 1).c_str());      // TODO use exception handling here
+        m_sock.setPort(sin_port);
 
-    address = host.substr(0, host.find(":"));
-    if (sin_port == 0 || m_sock.init(address, sin_port) == SOCK_ERROR)
+        address = host.substr(0, host.find(":"));
+        m_sock.setAddress(address);
+    }
+    if (m_sock.init() == SOCK_ERROR)       // m_sock.init throws but never returns SOCK_ERROR
     {
         err_ss << "Failed to create socket on port: " << sin_port;
         /* do some error handling */
@@ -67,7 +93,7 @@ int                         Server::doPolling(void)
     std::vector<struct pollfd>::iterator    iter;
     struct pollfd                           listen_socket_pollfd;
 
-    listen_socket_pollfd.fd = m_sock.getFileDescriptor();
+    listen_socket_pollfd.fd = m_sock.getFd();
     listen_socket_pollfd.events = POLLIN;
     m_pfds.push_back(listen_socket_pollfd);
 
@@ -93,7 +119,7 @@ int                         Server::doPolling(void)
 
             if (m_pfds[i].revents & POLLIN)
             {
-                if (m_pfds[i].fd == m_sock.getFileDescriptor())
+                if (m_pfds[i].fd == m_sock.getFd())
                 {
                     if (acceptNewConnection() < 0)
                     {
@@ -140,7 +166,7 @@ int                         Server::acceptNewConnection(void)
     int     addr_size;
 
     addr_size = sizeof(client_addr);
-    client_socket = accept(m_sock.getFileDescriptor(), (SA *)&client_addr, (socklen_t *)&addr_size);
+    client_socket = accept(m_sock.getFd(), (SA *)&client_addr, (socklen_t *)&addr_size);
     if (client_socket == SOCK_ERROR)
     {
         /* do some error handling */

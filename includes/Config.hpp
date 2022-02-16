@@ -3,9 +3,6 @@
 # define CONFIG_HPP
 
 # define DFL_CONFIG_FILE_PATH "default.conf"
-# define DFL_MAX_BODY_SIZE 1
-# define DFL_SERVER_HOST "*"                    /* translates to INADDR_ANY 0.0.0.0 */
-# define DFL_SERVER_PORT 8080                   /* HTTP default port */
 
 # include <map>
 # include <stack>
@@ -17,13 +14,13 @@
 # include <sstream>
 
 # include <Server.hpp>
+# include <Socket.hpp>
 # include <Utils.hpp>
 
 class Config
 {
 private:
     std::string                 m_file_path;
-    std::map<int, std::string>  m_error_files;
     std::vector<Server>         m_servers;
 
 private:
@@ -55,11 +52,12 @@ public:
     static Config&                  getHandle(void);
 
     std::string&                    getFilePath();
-    std::map<int, std::string>&     getErrorFiles(void);
     std::vector<Server>&            getServers(void);
 
     void                            setFilePath(const std::string& file_path);
     void                            loadFile(void);
+
+    static const std::vector<std::string>&       getDefaultMethods(void);
 
 public:
     class Option
@@ -85,8 +83,6 @@ public:
     };
 
 private:
-    static int                      m_client_max_body_size;
-
     void                            _mapTokens(tokens_t& tokens);
     void                            _mapTokenToObject(tokens_t& tokens,
                                                       Option *option,
@@ -300,6 +296,7 @@ public:
     static Config::Option                   *m_option_return;
 
     static Config::Option::map_config_t&    _getConfigMap(void);
+
 };
 
 #endif

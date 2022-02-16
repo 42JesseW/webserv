@@ -1,10 +1,10 @@
 #include <Config.hpp>
 
 static Config::OptionHttp                   option_http(Config::BASE);
-static Config::OptionClientMaxBodySize      option_client_max_body_size(Config::HTTP);
-static Config::OptionErrorPage              option_error_page(Config::HTTP);
 static Config::OptionServer                 option_server(Config::HTTP);
 static Config::OptionListen                 option_listen(Config::SERVER);
+static Config::OptionClientMaxBodySize      option_client_max_body_size(Config::SERVER);
+static Config::OptionErrorPage              option_error_page(Config::SERVER);
 static Config::OptionServerName             option_server_name(Config::SERVER);
 static Config::OptionLocation               option_location(Config::SERVER);
 static Config::OptionAllowedMethods         option_allowed_methods(Config::LOCATION);
@@ -31,9 +31,8 @@ Config::Option  *Config::m_option_upload_path = &option_upload_path;
 Config::Option  *Config::m_option_return = &option_return;
 
 Config          *Config::handle = NULL;
-int             Config::m_client_max_body_size = DFL_MAX_BODY_SIZE;
 
-Config::Config(void)
+Config::Config(void) : m_file_path(DFL_CONFIG_FILE_PATH)
 {
     // TODO set default error_files here
 }
@@ -55,11 +54,6 @@ std::string&                    Config::getFilePath(void)
     return (m_file_path);
 }
 
-std::map<int, std::string>&     Config::getErrorFiles(void)
-{
-    return (m_error_files);
-}
-
 std::vector<Server>&            Config::getServers(void)
 {
     return (m_servers);
@@ -76,9 +70,6 @@ void                            Config::loadFile(void)
     std::stringstream       buffer;
     std::string             config_data;
     std::deque<std::string> tokens;
-
-    if (m_file_path.empty())
-        throw std::logic_error("File path is not yet set");
 
     m_servers.clear();
 
@@ -138,6 +129,7 @@ void                            Config::_mapTokens(tokens_t& tokens)
         {
             if (brackets.empty() || brackets.top() != '{')
                 throw std::invalid_argument("Invalid brackets in config file");
+            if (parse_level == SERVER && current_server->getSockFd() == SOCK_FD_EMPTY)
             // TODO check if Server | Route object is valid
             // Server needs a valid socket -> m_sock.sock_fd must not be SOCK_FD_EMPTY
             // Server needs at least one Route -> m_routes > 0
@@ -234,4 +226,17 @@ Config::Option::map_config_t&   Config::_getConfigMap(void)
         config_map["return"] = m_option_return;
     }
     return (config_map);
+}
+
+const std::vector<std::string>& Config::getDefaultMethods(void)
+{
+    static std::vector<std::string> methods;
+
+    if (methods.empty())
+    {
+        methods.push_back("GET");
+        methods.push_back("POST");
+        methods.push_back("DELETE");
+    }
+    return (methods);
 }
