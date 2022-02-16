@@ -78,6 +78,38 @@ void						Server::handleErrorEvents(int i, pollfd_vec_t::iterator iter)
 	}
 }
 
+void                        Server::handlePollin(int i)
+{
+	if (m_pfds[i].revents & POLLIN)
+	{
+		if (m_pfds[i].fd == m_sock.getFileDescriptor())
+		{
+			if (acceptNewConnection() < 0)
+			{
+				/* do some error handling */
+				std::exit(EXIT_FAILURE);
+			}
+		}
+		else
+			handleConnection(m_pfds[i].fd);
+		usleep(2000);
+	}
+}
+
+void						Server::handlePollout(int i, pollfd_vec_t::iterator iter)
+{
+	if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
+	{
+		char buff[4096];
+                
+		// to be replaced with response object creation
+		snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
+		send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
+		close(m_pfds[i].fd);
+		m_pfds.erase(iter);
+	}
+}
+
 int                         Server::doPolling(void)
 {
     pollfd_vec_t::iterator		iter;
@@ -100,33 +132,8 @@ int                         Server::doPolling(void)
         for (size_t i = 0; i < m_pfds.size(); i++)
         {
 			handleErrorEvents(i, iter);
-            if (m_pfds[i].revents & POLLIN)
-            {
-                if (m_pfds[i].fd == m_sock.getFileDescriptor())
-                {
-                    if (acceptNewConnection() < 0)
-                    {
-                        /* do some error handling */
-                        std::exit(EXIT_FAILURE);
-                    }
-				}
-                else
-                {
-					handleConnection(m_pfds[i].fd);
-                }
-                usleep(2000);
-            }
-
-			if (m_pfds[i].revents & POLLOUT &&
-                !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
-			{
-				char buff[4096];
-                
-                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-                send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
-                close(m_pfds[i].fd);
-		        m_pfds.erase(iter);
-			}
+            handlePollin(i);
+            handlePollout(i, iter);
 			iter++;
         }
     }
