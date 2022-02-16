@@ -43,8 +43,8 @@ public:
 private:
     void                        addToPfds(int client_socket);
     void						handleErrorEvents(int i, pollfd_vec_t::iterator iter);
-    void						handlePollin(int i)
-	void						handlePollout(int i, pollfd_vec_t::iterator iter)
+    void						handlePollin(int i);
+	void						handlePollout(int i, pollfd_vec_t::iterator iter);
 };
 
 namespace ft {
