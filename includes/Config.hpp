@@ -2,6 +2,7 @@
 
 # define CONFIG_HPP
 
+# define DFL_ERROR_PAGES_PATH "conf/error_pages"
 # define DFL_CONFIG_FILE_PATH "default.conf"
 
 # include <map>
@@ -23,6 +24,8 @@ private:
     std::string                 m_file_path;
     std::vector<Server>         m_servers;
 
+    bool                        m_has_http_set;
+
 private:
     Config(Config const& config);
 
@@ -37,7 +40,9 @@ public:
         LOCATION
     } t_levels;
 
-    typedef std::deque<std::string>         tokens_t;
+    typedef std::deque<std::string>             tokens_t;
+    typedef std::pair<std::string, std::string> status_code_body_t;
+    typedef std::map<int, status_code_body_t>   status_code_map_t;
 
     ~Config(void);
 
@@ -49,15 +54,17 @@ protected:
 
 public:
     /* implement a singleton pattern since Config references 1 file */
-    static Config&                  getHandle(void);
+    static Config&                          getHandle(void);
 
-    std::string&                    getFilePath();
-    std::vector<Server>&            getServers(void);
+    std::string&                            getFilePath();
+    std::vector<Server>&                    getServers(void);
 
-    void                            setFilePath(const std::string& file_path);
-    void                            loadFile(void);
+    void                                    setFilePath(const std::string& file_path);
+    void                                    loadFile(void);
 
-    static const std::vector<std::string>&       getDefaultMethods(void);
+    // TODO create a ConfigUtil singleton instance to store these static datastructures
+    static const std::vector<std::string>&  getDefaultMethods(void);
+    static status_code_map_t&               getStatusCodeMap(void);
 
 public:
     class Option

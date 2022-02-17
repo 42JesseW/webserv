@@ -41,7 +41,12 @@ Config::OptionHttp&     Config::OptionHttp::operator = (const Config::OptionHttp
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
 void            Config::OptionHttp::parse(void *obj, tokens_t &tokens)
 {
+    Config  *config;
 
+    config = (Config*)obj;
+    if (config->m_has_http_set)
+        throw std::invalid_argument("Only one http block is allowed");
+    config->m_has_http_set = true;
 }
 
 /*
@@ -189,6 +194,7 @@ void            Config::OptionListen::_parseArg(const std::string &arg, std::str
             try
             {
                 arg_ss >> *sin_port;
+                address += DFL_SERVER_HOST;
             }
             catch (const std::ios::failure& e)
             {

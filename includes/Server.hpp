@@ -44,9 +44,11 @@ public:
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
     err_file_map_t&             getErrorFiles();
+    unsigned int&               getClientMaxBodySize();
 
     void                        setClientMaxBodySize(unsigned int size);
 
+    int                         initListener(void);
     int                         initListener(const std::string& host);
 	int							doPolling(void);
 

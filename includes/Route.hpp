@@ -2,8 +2,8 @@
 
 # define ROUTE_HPP
 
-# define DFL_FILE_SEARCH_PATH "/"
-# define DFL_INDEX_FILE "index.html"
+# define DFL_FILE_SEARCH_PATH   "/"
+# define DFL_INDEX_FILE         "index.html"
 
 # include <vector>
 # include <string>      // TODO maybe move to more common hpp
@@ -28,17 +28,24 @@ private:
     std::vector<std::string>    m_cgi_file_extensions;
 
 public:
-    Route();
+    Route(void);
     Route(const Route& route);
-    ~Route();
+    ~Route(void);
 
     Route&  operator = (const Route& route);
+
+    std::string&                getBaseUrl(void);
+    std::vector<std::string>&   getAcceptedMethods(void);
+    REDIR*                      getRedir(void);
+    std::string&                getFileSearchPath(void);
+    bool&                       hasAutoIndex(void);
+    std::vector<std::string>&   getIndexFiles(void);
+    std::vector<std::string>&   getCgiFileExtensions(void);
 
     void    setBaseUrl(const std::string& base_url);
     void    setFileSearchPath(const std::string& path);
     void    setAutoIndex(bool on);
 
-    std::vector<std::string>&   getAcceptedMethods();
 };
 
 #endif

@@ -1,5 +1,5 @@
-#include "Server.hpp"
-#include "Request.hpp"
+#include <Server.hpp>
+#include <Request.hpp>
 
 Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
@@ -56,36 +56,40 @@ Server::err_file_map_t&     Server::getErrorFiles()
     return (m_error_files);
 }
 
+unsigned int&               Server::getClientMaxBodySize()
+{
+    return (m_client_max_body_size);
+}
+
 void                        Server::setClientMaxBodySize(unsigned int size)
 {
     // TODO maybe some bounds ??
     m_client_max_body_size = size;
 }
 
+int                         Server::initListener()
+{
+    return (m_sock.init());
+}
+
 int                         Server::initListener(const std::string& host)
 {
-    std::stringstream   err_ss;
+    std::stringstream   num_ss;
     std::string         address;
     short               sin_port;
 
     if (ft::count(host.begin(), host.end(), ':') > 1)
         throw std::invalid_argument("Host " + host + " is invalid");
 
-    if (!host.empty())
-    {
-        sin_port = std::atoi(host.substr(host.find(":") + 1).c_str());      // TODO use exception handling here
-        m_sock.setPort(sin_port);
+    num_ss.exceptions(std::ios::failbit | std::ios::badbit);
+    num_ss << host.substr(host.find(":") + 1);
+    num_ss >> sin_port;
+    m_sock.setPort(sin_port);
 
-        address = host.substr(0, host.find(":"));
-        m_sock.setAddress(address);
-    }
-    if (m_sock.init() == SOCK_ERROR)       // m_sock.init throws but never returns SOCK_ERROR
-    {
-        err_ss << "Failed to create socket on port: " << sin_port;
-        /* do some error handling */
-        throw std::runtime_error(err_ss.str());
-    }
-    return (SOCK_SUCCESS);
+    address = host.substr(0, host.find(":"));
+    m_sock.setAddress(address);
+
+    return (m_sock.init());
 }
 
 int                         Server::doPolling(void)

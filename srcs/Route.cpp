@@ -43,6 +43,41 @@ Route&      Route::operator = (const Route &route)
     return (*this);
 }
 
+std::string&                Route::getBaseUrl(void)
+{
+    return (m_base_url);
+}
+
+std::vector<std::string>&   Route::getAcceptedMethods(void)
+{
+    return (m_accepted_methods);
+}
+
+REDIR*                      Route::getRedir(void)
+{
+    return (m_redir);
+}
+
+std::string&                Route::getFileSearchPath(void)
+{
+    return (m_file_search_path);
+}
+
+bool&                       Route::hasAutoIndex(void)
+{
+    return (m_has_autoindex);
+}
+
+std::vector<std::string>&   Route::getIndexFiles(void)
+{
+    return (m_index_files);
+}
+
+std::vector<std::string>&   Route::getCgiFileExtensions(void)
+{
+    return (m_cgi_file_extensions);
+}
+
 void                        Route::setBaseUrl(const std::string &base_url)
 {
     m_base_url = base_url;
@@ -56,9 +91,4 @@ void                        Route::setFileSearchPath(const std::string &path)
 void                        Route::setAutoIndex(bool on)
 {
     m_has_autoindex = on;
-}
-
-std::vector<std::string>&   Route::getAcceptedMethods(void)
-{
-    return (m_accepted_methods);
 }

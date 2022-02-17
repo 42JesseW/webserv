@@ -321,20 +321,48 @@ TEST_CASE(".loadFile() with directives in the wrong place [LOCATION]")
  */
 TEST_CASE(".loadFile() using only defaults")
 {
+    Config          *config;
+    Server          *server;
+    Route           *route;
     std::string     file_name("BRACKETS_FILE");
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
         "\tserver {\n"
-        "        location / {\n"
+        "        location /base {\n"
         "        }\n"
         "\t}\n"
         "}";
 
     brackets_file << invalid_bracket_file_data;
     brackets_file.close();
-    Config::getHandle().setFilePath(file_name);
-    CHECK_NOTHROW(Config::getHandle().loadFile());
+    config = &Config::getHandle();
+    config->setFilePath(file_name);
+    REQUIRE(config->getFilePath() == file_name);
+    CHECK_NOTHROW(config->loadFile());
+    REQUIRE(config->getServers().size() == 1);
+    for (int idx = 0; idx < config->getServers().size(); ++idx)
+    {
+        server = &config->getServers().at(idx);
+        CHECK(server->getSockFd() != SOCK_FD_EMPTY);
+        REQUIRE(server->getNames().size() == 1);
+        CHECK(server->getNames().at(0) == DFL_SERVER_NAME);
+        // TODO REQUIRE(server->getErrorFiles())
+        CHECK(server->getClientMaxBodySize() == DFL_MAX_BODY_SIZE);
+        REQUIRE(server->getRoutes().size() == 1);
+        for (int i = 0; i < server->getRoutes().size(); ++i)
+        {
+            route = &server->getRoutes().at(i);
+            CHECK(route->getBaseUrl() == "/base");
+            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getRedir() == NULL);
+            CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
+            CHECK(route->hasAutoIndex() == false);
+            CHECK(route->getIndexFiles().size() == 1);
+            CHECK(route->getIndexFiles().at(0) == DFL_INDEX_FILE);
+            CHECK(route->getCgiFileExtensions().empty());
+        }
+    }
     std::remove(file_name.c_str());
 }
 
@@ -345,11 +373,270 @@ TEST_CASE(".loadFile() using only defaults")
  * - http block needs at least 1 server
  * - server needs at least 1 route
  */
+TEST_CASE(".loadFile() http is required")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "server {\n"
+        "    location / {\n"
+        "    }\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() only one http block is allowed")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "        location / {\n"
+        "        }\n"
+        "\t}\n"
+        "}\n"
+        "\n"
+        "http {\n"
+        "\tserver {\n"
+        "        location / {\n"
+        "        }\n"
+        "\t}\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() http block requires at least one server")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\t\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() server block requires at least one location")
+{
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     invalid_bracket_file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "        \n"
+        "\t}\n"
+        "}";
+
+    brackets_file << invalid_bracket_file_data;
+    brackets_file.close();
+    Config::getHandle().setFilePath(file_name);
+    CHECK_THROWS(Config::getHandle().loadFile());
+    std::remove(file_name.c_str());
+}
 
 /*
  * ( Check multiple route within server )
  */
+TEST_CASE(".loadFile() using only defaults multiple routes")
+{
+    Config                      *config;
+    Server                      *server;
+    Route                       *route;
+    std::string                 file_name("BRACKETS_FILE");
+    std::vector<std::string>    postfix = {"one", "two", "three", "four"};
+    std::fstream                brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string                 file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "        location /one {\n"
+        "        }\n"
+        "        location /two {\n"
+        "        }\n"
+        "        location /three {\n"
+        "        }\n"
+        "        location /four {\n"
+        "        }\n"
+        "\t}\n"
+        "}";
+
+    brackets_file << file_data;
+    brackets_file.close();
+    config = &Config::getHandle();
+    config->setFilePath(file_name);
+    REQUIRE(config->getFilePath() == file_name);
+    CHECK_NOTHROW(config->loadFile());
+    REQUIRE(config->getServers().size() == 1);
+    for (int idx = 0; idx < config->getServers().size(); ++idx)
+    {
+        server = &config->getServers().at(idx);
+        CHECK(server->getSockFd() != SOCK_FD_EMPTY);
+        REQUIRE(server->getNames().size() == 1);
+        CHECK(server->getNames().at(0) == DFL_SERVER_NAME);
+        // TODO REQUIRE(server->getErrorFiles())
+        CHECK(server->getClientMaxBodySize() == DFL_MAX_BODY_SIZE);
+        REQUIRE(server->getRoutes().size() == 4);
+        for (int i = 0; i < server->getRoutes().size(); ++i)
+        {
+            route = &server->getRoutes().at(i);
+            CHECK(route->getBaseUrl() == ("/" + postfix[i]));
+            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getRedir() == NULL);
+            CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
+            CHECK(route->hasAutoIndex() == false);
+            CHECK(route->getIndexFiles().size() == 1);
+            CHECK(route->getIndexFiles().at(0) == DFL_INDEX_FILE);
+            CHECK(route->getCgiFileExtensions().empty());
+        }
+    }
+    std::remove(file_name.c_str());
+}
 
 /*
  * ( Check multiple server blocks )
  */
+TEST_CASE(".loadFile() using only defaults multiple servers")
+{
+    Config          *config;
+    Server          *server;
+    Route           *route;
+    std::string     file_name("BRACKETS_FILE");
+    std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string     file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "\t    listen  8080\n"
+        "        location /base {\n"
+        "        }\n"
+        "\t}\n"
+        "    server {\n"
+        "        listen  8081\n"
+        "        location /base {\n"
+        "        }\n"
+        "    }\n"
+        "    server {\n"
+        "        listen  8082\n"
+        "        location /base {\n"
+        "        }\n"
+        "    }\n"
+        "}";
+
+    brackets_file << file_data;
+    brackets_file.close();
+    config = &Config::getHandle();
+    config->setFilePath(file_name);
+    REQUIRE(config->getFilePath() == file_name);
+    CHECK_NOTHROW(config->loadFile());
+    REQUIRE(config->getServers().size() == 3);
+    for (int idx = 0; idx < config->getServers().size(); ++idx)
+    {
+        server = &config->getServers().at(idx);
+        CHECK(server->getSockFd() != SOCK_FD_EMPTY);
+        REQUIRE(server->getNames().size() == 1);
+        CHECK(server->getNames().at(0) == DFL_SERVER_NAME);
+        // TODO REQUIRE(server->getErrorFiles())
+        CHECK(server->getClientMaxBodySize() == DFL_MAX_BODY_SIZE);
+        REQUIRE(server->getRoutes().size() == 1);
+        for (int i = 0; i < server->getRoutes().size(); ++i)
+        {
+            route = &server->getRoutes().at(i);
+            CHECK(route->getBaseUrl() == "/base");
+            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getRedir() == NULL);
+            CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
+            CHECK(route->hasAutoIndex() == false);
+            CHECK(route->getIndexFiles().size() == 1);
+            CHECK(route->getIndexFiles().at(0) == DFL_INDEX_FILE);
+            CHECK(route->getCgiFileExtensions().empty());
+        }
+    }
+    std::remove(file_name.c_str());
+}
+
+TEST_CASE(".loadFile() using only defaults multiple servers and routes")
+{
+    Config                      *config;
+    Server                      *server;
+    Route                       *route;
+    std::string                 file_name("BRACKETS_FILE");
+    std::vector<std::string>    postfix = {"one", "two", "three", "four"};
+    std::fstream                brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
+    std::string                 file_data = ""
+        "http {\n"
+        "\tserver {\n"
+        "\t    listen  8080\n"
+        "        location /one {\n"
+        "        }\n"
+        "        location /two {\n"
+        "        }\n"
+        "        location /three {\n"
+        "        }\n"
+        "\t}\n"
+        "    server {\n"
+        "        listen  8081\n"
+        "        location /one {\n"
+        "        }\n"
+        "        location /two {\n"
+        "        }\n"
+        "    }\n"
+        "    server {\n"
+        "        listen  8082\n"
+        "        location /one {\n"
+        "        }\n"
+        "    }\n"
+        "}";
+
+    brackets_file << file_data;
+    brackets_file.close();
+    config = &Config::getHandle();
+    config->setFilePath(file_name);
+    REQUIRE(config->getFilePath() == file_name);
+    CHECK_NOTHROW(config->loadFile());
+    REQUIRE(config->getServers().size() == 3);
+    for (int idx = 0; idx < config->getServers().size(); ++idx)
+    {
+        server = &config->getServers().at(idx);
+        CHECK(server->getSockFd() != SOCK_FD_EMPTY);
+        REQUIRE(server->getNames().size() == 1);
+        CHECK(server->getNames().at(0) == DFL_SERVER_NAME);
+        // TODO REQUIRE(server->getErrorFiles())
+        CHECK(server->getClientMaxBodySize() == DFL_MAX_BODY_SIZE);
+        REQUIRE(server->getRoutes().size() == (config->getServers().size() - idx));
+        for (int i = 0; i < server->getRoutes().size(); ++i)
+        {
+            route = &server->getRoutes().at(i);
+            CHECK(route->getBaseUrl() == ("/" + postfix[i]));
+            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getRedir() == NULL);
+            CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
+            CHECK(route->hasAutoIndex() == false);
+            CHECK(route->getIndexFiles().size() == 1);
+            CHECK(route->getIndexFiles().at(0) == DFL_INDEX_FILE);
+            CHECK(route->getCgiFileExtensions().empty());
+        }
+    }
+    std::remove(file_name.c_str());
+}
+
+/*
+ * ( Check conflicting blocks)
+ * - server blocks with same ports
+ * - server blocks with same server_names
+ * - location blocks with same base_url
+ */
+
