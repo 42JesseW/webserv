@@ -72,6 +72,8 @@ TEST_CASE(".loadFile() with file that does not exists")
 TEST_CASE(".loadFile() with file that has invalid permissions")
 {
     std::string     file_name("INVALID_FILE");
+
+    std::remove(file_name.c_str());
     std::ofstream   invalid_file(file_name);
 
     REQUIRE(chmod(file_name.c_str(), 0000) != SYS_ERROR);
@@ -83,6 +85,8 @@ TEST_CASE(".loadFile() with file that has invalid permissions")
 TEST_CASE(".loadFile() with file that is valid [COMMENTS]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
 
     brackets_file << basic_conf;
@@ -95,6 +99,8 @@ TEST_CASE(".loadFile() with file that is valid [COMMENTS]")
 TEST_CASE(".loadFile() with file that is valid [CLEAN]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -129,6 +135,8 @@ TEST_CASE(".loadFile() with file that is valid [CLEAN]")
 TEST_CASE(".loadFile() with file that has invalid brackets [1]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -147,6 +155,8 @@ TEST_CASE(".loadFile() with file that has invalid brackets [1]")
 TEST_CASE(".loadFile() with file that has invalid brackets [2]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -166,6 +176,8 @@ TEST_CASE(".loadFile() with file that has invalid brackets [2]")
 TEST_CASE(".loadFile() with file that has invalid brackets [3]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -195,6 +207,8 @@ TEST_CASE(".loadFile() with file that has invalid brackets [3]")
 TEST_CASE(".loadFile() with directives in the wrong place [BASE]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "listen  *:8083\n"
@@ -226,6 +240,8 @@ TEST_CASE(".loadFile() with directives in the wrong place [BASE]")
 TEST_CASE(".loadFile() with directives in the wrong place [HTTP]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -257,6 +273,8 @@ TEST_CASE(".loadFile() with directives in the wrong place [HTTP]")
 TEST_CASE(".loadFile() with directives in the wrong place [SERVER]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
             "http {\n"
@@ -288,6 +306,8 @@ TEST_CASE(".loadFile() with directives in the wrong place [SERVER]")
 TEST_CASE(".loadFile() with directives in the wrong place [LOCATION]")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -325,6 +345,8 @@ TEST_CASE(".loadFile() using only defaults")
     Server          *server;
     Route           *route;
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -376,6 +398,8 @@ TEST_CASE(".loadFile() using only defaults")
 TEST_CASE(".loadFile() http is required")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "server {\n"
@@ -393,6 +417,8 @@ TEST_CASE(".loadFile() http is required")
 TEST_CASE(".loadFile() only one http block is allowed")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -419,6 +445,8 @@ TEST_CASE(".loadFile() only one http block is allowed")
 TEST_CASE(".loadFile() http block requires at least one server")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -435,6 +463,8 @@ TEST_CASE(".loadFile() http block requires at least one server")
 TEST_CASE(".loadFile() server block requires at least one location")
 {
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     invalid_bracket_file_data = ""
         "http {\n"
@@ -460,6 +490,8 @@ TEST_CASE(".loadFile() using only defaults multiple routes")
     Route                       *route;
     std::string                 file_name("BRACKETS_FILE");
     std::vector<std::string>    postfix = {"one", "two", "three", "four"};
+
+    std::remove(file_name.c_str());
     std::fstream                brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string                 file_data = ""
         "http {\n"
@@ -516,6 +548,8 @@ TEST_CASE(".loadFile() using only defaults multiple servers")
     Server          *server;
     Route           *route;
     std::string     file_name("BRACKETS_FILE");
+
+    std::remove(file_name.c_str());
     std::fstream    brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string     file_data = ""
         "http {\n"
@@ -575,6 +609,8 @@ TEST_CASE(".loadFile() using only defaults multiple servers and routes")
     Route                       *route;
     std::string                 file_name("BRACKETS_FILE");
     std::vector<std::string>    postfix = {"one", "two", "three", "four"};
+
+    std::remove(file_name.c_str());
     std::fstream                brackets_file(file_name, std::ios::in | std::ios::out | std::ios::app);
     std::string                 file_data = ""
         "http {\n"

@@ -3,7 +3,8 @@
 
 #include <fstream>
 
-static std::string  basic_conf = "http {\n"
+static std::string  basic_conf = ""
+     "http {\n"
      "\tserver {\n"
      "\t\tlisten          *:8082\n"
      "\t\tserver_name     example.org www.example.org\n"
