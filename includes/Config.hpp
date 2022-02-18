@@ -21,6 +21,7 @@
 class Config
 {
 private:
+    /* configuration related */
     std::string                 m_file_path;
     std::vector<Server>         m_servers;
 
@@ -41,13 +42,11 @@ public:
     } t_levels;
 
     typedef std::deque<std::string>             tokens_t;
-    typedef std::pair<std::string, std::string> status_code_body_t;
-    typedef std::map<int, status_code_body_t>   status_code_map_t;
 
     ~Config(void);
 
 protected:
-    static Config                   *handle;
+    static Config                   *m_handle;        // TODO protected ??
 
     /* don't implement constructors and assignment since singleton */
     Config(void);
@@ -61,10 +60,6 @@ public:
 
     void                                    setFilePath(const std::string& file_path);
     void                                    loadFile(void);
-
-    // TODO create a ConfigUtil singleton instance to store these static datastructures
-    static const std::vector<std::string>&  getDefaultMethods(void);
-    static status_code_map_t&               getStatusCodeMap(void);
 
 public:
     class Option

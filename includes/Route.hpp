@@ -3,6 +3,7 @@
 # define ROUTE_HPP
 
 # define DFL_FILE_SEARCH_PATH   "/"
+# define DFL_UPLOAD_PATH        "/"
 # define DFL_INDEX_FILE         "index.html"
 
 # include <vector>
@@ -21,8 +22,9 @@ class Route
 private:
     std::string                 m_base_url;
     std::vector<std::string>    m_accepted_methods;
-    REDIR                       *m_redir;
+    REDIR                       *m_redirect;
     std::string                 m_file_search_path;
+    std::string                 m_upload_path;
     bool                        m_has_autoindex;
     std::vector<std::string>    m_index_files;
     std::vector<std::string>    m_cgi_file_extensions;
@@ -38,13 +40,16 @@ public:
     std::vector<std::string>&   getAcceptedMethods(void);
     REDIR*                      getRedir(void);
     std::string&                getFileSearchPath(void);
+    std::string&                getUploadPath(void);
     bool&                       hasAutoIndex(void);
     std::vector<std::string>&   getIndexFiles(void);
     std::vector<std::string>&   getCgiFileExtensions(void);
 
-    void    setBaseUrl(const std::string& base_url);
-    void    setFileSearchPath(const std::string& path);
-    void    setAutoIndex(bool on);
+    void                        setBaseUrl(const std::string& base_url);
+    void                        setFileSearchPath(const std::string& path);
+    void                        setUploadPath(const std::string& path);
+    void                        setAutoIndex(bool on);
+    void                        setRedirect(int status_code, const std::string& url);
 
 };
 

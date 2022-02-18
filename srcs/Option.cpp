@@ -75,8 +75,8 @@ void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
         throw std::invalid_argument("failed to parse client_max_body_size: Not enough arguments.");
     tokens.pop_front();
     server = (Server *)obj;
-    size = std::atoi(tokens.front().c_str());
-    if (size == 0)
+    size = ft::stringToInt(tokens.front());
+    if (size == FAIL_CONVERSION)
         throw std::invalid_argument("Failed to parse client_max_body_size: Invalid size.");
     server->setClientMaxBodySize(size);
 }
@@ -96,18 +96,24 @@ Config::OptionErrorPage&     Config::OptionErrorPage::operator = (const Config::
 /* expects a Config* object and two arguments */
 void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
 {
-    Server  *server;
-    int status_code;
+    Server          *server;
+    std::string     file_contents;
+    std::ifstream   file_stream;
+    int             status_code;
 
     server = (Server *)obj;
     tokens.pop_front();
     if (tokens.size() < 2)
         throw std::invalid_argument("Failed to parse error_page: Not enough arguments.");
-    status_code = std::atoi(tokens.front().c_str());
-    if (status_code == 0)
+    status_code = ft::stringToInt(tokens.front());
+    if (status_code == FAIL_CONVERSION)
         throw std::invalid_argument("Failed to parse error_page: Invalid status_code.");
     tokens.pop_front();
-    server->getErrorFiles().insert(std::make_pair(status_code, tokens.front()));
+    file_contents = ft::readFileContent(file_stream, tokens.front());
+    if (!file_stream.good())
+        std::cout << "[WARNING] Failed to load file: " << tokens.front() << '\n';
+    else
+        server->setStatusBody(status_code, file_contents);
 }
 
 Config::OptionServer::OptionServer(int parse_level) : Config::Option(parse_level) { }
@@ -163,6 +169,8 @@ void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
         throw std::invalid_argument("Failed to parse listen directive: Not enough arguments");
     tokens.pop_front();
     server = (Server*)obj;
+    if (server->getSockFd() != SOCK_FD_EMPTY)
+        throw std::invalid_argument("You can only specify `listen` ones");
     try
     {
         _parseArg(tokens.front(), address, &sin_port);
@@ -240,6 +248,7 @@ void            Config::OptionServerName::parse(void *obj, tokens_t &tokens)
 
     tokens.pop_front();
     server = (Server*)obj;
+    server->getNames().clear();
     while (!tokens.empty() && !(tokens.front() == "\n"))
     {
         server->getNames().push_back(tokens.front());
@@ -288,13 +297,14 @@ void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
 {
     Route                           *route;
     int                             count;
-    const std::vector<std::string>  *methods;
+    const ConfigUtil::methods_t     *methods;
 
     count = 0;
     tokens.pop_front();
     route = (Route *)obj;
-    methods = &getDefaultMethods();
-    while (!(tokens.front() == "\n" || count >= 3)) // TODO testcase
+    route->getAcceptedMethods().clear();
+    methods = &ConfigUtil::getHandle().getDefaultMethods();
+    while (!tokens.empty() && !(tokens.front() == "\n" || count >= 3)) // TODO testcase
     {
         if (std::find(methods->begin(), methods->end(), tokens.front()) == methods->end())
             throw std::invalid_argument("Failed to parse allowed_methods");
@@ -302,6 +312,8 @@ void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
         tokens.pop_front();
         count++;
     }
+    if (tokens.empty())
+        throw std::invalid_argument("Invalid config file");
 }
 
 Config::OptionRoot::OptionRoot(int parse_level) : Config::Option(parse_level) { }
@@ -346,9 +358,8 @@ void            Config::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
     tokens.pop_front();
     route = (Route *)obj;
     if (!(tokens.front() == "on" || tokens.front() == "off"))
-        throw std::invalid_argument("Failed to parse autoindex directive: Invalid option.");
-    if (tokens.front() == "on")
-        route->setAutoIndex(true);
+        throw std::invalid_argument("Failed to parse autoindex directive: Invalid argument.");
+    route->setAutoIndex((tokens.front() == "on") ? true : false);
 }
 
 Config::OptionIndex::OptionIndex(int parse_level) : Config::Option(parse_level) { }
@@ -365,8 +376,18 @@ Config::OptionIndex&     Config::OptionIndex::operator = (const Config::OptionIn
 
 void            Config::OptionIndex::parse(void *obj, tokens_t &tokens)
 {
-    while (!(tokens.front() == "\n"))
+    Route   *route;
+
+    tokens.pop_front();
+    route = (Route *)obj;
+    route->getIndexFiles().clear();
+    while (!tokens.empty() && tokens.front() != "\n")
+    {
+        route->getIndexFiles().push_back(tokens.front());
         tokens.pop_front();
+    }
+    if (tokens.empty())
+        throw std::invalid_argument("Invalid config file");
 }
 
 Config::OptionCgiExtension::OptionCgiExtension(int parse_level) : Config::Option(parse_level) { }
@@ -383,8 +404,17 @@ Config::OptionCgiExtension&     Config::OptionCgiExtension::operator = (const Co
 
 void            Config::OptionCgiExtension::parse(void *obj, tokens_t &tokens)
 {
-    while (!(tokens.front() == "\n"))
+    Route   *route;
+
+    tokens.pop_front();
+    route = (Route *)obj;
+    while (!tokens.empty() && tokens.front() != "\n")
+    {
+        route->getCgiFileExtensions().push_back(tokens.front());
         tokens.pop_front();
+    }
+    if (tokens.empty())
+        throw std::invalid_argument("Invalid config file");
 }
 
 Config::OptionUploadPath::OptionUploadPath(int parse_level) : Config::Option(parse_level) { }
@@ -399,10 +429,13 @@ Config::OptionUploadPath&     Config::OptionUploadPath::operator = (const Config
     return (*this);
 }
 
-/* should sign the start of an http block. TODO there can only be one http block in the Config */
 void            Config::OptionUploadPath::parse(void *obj, tokens_t &tokens)
 {
+    Route   *route;
+
     tokens.pop_front();
+    route = (Route *)obj;
+    route->setUploadPath(tokens.front());
 }
 
 Config::OptionReturn::OptionReturn(int parse_level) : Config::Option(parse_level) { }
@@ -417,9 +450,18 @@ Config::OptionReturn&     Config::OptionReturn::operator = (const Config::Option
     return (*this);
 }
 
-/* should sign the start of an http block. TODO there can only be one http block in the Config */
 void            Config::OptionReturn::parse(void *obj, tokens_t &tokens)
 {
+    Route           *route;
+    int             status_code;
+
     tokens.pop_front();
+    route = (Route *)obj;
+    if (tokens.size() < 2)
+        throw std::invalid_argument("Failed to parse return: Not enough arguments.");
+    status_code = ft::stringToInt(tokens.front());
+    if (status_code == FAIL_CONVERSION)
+        throw std::invalid_argument("Failed to parse return: Invalid status_code.");
     tokens.pop_front();
+    route->setRedirect(status_code, tokens.front());
 }

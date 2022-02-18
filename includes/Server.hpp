@@ -8,9 +8,11 @@
 # define DFL_SERVER_PORT 8080                   /* HTTP default port */
 # define DFL_SERVER_NAME ""
     
-# include "Route.hpp"
-# include "Socket.hpp"
-# include "Client.hpp"
+# include <Route.hpp>
+# include <Socket.hpp>
+# include <Client.hpp>
+# include <Request.hpp>
+# include <ConfigUtil.hpp>
 
 # include <vector>
 # include <map>
@@ -20,7 +22,7 @@
 class Server
 {
 public:
-    typedef std::map<int, std::string>  err_file_map_t;
+    typedef ConfigUtil::status_code_map_t   status_code_map_t;
 
 private:
     /* configuration options */
@@ -28,10 +30,10 @@ private:
     std::vector<std::string>    m_names;
     std::vector<Route>          m_routes;
     std::map<int, Client>       m_clients;
-    err_file_map_t              m_error_files;
+    status_code_map_t           m_error_files;
     unsigned int                m_client_max_body_size;
 
-    std::vector<struct pollfd>	m_pfds;
+    std::vector<struct pollfd>  m_pfds;
 
 public:
     Server();
@@ -43,10 +45,11 @@ public:
     int&                        getSockFd();
     std::vector<std::string>&   getNames();
     std::vector<Route>&         getRoutes();
-    err_file_map_t&             getErrorFiles();
+    status_code_map_t&          getErrorFiles();
     unsigned int&               getClientMaxBodySize();
 
     void                        setClientMaxBodySize(unsigned int size);
+    void                        setStatusBody(int code, const std::string &body);
 
     int                         initListener(void);
     int                         initListener(const std::string& host);

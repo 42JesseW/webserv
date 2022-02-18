@@ -30,72 +30,25 @@ Config::Option  *Config::m_option_cgi_extension = &option_cgi_extension;
 Config::Option  *Config::m_option_upload_path = &option_upload_path;
 Config::Option  *Config::m_option_return = &option_return;
 
-Config          *Config::handle = NULL;
+Config          *Config::m_handle = NULL;
 
 Config::Config(void) :
     m_file_path(DFL_CONFIG_FILE_PATH),
     m_has_http_set(false)
 {
-    // TODO set default error_files here
-    /*
-     * use DFL_ERROR_PAGES_PATH from project directory to find .html files
-     * - files are named <status_code>.html
-     * - if file not found ignore it
-     * - read each file into std::string and update
-     * - Server has `m_error_pages` for custom pages
-     * - If an error_page is request, Server first checks itself, then Config::getStatusCodeMap
-     * - Config has static std::map from getStatusCodeMap for defaults
-     * - this Config::Config sets defaults in std::map in Config
-     * - while loading custom error_pages into Server.m_error_pages give
-     *   warning if unable to find file
-     */
-    std::stringstream           file_name_ss;
-    std::string                 file_name;
-    std::stringstream           file_ss;
-    std::string                 buffer;
-    std::ifstream               error_file;
 
-    status_code_map_t           *code_map;
-    status_code_map_t::iterator it;
-
-    code_map = &getStatusCodeMap();
-    error_file.exceptions(std::ios::failbit | std::ios::badbit);
-    for (it = code_map->begin(); it != code_map->end(); ++it)
-    {
-        /* will translate to <location_of_executable>/conf/error_pages/<status_code>.html */
-        // TODO need a better way to do this ?
-        file_name_ss << "../../" << DFL_ERROR_PAGES_PATH << "/" << it->first << ".html";
-        file_name = file_name_ss.str();
-        file_name_ss.str( std::string() );
-        try
-        {
-            error_file.open(file_name);
-            file_ss << error_file.rdbuf();
-            code_map->at(it->first) = std::make_pair(it->second.first, file_ss.str());
-        }
-        catch (const std::ios::failure& e)
-        {
-            //std::cout << "[WARN] Could not find error_page file: " << file_name << '\n';
-        }
-        catch (...)
-        {
-            std::cerr << "[ERROR] Fatal error opening file: " << file_name << '\n';
-            std::exit(EXIT_FAILURE);    // TODO necessary ?
-        }
-        file_ss.str( std::string() );
-    }
 }
 
 Config::~Config(void)
 {
     /* can be done safely since only created once */
-    delete Config::handle;
+    delete Config::m_handle;
 }
 
 Config&                         Config::getHandle()
 {
-    if (!handle) handle = new Config;
-    return (*handle);
+    if (!m_handle) m_handle = new Config;
+    return (*m_handle);
 }
 
 std::string&                    Config::getFilePath(void)
@@ -282,98 +235,4 @@ Config::Option::map_config_t&   Config::_getConfigMap(void)
         config_map["return"] = m_option_return;
     }
     return (config_map);
-}
-
-const std::vector<std::string>& Config::getDefaultMethods(void)
-{
-    static std::vector<std::string> methods;
-
-    if (methods.empty())
-    {
-        methods.push_back("GET");
-        methods.push_back("POST");
-        methods.push_back("DELETE");
-    }
-    return (methods);
-}
-
-Config::status_code_map_t&      Config::getStatusCodeMap(void)
-{
-    static status_code_map_t    status_codes;
-
-    if (status_codes.empty())
-    {
-        //------ 1xx - Informational ------
-        status_codes.insert(std::make_pair(100, std::make_pair("Continue", "")));
-        status_codes.insert(std::make_pair(101, std::make_pair("Switching Protocols", "")));
-        status_codes.insert(std::make_pair(102, std::make_pair("Processing", "")));
-        status_codes.insert(std::make_pair(103, std::make_pair("Early Hints", "")));
-
-        //------ 2xx - Successful ------
-        status_codes.insert(std::make_pair(200, std::make_pair("OK", "")));
-        status_codes.insert(std::make_pair(201, std::make_pair("Created", "")));
-        status_codes.insert(std::make_pair(202, std::make_pair("Accepted", "")));
-        status_codes.insert(std::make_pair(203, std::make_pair("Non-Authoritative Information", "")));
-        status_codes.insert(std::make_pair(204, std::make_pair("No Content", "")));
-        status_codes.insert(std::make_pair(205, std::make_pair("Reset Content", "")));
-        status_codes.insert(std::make_pair(206, std::make_pair("Partial Content", "")));
-        status_codes.insert(std::make_pair(207, std::make_pair("Multi-Status", "")));
-        status_codes.insert(std::make_pair(208, std::make_pair("Already Reported", "")));
-        status_codes.insert(std::make_pair(226, std::make_pair("Im Used", "")));
-
-        //------ 3xx - Redirection ------
-        status_codes.insert(std::make_pair(300, std::make_pair("Multiple Choices", "")));
-        status_codes.insert(std::make_pair(301, std::make_pair("Moved Permanently", "")));
-        status_codes.insert(std::make_pair(302, std::make_pair("Found", "")));
-        status_codes.insert(std::make_pair(303, std::make_pair("See Other", "")));
-        status_codes.insert(std::make_pair(304, std::make_pair("Not Modified", "")));
-        status_codes.insert(std::make_pair(305, std::make_pair("Use Proxy", "")));
-        status_codes.insert(std::make_pair(307, std::make_pair("Temporary Redirect", "")));
-        status_codes.insert(std::make_pair(308, std::make_pair("Permanent Redirect", "")));
-
-        //------ 4xx - Client Error ------
-        status_codes.insert(std::make_pair(400, std::make_pair("Bad Request", "")));
-        status_codes.insert(std::make_pair(401, std::make_pair("Unauthorized", "")));
-        status_codes.insert(std::make_pair(402, std::make_pair("Payment Required", "")));
-        status_codes.insert(std::make_pair(403, std::make_pair("Forbidden", "")));
-        status_codes.insert(std::make_pair(404, std::make_pair("Not Found", "")));
-        status_codes.insert(std::make_pair(405, std::make_pair("Method Not Allowed", "")));
-        status_codes.insert(std::make_pair(406, std::make_pair("Not Acceptable", "")));
-        status_codes.insert(std::make_pair(407, std::make_pair("Proxy Authentication Required", "")));
-        status_codes.insert(std::make_pair(408, std::make_pair("Request Timeout", "")));
-        status_codes.insert(std::make_pair(409, std::make_pair("Conflict", "")));
-        status_codes.insert(std::make_pair(410, std::make_pair("Gone", "")));
-        status_codes.insert(std::make_pair(411, std::make_pair("Length Required", "")));
-        status_codes.insert(std::make_pair(412, std::make_pair("Precondition Failed", "")));
-        status_codes.insert(std::make_pair(413, std::make_pair("Content Too Large", "")));
-        status_codes.insert(std::make_pair(414, std::make_pair("URI Too Long", "")));
-        status_codes.insert(std::make_pair(415, std::make_pair("Unsupported Media Type", "")));
-        status_codes.insert(std::make_pair(416, std::make_pair("Range Not Satisfiable", "")));
-        status_codes.insert(std::make_pair(417, std::make_pair("Expectation Failed", "")));
-        status_codes.insert(std::make_pair(418, std::make_pair("I'm a teapot", "")));
-        status_codes.insert(std::make_pair(421, std::make_pair("Misdirected Request", "")));
-        status_codes.insert(std::make_pair(422, std::make_pair("Unprocessable Content", "")));
-        status_codes.insert(std::make_pair(423, std::make_pair("Locked", "")));
-        status_codes.insert(std::make_pair(424, std::make_pair("Failed Dependency", "")));
-        status_codes.insert(std::make_pair(425, std::make_pair("Too Early", "")));
-        status_codes.insert(std::make_pair(426, std::make_pair("Upgrade Required", "")));
-        status_codes.insert(std::make_pair(428, std::make_pair("Precondition Required", "")));
-        status_codes.insert(std::make_pair(429, std::make_pair("Too Many Requests", "")));
-        status_codes.insert(std::make_pair(431, std::make_pair("Request Header Fields Too Large", "")));
-        status_codes.insert(std::make_pair(451, std::make_pair("Unavailable For Legal Reasons", "")));
-
-        //------ 5xx - Server Error ------
-        status_codes.insert(std::make_pair(500, std::make_pair("Internal Server Error", "")));
-        status_codes.insert(std::make_pair(501, std::make_pair("Not Implemented", "")));
-        status_codes.insert(std::make_pair(502, std::make_pair("Bad Gateway", "")));
-        status_codes.insert(std::make_pair(503, std::make_pair("Service Unavailable", "")));
-        status_codes.insert(std::make_pair(504, std::make_pair("Gateway Timeout", "")));
-        status_codes.insert(std::make_pair(505, std::make_pair("HTTP Version Not Supported", "")));
-        status_codes.insert(std::make_pair(506, std::make_pair("Variant Also Negotiates", "")));
-        status_codes.insert(std::make_pair(507, std::make_pair("Insufficient Storage", "")));
-        status_codes.insert(std::make_pair(508, std::make_pair("Loop Detected", "")));
-        status_codes.insert(std::make_pair(510, std::make_pair("Not Extended", "")));
-        status_codes.insert(std::make_pair(511, std::make_pair("Network Authentication Required", "")));
-    }
-    return (status_codes);
 }

@@ -1,10 +1,9 @@
 #include <Server.hpp>
-#include <Request.hpp>
 
 Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
     m_names.push_back(DFL_SERVER_NAME);
-    // TODO set m_error_files to default
+    m_error_files = ConfigUtil::getHandle().getStatusCodeMap();
 }
 
 Server::Server(const Server &server) :
@@ -51,7 +50,7 @@ std::vector<Route>&         Server::getRoutes()
     return (m_routes);
 }
 
-Server::err_file_map_t&     Server::getErrorFiles()
+Server::status_code_map_t&  Server::getErrorFiles()
 {
     return (m_error_files);
 }
@@ -65,6 +64,17 @@ void                        Server::setClientMaxBodySize(unsigned int size)
 {
     // TODO maybe some bounds ??
     m_client_max_body_size = size;
+}
+
+void                         Server::setStatusBody(int code, const std::string &body)
+{
+    status_code_map_t::iterator it;
+
+    it = m_error_files.find(code);
+    if (it != m_error_files.end())
+    {
+        m_error_files[code] = std::make_pair(it->second.first, body);
+    }
 }
 
 int                         Server::initListener()

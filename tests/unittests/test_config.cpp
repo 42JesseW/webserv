@@ -354,7 +354,7 @@ TEST_CASE(".loadFile() using only defaults")
         {
             route = &server->getRoutes().at(i);
             CHECK(route->getBaseUrl() == "/base");
-            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getAcceptedMethods() == ConfigUtil::getHandle().getDefaultMethods());
             CHECK(route->getRedir() == NULL);
             CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
             CHECK(route->hasAutoIndex() == false);
@@ -495,7 +495,7 @@ TEST_CASE(".loadFile() using only defaults multiple routes")
         {
             route = &server->getRoutes().at(i);
             CHECK(route->getBaseUrl() == ("/" + postfix[i]));
-            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getAcceptedMethods() == ConfigUtil::getHandle().getDefaultMethods());
             CHECK(route->getRedir() == NULL);
             CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
             CHECK(route->hasAutoIndex() == false);
@@ -556,7 +556,7 @@ TEST_CASE(".loadFile() using only defaults multiple servers")
         {
             route = &server->getRoutes().at(i);
             CHECK(route->getBaseUrl() == "/base");
-            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getAcceptedMethods() == ConfigUtil::getHandle().getDefaultMethods());
             CHECK(route->getRedir() == NULL);
             CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
             CHECK(route->hasAutoIndex() == false);
@@ -621,7 +621,7 @@ TEST_CASE(".loadFile() using only defaults multiple servers and routes")
         {
             route = &server->getRoutes().at(i);
             CHECK(route->getBaseUrl() == ("/" + postfix[i]));
-            CHECK(route->getAcceptedMethods() == Config::getDefaultMethods());
+            CHECK(route->getAcceptedMethods() == ConfigUtil::getHandle().getDefaultMethods());
             CHECK(route->getRedir() == NULL);
             CHECK(route->getFileSearchPath() == DFL_FILE_SEARCH_PATH);
             CHECK(route->hasAutoIndex() == false);
