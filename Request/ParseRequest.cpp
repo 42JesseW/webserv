@@ -67,7 +67,6 @@ void Request::parseAndSetHeaders()
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
 
-	// Set host and ports
 	std::string	host = m_headers["Host"];
 	if (host.find(':') != std::string::npos)
 	{
