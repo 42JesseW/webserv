@@ -7,16 +7,14 @@
 # define DFL_MAX_BODY_SIZE 1                    /* in MB */
 # define DFL_SERVER_PORT 8080                   /* HTTP default port */
 # define DFL_SERVER_NAME ""
-    
+
+# include <Common.hpp>
 # include <Route.hpp>
 # include <Socket.hpp>
 # include <Client.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
 
-# include <vector>
-# include <map>
-# include <sstream>
 # include <poll.h>
 
 class Server
@@ -62,23 +60,5 @@ private:
     void                        addToPfds(int client_socket);
 
 };
-
-namespace ft {
-
-    template< class InputIt, class T >
-    size_t  count( InputIt first, InputIt last, const T& value )
-    {
-        size_t  counter;
-
-        counter = 0;
-        while (first != last)
-        {
-            if (*first == value)
-                counter++;
-            first++;
-        }
-        return (counter);
-    }
-}
 
 #endif

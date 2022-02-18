@@ -6,8 +6,7 @@
 # define DFL_UPLOAD_PATH        "/"
 # define DFL_INDEX_FILE         "index.html"
 
-# include <vector>
-# include <string>      // TODO maybe move to more common hpp
+# include <Common.hpp>
 
 struct s_redirect
 {

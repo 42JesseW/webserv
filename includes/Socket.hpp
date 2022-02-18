@@ -13,17 +13,7 @@
 # define SA     struct sockaddr
 # define SA_IN  struct sockaddr_in
 
-# include <string>          // TODO maybe move to more common hpp
-# include <iostream>
-
-# include <cstdlib>
-# include <cstring>
-# include <unistd.h>
-# include <netdb.h>
-# include <fcntl.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-
+# include <Common.hpp>
 
 class Socket
 {

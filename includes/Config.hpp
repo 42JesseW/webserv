@@ -5,18 +5,13 @@
 # define DFL_ERROR_PAGES_PATH "conf/error_pages"
 # define DFL_CONFIG_FILE_PATH "default.conf"
 
-# include <map>
-# include <stack>
-# include <algorithm>
-# include <stdexcept>
-# include <exception>
-# include <iostream>
-# include <fstream>
-# include <sstream>
+# include <Common.hpp>
 
 # include <Server.hpp>
 # include <Socket.hpp>
 # include <Utils.hpp>
+
+# include <stack>
 
 class Config
 {
@@ -91,6 +86,14 @@ private:
                                                       Server **server,
                                                       Route **route,
                                                       int parse_level);
+
+    static tokens_t&                _tokenizeString(tokens_t& queue,
+                                                    std::string& str,
+                                                    const std::string& delims);
+    static std::string&             _stringReplaceMultiple(std::string& str,
+                                                           const std::string& from,
+                                                           const std::string& to);
+
 
 public:
     /*

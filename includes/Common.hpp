@@ -2,10 +2,11 @@
 
 # define COMMON_HPP
 
+/* includes that happen in multiple other .hpp files */
 # include <map>
+# include <deque>
 # include <string>
 # include <vector>
-# include <string>
 # include <sstream>
 # include <fstream>
 # include <iostream>
@@ -13,11 +14,10 @@
 # include <cstdlib>
 # include <cstring>
 
+# include <unistd.h>
 # include <netdb.h>
 # include <fcntl.h>
-# include <unistd.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-
 
 #endif

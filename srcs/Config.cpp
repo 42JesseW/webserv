@@ -74,6 +74,7 @@ void                            Config::loadFile(void)
     std::deque<std::string> tokens;
 
     m_servers.clear();
+    m_has_http_set = false;
 
     /* set this ifstream instance to throw if opening file fails */
     file_handle.exceptions( std::ifstream::badbit | std::ifstream::failbit );
@@ -86,8 +87,8 @@ void                            Config::loadFile(void)
 
     /* tokenize the string */
     std::replace(config_data.begin(), config_data.end(), '\t', ' ');
-    ft::stringReplaceMultiple(config_data, "\n", " \n ");
-    ft::tokenizeString(tokens, config_data, " ");
+    _stringReplaceMultiple(config_data, "\n", " \n ");
+    _tokenizeString(tokens, config_data, " ");
 
     /* initialize the singleton instance */
     _mapTokens(tokens);
@@ -211,6 +212,56 @@ void                            Config::_mapTokenToObject(tokens_t& tokens,
             break ;
     }
     //std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
+}
+
+/*
+ * // TODO testcase
+ * Split the string based on the delimiter(s) and push the
+ * individual tokens into the specified container.
+ */
+Config::tokens_t&    Config::_tokenizeString(Config::tokens_t& queue,
+                                             std::string& str,
+                                             const std::string& delims)
+{
+    std::string             sub;
+    std::string::size_type  pos, prev;
+
+    prev = 0;
+    while ((pos = str.find_first_of(delims, prev)) != std::string::npos)
+    {
+        if (pos > prev)
+        {
+            sub = str.substr(prev, pos - prev);
+            if (queue.empty() || !(sub == "\n" && queue.back() == "\n"))
+                queue.push_back(str.substr(prev, (pos - prev)));
+        }
+        prev = (pos + 1);
+    }
+    if (prev < str.length())
+        queue.push_back(str.substr(prev, std::string::npos));
+    return (queue);
+}
+
+/*
+ * // TODO testcase
+ * Replace a substring in a string with another substring using
+ * built-in string methods find() and replace().
+ */
+std::string&    Config::_stringReplaceMultiple(std::string& str,
+                                               const std::string& from,
+                                               const std::string& to)
+{
+    std::string::size_type  index;
+
+    index = 0;
+    while (true) {
+        index = str.find(from, index);
+        if (index == std::string::npos)
+            break;
+        str.replace(index, from.size(), to);
+        index += to.size();
+    }
+    return (str);
 }
 
 Config::Option::map_config_t&   Config::_getConfigMap(void)

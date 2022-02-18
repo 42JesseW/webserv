@@ -4,14 +4,8 @@
 
 # define DFL_ERROR_PAGES_PATH "conf/error_pages"
 
+# include <Common.hpp>
 # include <Utils.hpp>
-
-# include <map>
-# include <vector>
-# include <string>
-# include <sstream>
-# include <iostream>
-# include <fstream>
 
 class ConfigUtil
 {

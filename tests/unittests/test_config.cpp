@@ -496,6 +496,7 @@ TEST_CASE(".loadFile() using only defaults multiple routes")
     std::string                 file_data = ""
         "http {\n"
         "\tserver {\n"
+        "        listen\t8085"
         "        location /one {\n"
         "        }\n"
         "        location /two {\n"
