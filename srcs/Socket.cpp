@@ -71,7 +71,7 @@ int        Socket::init()
         throw std::runtime_error(std::string(__func__) + ": Failed to create socket.");
     }
 
-    std::cout << "Socket::init -> " << m_address << ":" << m_port << std::endl;
+    std::cout << "Socket::init[" << m_sock_fd << "] -> " << m_address << ":" << m_port << std::endl;
     std::memset(&m_sock_addr, 0, sizeof(m_sock_addr));
     m_sock_addr.sin_family      = AF_INET;          /* IPv4 */
     m_sock_addr.sin_port        = htons(m_port);

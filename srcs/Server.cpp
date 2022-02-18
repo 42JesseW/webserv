@@ -60,6 +60,11 @@ unsigned int&               Server::getClientMaxBodySize()
     return (m_client_max_body_size);
 }
 
+std::vector<struct pollfd>& Server::getPollPfds()
+{
+    return (m_pfds);
+}
+
 void                        Server::setClientMaxBodySize(unsigned int size)
 {
     // TODO maybe some bounds ??
@@ -100,6 +105,70 @@ int                         Server::initListener(const std::string& host)
     m_sock.setAddress(address);
 
     return (m_sock.init());
+}
+
+void                        *Server::threadedPoll(void *instance)
+{
+    std::vector<struct pollfd>              *pfds;
+    std::vector<struct pollfd>::iterator    iter;
+    struct pollfd                           listen_socket_pollfd;
+    Server                                  *server;
+
+    server = (Server *)instance;
+    pfds = &server->getPollPfds();
+    listen_socket_pollfd.fd = server->getSockFd();
+    listen_socket_pollfd.events = POLLIN;
+    pfds->push_back(listen_socket_pollfd);
+
+    for (;;)
+    {
+        int poll_count = poll(&pfds->at(0), pfds->size(), POLL_NO_TIMEOUT);
+        if (poll_count == -1)
+        {
+            /* do some error handling */
+            std::exit(EXIT_FAILURE);
+        }
+
+        iter = pfds->begin();
+        for (size_t i = 0; i < pfds->size(); i++)
+        {
+            if ((pfds->at(i).revents & (POLLERR | POLLNVAL)) ||
+                ((pfds->at(i).revents & POLLHUP) && !(pfds->at(i).revents & POLLIN)))
+            {
+                /* handle flags */
+                close(pfds->at(i).fd);
+                pfds->erase(iter);
+            }
+
+            if (pfds->at(i).revents & POLLIN)
+            {
+                if (pfds->at(i).fd == server->getSockFd())
+                {
+                    if (server->acceptNewConnection() < 0)
+                    {
+                        /* do some error handling */
+                        std::exit(EXIT_FAILURE);
+                    }
+                }
+                else
+                    server->handleConnection(pfds->at(i).fd);
+                usleep(2000);
+            }
+
+            if (pfds->at(i).revents & POLLOUT &&
+                !(pfds->at(i).revents & (POLLERR | POLLNVAL | POLLHUP)))
+            {
+                char buff[4096];
+
+                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
+                send(pfds->at(i).fd, (char *)buff, strlen((char *)buff), 0);
+                close(pfds->at(i).fd);
+                pfds->erase(iter);
+            }
+            iter++;
+        }
+    }
+    return (NULL);
 }
 
 int                         Server::doPolling(void)

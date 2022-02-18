@@ -2,6 +2,8 @@
 
 # define COMMON_HPP
 
+# define SYS_ERROR (-1)
+
 /* includes that happen in multiple other .hpp files */
 # include <map>
 # include <deque>

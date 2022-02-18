@@ -45,6 +45,7 @@ public:
     std::vector<Route>&         getRoutes();
     status_code_map_t&          getErrorFiles();
     unsigned int&               getClientMaxBodySize();
+    std::vector<struct pollfd>& getPollPfds();
 
     void                        setClientMaxBodySize(unsigned int size);
     void                        setStatusBody(int code, const std::string &body);
@@ -55,6 +56,8 @@ public:
 
     int							acceptNewConnection(void);
     void						handleConnection(int client_socket);
+
+    static void                 *threadedPoll(void *instance);
 
 private:
     void                        addToPfds(int client_socket);
