@@ -55,7 +55,8 @@ namespace ft
 	{
 	    std::ostringstream ss;
 
-		return (static_cast<std::ostringstream *>(&(ss << num))->str());
+	    ss << num;
+		return (ss.str());
 	}
 
 	int             stringToInt(const std::string& str)
@@ -77,10 +78,10 @@ namespace ft
     }
 
     /* generalised function that completely reads out a file. file_stream.good() can be check for error */
-    std::string     readFileContent(std::ifstream& file_stream, const std::string& file_name)   // TODO testcase
+    std::string     readFileContent(std::ifstream& file_stream, const std::string& file_name)
     {
-	    std::stringstream   file_content_stream;
 	    std::string         file_contents;
+        std::stringstream   file_content_stream;
 
         try
         {
