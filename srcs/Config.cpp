@@ -15,22 +15,22 @@ static Config::OptionCgiExtension           option_cgi_extension(Config::LOCATIO
 static Config::OptionUploadPath             option_upload_path(Config::LOCATION);
 static Config::OptionReturn                 option_return(Config::LOCATION);
 
-Config::Option  *Config::m_option_http = &option_http;
-Config::Option  *Config::m_option_client_max_body_size = &option_client_max_body_size;
-Config::Option  *Config::m_option_error_page = &option_error_page;
-Config::Option  *Config::m_option_server = &option_server;
-Config::Option  *Config::m_option_listen = &option_listen;
-Config::Option  *Config::m_option_server_name = &option_server_name;
-Config::Option  *Config::m_option_location = &option_location;
-Config::Option  *Config::m_option_allowed_methods = &option_allowed_methods;
-Config::Option  *Config::m_option_root = &option_root;
-Config::Option  *Config::m_option_autoindex = &option_autoindex;
-Config::Option  *Config::m_option_index = &option_index;
-Config::Option  *Config::m_option_cgi_extension = &option_cgi_extension;
-Config::Option  *Config::m_option_upload_path = &option_upload_path;
-Config::Option  *Config::m_option_return = &option_return;
+Config::Option                              *Config::m_option_http = &option_http;
+Config::Option                              *Config::m_option_client_max_body_size = &option_client_max_body_size;
+Config::Option                              *Config::m_option_error_page = &option_error_page;
+Config::Option                              *Config::m_option_server = &option_server;
+Config::Option                              *Config::m_option_listen = &option_listen;
+Config::Option                              *Config::m_option_server_name = &option_server_name;
+Config::Option                              *Config::m_option_location = &option_location;
+Config::Option                              *Config::m_option_allowed_methods = &option_allowed_methods;
+Config::Option                              *Config::m_option_root = &option_root;
+Config::Option                              *Config::m_option_autoindex = &option_autoindex;
+Config::Option                              *Config::m_option_index = &option_index;
+Config::Option                              *Config::m_option_cgi_extension = &option_cgi_extension;
+Config::Option                              *Config::m_option_upload_path = &option_upload_path;
+Config::Option                              *Config::m_option_return = &option_return;
 
-Config          *Config::m_handle = NULL;
+Config                                      *Config::m_handle = NULL;
 
 Config::Config(void) :
     m_file_path(DFL_CONFIG_FILE_PATH),
@@ -130,8 +130,6 @@ void                            Config::_mapTokens(tokens_t& tokens)
 
     parse_level = BASE;
     config = _getConfigMap();
-    // TODO behaviour default_server if same ports or server_names
-    // TODO locations with the same base_url
     while (!tokens.empty())
     {
         if (tokens.front() == "#")
@@ -172,7 +170,6 @@ void                            Config::_mapTokens(tokens_t& tokens)
                 }
                 else
                 {
-                    //std::cout << tokens.front() << '\n';
                     option = (*it).second;
                     if (parse_level != option->getParseLevel())
                     {
@@ -209,7 +206,6 @@ void                            Config::_mapTokens(tokens_t& tokens)
                         default:
                             break ;
                     }
-                    //std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
                 }
             }
         }

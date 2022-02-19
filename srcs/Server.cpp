@@ -67,7 +67,6 @@ std::vector<struct pollfd>& Server::getPollPfds()
 
 void                        Server::setClientMaxBodySize(unsigned int size)
 {
-    // TODO maybe some bounds ??
     m_client_max_body_size = size;
 }
 
@@ -109,131 +108,81 @@ int                         Server::initListener(const std::string& host)
     return (m_sock.init());
 }
 
+void						Server::_handleErrorEvents(int i, pollfd_vec_t::iterator iter)
+{
+    if ((m_pfds[i].revents & (POLLERR | POLLNVAL)) || ((m_pfds[i].revents & POLLHUP)
+        && !(m_pfds[i].revents & POLLIN)))
+    {
+        /* handle flags */
+        close(m_pfds[i].fd);
+        m_pfds.erase(iter);
+    }
+}
+
+void                        Server::_handlePollin(int i)
+{
+    if (m_pfds[i].revents & POLLIN)
+    {
+        if (m_pfds[i].fd == m_sock.getFd())
+        {
+            if (acceptNewConnection() < 0)
+            {
+                /* do some error handling */
+                std::exit(EXIT_FAILURE);
+            }
+        }
+        else
+            handleConnection(m_pfds[i].fd);
+        usleep(2000);
+    }
+}
+
+void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter)
+{
+    if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
+    {
+        char buff[4096];
+
+        // to be replaced with response object creation
+        snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
+        send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
+        close(m_pfds[i].fd);
+        m_pfds.erase(iter);
+    }
+}
+
 void                        *Server::threadedPoll(void *instance)
 {
-    std::vector<struct pollfd>              *pfds;
-    std::vector<struct pollfd>::iterator    iter;
-    struct pollfd                           listen_socket_pollfd;
-    Server                                  *server;
+    pollfd_vec_t            *pfds;
+    pollfd_vec_t::iterator  iter;
+    Server                  *server;
+    int                     poll_count;
 
     server = (Server *)instance;
     pfds = &server->getPollPfds();
-    listen_socket_pollfd.fd = server->getSockFd();
-    listen_socket_pollfd.events = POLLIN;
-    pfds->push_back(listen_socket_pollfd);
-
-    for (;;)
+    pfds->push_back( (struct pollfd){.fd = server->getSockFd(), .events = POLLIN} );
+    for ( ;; )
     {
-        int poll_count = poll(&pfds->at(0), pfds->size(), POLL_NO_TIMEOUT);
-        if (poll_count == -1)
+        poll_count = poll(&server->getPollPfds().at(0), server->getPollPfds().size(), POLL_NO_TIMEOUT);
+        if (poll_count == SYS_ERROR)
         {
             /* do some error handling */
-            std::exit(EXIT_FAILURE);
+            break ;
         }
 
-        iter = pfds->begin();
-        for (size_t i = 0; i < pfds->size(); i++)
+        iter = server->getPollPfds().begin();
+        for (size_t i = 0; i < server->getPollPfds().size(); i++)
         {
-            if ((pfds->at(i).revents & (POLLERR | POLLNVAL)) ||
-                ((pfds->at(i).revents & POLLHUP) && !(pfds->at(i).revents & POLLIN)))
-            {
-                /* handle flags */
-                close(pfds->at(i).fd);
-                pfds->erase(iter);
-            }
-
-            if (pfds->at(i).revents & POLLIN)
-            {
-                if (pfds->at(i).fd == server->getSockFd())
-                {
-                    if (server->acceptNewConnection() < 0)
-                    {
-                        /* do some error handling */
-                        std::exit(EXIT_FAILURE);
-                    }
-                }
-                else
-                    server->handleConnection(pfds->at(i).fd);
-                usleep(2000);
-            }
-
-            if (pfds->at(i).revents & POLLOUT &&
-                !(pfds->at(i).revents & (POLLERR | POLLNVAL | POLLHUP)))
-            {
-                char buff[4096];
-
-                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-                send(pfds->at(i).fd, (char *)buff, strlen((char *)buff), 0);
-                close(pfds->at(i).fd);
-                pfds->erase(iter);
-            }
+            server->_handleErrorEvents(i, iter);
+            server->_handlePollin(i);
+            server->_handlePollout(i, iter);
             iter++;
         }
     }
     return (NULL);
 }
 
-int                         Server::doPolling(void)
-{
-    std::vector<struct pollfd>::iterator    iter;
-    struct pollfd                           listen_socket_pollfd;
-
-    listen_socket_pollfd.fd = m_sock.getFd();
-    listen_socket_pollfd.events = POLLIN;
-    m_pfds.push_back(listen_socket_pollfd);
-
-    for (;;)
-    {
-        int poll_count = poll(&m_pfds[0], m_pfds.size(), POLL_NO_TIMEOUT);
-        if (poll_count == -1)
-        {
-            /* do some error handling */
-            std::exit(EXIT_FAILURE);
-        }
-
-    	iter = m_pfds.begin();
-        for (size_t i = 0; i < m_pfds.size(); i++)
-        {
-            if ((m_pfds[i].revents & (POLLERR | POLLNVAL)) || 
-                ((m_pfds[i].revents & POLLHUP) && !(m_pfds[i].revents & POLLIN)))
-			{
-				/* handle flags */
-		        close(m_pfds[i].fd);
-		        m_pfds.erase(iter);
-			}
-
-            if (m_pfds[i].revents & POLLIN)
-            {
-                if (m_pfds[i].fd == m_sock.getFd())
-                {
-                    if (acceptNewConnection() < 0)
-                    {
-                        /* do some error handling */
-                        std::exit(EXIT_FAILURE);
-                    }
-				}
-                else
-					handleConnection(m_pfds[i].fd);
-                usleep(2000);
-            }
-
-			if (m_pfds[i].revents & POLLOUT &&
-                !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
-			{
-				char buff[4096];
-                
-                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin', for listener %d", m_sock.getFd());
-                send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
-                close(m_pfds[i].fd);
-		        m_pfds.erase(iter);
-			}
-			iter++;
-        }
-    }
-    return (SOCK_SUCCESS);
-}
-
-void                 		Server::addToPfds(int client_socket)
+void                 		Server::_addToPfds(int client_socket)
 {
     struct pollfd	client_socket_pollfd;
 
@@ -275,7 +224,7 @@ int                         Server::acceptNewConnection(void)
 
     m_clients.insert(std::pair<int, Client>(client_socket, new_client));
 
-    addToPfds(client_socket);
+    _addToPfds(client_socket);
 
     std::cout << "New connection established on client socket: " << client_socket << " listener: " << m_sock.getFd() << std::endl;
     return (SOCK_SUCCESS);

@@ -2,11 +2,11 @@
 
 # define SERVER_HPP
 
-# define POLL_NO_TIMEOUT (-1)
+# define POLL_NO_TIMEOUT    (-1)
 
-# define DFL_MAX_BODY_SIZE 1                    /* in MB */
-# define DFL_SERVER_PORT 8080                   /* HTTP default port */
-# define DFL_SERVER_NAME ""
+# define DFL_MAX_BODY_SIZE  1       /* in Megabytes */
+# define DFL_SERVER_PORT    8080    /* HTTP default port */
+# define DFL_SERVER_NAME    ""
 
 # include <Common.hpp>
 # include <Route.hpp>
@@ -21,6 +21,7 @@ class Server
 {
 public:
     typedef ConfigUtil::status_code_map_t   status_code_map_t;
+    typedef std::vector<struct pollfd>      pollfd_vec_t;
 
 private:
     /* configuration options */
@@ -45,14 +46,13 @@ public:
     std::vector<Route>&         getRoutes();
     status_code_map_t&          getErrorFiles();
     unsigned int&               getClientMaxBodySize();
-    std::vector<struct pollfd>& getPollPfds();
+    pollfd_vec_t&               getPollPfds();
 
     void                        setClientMaxBodySize(unsigned int size);
     void                        setStatusBody(int code, const std::string &body);
 
     int                         initListener(void);
     int                         initListener(const std::string& host);
-	int							doPolling(void);
 
     int							acceptNewConnection(void);
     void						handleConnection(int client_socket);
@@ -60,7 +60,10 @@ public:
     static void                 *threadedPoll(void *instance);
 
 private:
-    void                        addToPfds(int client_socket);
+    void						_handleErrorEvents(int i, pollfd_vec_t::iterator iter);
+    void						_handlePollin(int i);
+    void						_handlePollout(int i, pollfd_vec_t::iterator iter);
+    void                        _addToPfds(int client_socket);
 
 };
 

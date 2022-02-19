@@ -4,6 +4,8 @@
 
 # define SYS_ERROR (-1)
 
+typedef void    *(*THREAD_FUNC_PTR)(void *);
+
 /* includes that happen in multiple other .hpp files */
 # include <map>
 # include <deque>

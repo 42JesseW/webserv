@@ -3,8 +3,6 @@
 
 #include <pthread.h>
 
-typedef void    *(*THREAD_FUNC_PTR)(void *);
-
 int     main(int argc, char *argv[])
 {
     Config      *config;
