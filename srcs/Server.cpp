@@ -92,16 +92,18 @@ int                         Server::initListener(const std::string& host)
     std::stringstream   num_ss;
     std::string         address;
     short               sin_port;
+    size_t              pos;
 
     if (ft::count(host.begin(), host.end(), ':') > 1)
         throw std::invalid_argument("Host " + host + " is invalid");
 
+    pos = host.find(":");
     num_ss.exceptions(std::ios::failbit | std::ios::badbit);
-    num_ss << host.substr(host.find(":") + 1);
+    num_ss << host.substr(pos + 1);
     num_ss >> sin_port;
     m_sock.setPort(sin_port);
 
-    address = host.substr(0, host.find(":"));
+    address = host.substr(0, pos);
     m_sock.setAddress(address);
 
     return (m_sock.init());
@@ -220,7 +222,7 @@ int                         Server::doPolling(void)
 			{
 				char buff[4096];
                 
-                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
+                snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin', for listener %d", m_sock.getFd());
                 send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
                 close(m_pfds[i].fd);
 		        m_pfds.erase(iter);
@@ -275,7 +277,7 @@ int                         Server::acceptNewConnection(void)
 
     addToPfds(client_socket);
 
-    std::cout << "New connection established on client socket: " << client_socket << std::endl;
+    std::cout << "New connection established on client socket: " << client_socket << " listener: " << m_sock.getFd() << std::endl;
     return (SOCK_SUCCESS);
 }
 

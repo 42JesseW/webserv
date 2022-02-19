@@ -2,8 +2,9 @@
 
 # define CONFIG_HPP
 
-# define DFL_ERROR_PAGES_PATH "conf/error_pages"
-# define DFL_CONFIG_FILE_PATH "default.conf"
+# define DFL_ERROR_PAGES_PATH   "conf/error_pages"
+# define DFL_CONFIG_FILE_PATH   "default.conf"
+# define MAX_SERVER_CAP         100
 
 # include <Common.hpp>
 
@@ -22,7 +23,11 @@ private:
 
     bool                        m_has_http_set;
 
+    static Config               *m_handle;
+
 private:
+    /* don't implement constructors and assignment since singleton */
+    Config(void);
     Config(Config const& config);
 
     void    operator = (const Config& config);
@@ -39,12 +44,6 @@ public:
     typedef std::deque<std::string>             tokens_t;
 
     ~Config(void);
-
-protected:
-    static Config                   *m_handle;        // TODO protected ??
-
-    /* don't implement constructors and assignment since singleton */
-    Config(void);
 
 public:
     /* implement a singleton pattern since Config references 1 file */
@@ -81,11 +80,6 @@ public:
 
 private:
     void                            _mapTokens(tokens_t& tokens);
-    void                            _mapTokenToObject(tokens_t& tokens,
-                                                      Option *option,
-                                                      Server **server,
-                                                      Route **route,
-                                                      int parse_level);
 
     static tokens_t&                _tokenizeString(tokens_t& queue,
                                                     std::string& str,

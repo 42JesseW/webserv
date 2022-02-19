@@ -12,6 +12,7 @@ int     main(int argc, char *argv[])
     int         exit_code;
     pthread_t   *thread_ids;
 
+    thread_ids = NULL;
     exit_code = EXIT_SUCCESS;
     config = &Config::getHandle();
     if (argc > 1)

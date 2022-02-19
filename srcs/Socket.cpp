@@ -6,13 +6,22 @@ Socket::Socket() :
     m_address(DFL_SERVER_HOST),
     m_port(DFL_SERVER_PORT)
 {
-
+    std::memset(&m_sock_addr, 0, sizeof(m_sock_addr));
 }
 
 /* destroy current socket and copy all the data */
 Socket::Socket(const Socket &sock)
 {
-    *this = sock;
+    m_sock_fd = sock.m_sock_fd;
+    m_address = sock.m_address;
+    m_port = sock.m_port;
+    std::memcpy(m_sock_addr.sin_zero, sock.m_sock_addr.sin_zero, 8);
+    m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
+    m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
+    m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
+#ifdef __APPLE__
+    m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
+#endif
 }
 
 Socket::~Socket()

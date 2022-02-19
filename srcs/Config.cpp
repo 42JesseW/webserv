@@ -36,7 +36,21 @@ Config::Config(void) :
     m_file_path(DFL_CONFIG_FILE_PATH),
     m_has_http_set(false)
 {
-
+    /*
+     * When using vector.push_back on m_servers in C++98
+     * the copy constructor is used to pre-allocate new objects.
+     * In C++11 a move-constructor can be defined for this.
+     *
+     * Problem is that the copy constructor will also call the
+     * Socket(const Socket& cpy) constructor which will create
+     * copies of existing Socket object. If it pre-allocates more
+     * then one then the last element is used as default which
+     * creates duplicate sockets and breaks logic during parsing.
+     *
+     * https://stackoverflow.com/questions/26740523/vector-push-back-calling-copy-constructor-more-than-once
+     */
+    m_servers.reserve(MAX_SERVER_CAP);
+    // TODO scan the config file for `server` keyword and reserve based on this.
 }
 
 Config::~Config(void)
@@ -165,7 +179,37 @@ void                            Config::_mapTokens(tokens_t& tokens)
                         err_ss << "Option '" << tokens.front() << "' at wrong parse level";
                         throw std::invalid_argument(err_ss.str());
                     }
-                    _mapTokenToObject(tokens, option, &current_server, &current_route, parse_level);
+                    switch (parse_level)
+                    {
+                        case (BASE):
+                        case (HTTP):
+                            if (tokens.front() == "server")
+                            {
+                                m_servers.push_back(Server());
+                                current_server = &m_servers.at(m_servers.size() - 1);
+                            }
+                            option->parse(this, tokens);
+                            break ;
+
+                        case (SERVER):
+                            if (tokens.front() == "location")
+                            {
+                                current_server->getRoutes().push_back(Route());
+                                current_route = &current_server->getRoutes().at(current_server->getRoutes().size() - 1);
+                                option->parse(current_route, tokens);
+                            }
+                            else
+                                option->parse(current_server, tokens);
+                            break ;
+
+                        case (LOCATION):
+                            option->parse(current_route, tokens);
+                            break ;
+
+                        default:
+                            break ;
+                    }
+                    //std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
                 }
             }
         }
@@ -173,45 +217,6 @@ void                            Config::_mapTokens(tokens_t& tokens)
     }
     if (!brackets.empty())
         throw std::invalid_argument("Invalid brackets in config file");
-}
-
-void                            Config::_mapTokenToObject(tokens_t& tokens,
-                                                                  Option *option,
-                                                                  Server **server,
-                                                                  Route **route,
-                                                                  int parse_level)
-{
-    switch (parse_level)
-    {
-        case (BASE):
-        case (HTTP):
-            if (tokens.front() == "server")
-            {
-                m_servers.push_back(Server());
-                *server = &m_servers.at(m_servers.size() - 1);
-            }
-            option->parse(this, tokens);
-            break ;
-
-        case (SERVER):
-            if (tokens.front() == "location")
-            {
-                (*server)->getRoutes().push_back(Route());
-                *route = &(*server)->getRoutes().at((*server)->getRoutes().size() - 1);
-                option->parse(*route, tokens);
-            }
-            else
-                option->parse(*server, tokens);
-            break ;
-
-        case (LOCATION):
-            option->parse(*route, tokens);
-            break ;
-
-        default:
-            break ;
-    }
-    //std::cout << "[parse level " << option->getParseLevel() << "]\n\n";
 }
 
 /*
