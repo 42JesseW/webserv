@@ -19,7 +19,7 @@ class Request
 		std::string								m_request;
 		std::map<std::string, std::string>		m_headers;
 		int										m_port;
-		bool									m_keep_connection;
+		bool									m_keep_alive;
 		std::string								m_body;
 
 	public:

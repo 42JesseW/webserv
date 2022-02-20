@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request() : m_status(200) {}
+Request::Request() : m_status(200), m_keep_alive(false) {}
 
 Request::Request(const Request &copy)
 {

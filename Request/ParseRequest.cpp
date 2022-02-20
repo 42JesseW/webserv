@@ -54,10 +54,10 @@ void Request::parseAndSetHeaders()
 	std::string key;
 	std::string value;
 
-	// CR (\r) = ascii 13
-	// LF (\n) = ascii 10
+	// CR (\r)
+	// LF (\n)
 
-	while (m_request[0] != 13 && !m_request.empty())
+	while (m_request[0] != '\r' && !m_request.empty())
 	{
 		token = m_request.substr(0, m_request.find(LF));
 		key = m_request.substr(0, m_request.find(':'));
@@ -74,11 +74,12 @@ void Request::parseAndSetHeaders()
 		std::istringstream(host) >> m_port;
 	}
 
-	std::string	connection = m_headers["Connection"];
-	if (connection.find(':') != std::string::npos)
+	if (m_headers.count("Connection"))
 	{
-		connection = connection.substr(connection.find(':') + 1, host.length() - 1);
-		std::cout << "CONNECTION IS: " << connection << std::endl;
+		if (m_headers["Connection"] == "keep-alive")
+		{
+			m_keep_alive = true;
+		}
 	}
 }
 
@@ -92,7 +93,7 @@ void Request::printRequest()
 
 	std::cout << "------------------ HEADERS ------------------" << std::endl;
 	std::cout << "Port: " << m_port << std::endl;
-	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
+	for (std::map<std::string, std::string>::iterator it = m_headers.begin(); it != m_headers.end(); ++it)
 		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 
 	std::cout << "------------------ BODY ------------------" << std::endl;
