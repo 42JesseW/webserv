@@ -119,7 +119,7 @@ int                         Server::doPolling(void)
     pollfds.events = POLLIN;
     m_pfds.push_back(pollfds);
 
-    for (;;)
+    forever
     {
         int poll_count = poll(&m_pfds[0], m_pfds.size(), POLL_NO_TIMEOUT);
         if (poll_count == -1)

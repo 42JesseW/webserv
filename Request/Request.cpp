@@ -1,15 +1,10 @@
 #include "Request.hpp"
 
-Request::Request() : m_status(200), m_keep_alive(false) {}
+Request::Request() : m_status(200), m_port(80), m_keep_alive(false) {}
 
 Request::Request(const Request &copy)
 {
-	m_status = copy.m_status;
-	m_method = copy.m_method;
-	m_target = copy.m_target;
-	m_version = copy.m_version;
-	m_headers = copy.m_headers;
-	m_body = copy.m_body;
+	// Implement in the end
 }
 
 Request::~Request() {}
