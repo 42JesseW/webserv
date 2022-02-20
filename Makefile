@@ -11,7 +11,7 @@ SRC =	main.cpp\
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address 
+# CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address 
 
 all: $(NAME)
 

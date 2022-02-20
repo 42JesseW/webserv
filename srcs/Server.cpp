@@ -101,7 +101,7 @@ void						Server::handlePollout(int i, pollfd_vec_t::iterator iter)
 	if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
 	{
 		char buff[4096];
-                
+
 		// to be replaced with response object creation
 		snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
 		send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
@@ -183,6 +183,5 @@ void						Server::handleConnection(int client_socket)
     Request new_request;
 
     new_request.handleRequest(client_socket);
-    std::cout << "Succes!" << std::endl;
-    // new_request.printRequest();
+    new_request.printRequest();
 }

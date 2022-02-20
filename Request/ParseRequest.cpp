@@ -73,22 +73,29 @@ void Request::parseAndSetHeaders()
 		host = host.substr(host.find(':') + 1, host.length() - 1);
 		std::istringstream(host) >> m_port;
 	}
+
+	std::string	connection = m_headers["Connection"];
+	if (connection.find(':') != std::string::npos)
+	{
+		connection = connection.substr(connection.find(':') + 1, host.length() - 1);
+		std::cout << "CONNECTION IS: " << connection << std::endl;
+	}
 }
 
-// void Request::printRequest()
-// {
-// 	std::cout << "------------------ START LINE ------------------" << std::endl;
-// 	std::cout << "Method: " << m_method << std::endl;
-// 	std::cout << "Target: " << m_target << std::endl;
-// 	std::cout << "Query: " << m_query << std::endl;
-// 	std::cout << "Version: " << m_version << std::endl;
+void Request::printRequest()
+{
+	std::cout << "------------------ START LINE ------------------" << std::endl;
+	std::cout << "Method: " << m_method << std::endl;
+	std::cout << "Target: " << m_target << std::endl;
+	std::cout << "Query: " << m_query << std::endl;
+	std::cout << "Version: " << m_version << std::endl;
 
-// 	std::cout << "------------------ HEADERS ------------------" << std::endl;
-// 	std::cout << "Port: " << m_port << std::endl;
-// 	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
-// 		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
+	std::cout << "------------------ HEADERS ------------------" << std::endl;
+	std::cout << "Port: " << m_port << std::endl;
+	for (auto it = m_headers.begin(); it != m_headers.end(); ++it)
+		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 
-// 	std::cout << "------------------ BODY ------------------" << std::endl;
-// 	std::cout << m_body << std::endl;
-// 	std::cout << "------------------ END ------------------" << std::endl;
-// }
+	std::cout << "------------------ BODY ------------------" << std::endl;
+	std::cout << m_body << std::endl;
+	std::cout << "------------------ END ------------------" << std::endl;
+}
