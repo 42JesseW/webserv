@@ -10,17 +10,20 @@
 
 class Request
 {
-	private:
+	protected:
 		int										m_status;
 		std::string								m_target;
 		std::string								m_query;
+		std::map<std::string, std::string>		m_headers;
+		std::string								m_body;
+		std::string     						m_extension;
+
+	private:
 		std::string 							m_method;
 		std::string								m_version;
 		std::string								m_request;
-		std::map<std::string, std::string>		m_headers;
 		int										m_port;
 		bool									m_keep_alive;
-		std::string								m_body;
 
 	public:
 		Request();
@@ -29,26 +32,26 @@ class Request
 
 		Request& operator = (const Request &Copy);
 
-		// Getters
-		std::string							getRequest();
-		std::string 						getMethod();
-		std::map<std::string, std::string>	getHeaders();
-		std::string							getBody();
-		int									getStatus();
-
 		// Parsing
-		void								handleRequest(int client_socket);
-		void								divideRequest();
-		void 								parseAndSetStartLine();
-		void 								parseAndSetHeaders();
+		void									handleRequest(int client_socket);
+		void									divideRequest();
+		void 									parseAndSetStartLine();
+		void 									parseAndSetHeaders();
 		
-		// Error handling
-		void								errorChecking();
-		void								checkStatusLine();
-		void								checkHeaders();
+		virtual void							setExtension();
 
-		// Utils
-		void								printRequest();
+		int										getStatus();
+		std::string								getTarget();
+		std::string								getQuery();
+		std::map<std::string, std::string>		getHeaders();
+		std::string								getBody();
+		
+		void									errorChecking();
+		void									checkStatusLine();
+		void									checkHeaders();
+
+		void									printRequest();
+		bool									keepAlive();
 };
 
 #endif

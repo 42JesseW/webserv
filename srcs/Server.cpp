@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include "Request.hpp"
+#include "GetRequest.hpp"
 
 Server::Server() {}
 
@@ -180,7 +180,7 @@ int                         Server::acceptNewConnection(void)
 
 void						Server::handleConnection(int client_socket)
 {
-    Request new_request;
+    GetRequest new_request;
 
     new_request.handleRequest(client_socket);
     new_request.printRequest();
