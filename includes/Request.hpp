@@ -25,6 +25,9 @@ class Request
 		int										m_port;
 		bool									m_keep_alive;
 
+		void									setHost();
+		void									setConnection();
+
 	public:
 		Request();
 		Request(const Request &Copy);

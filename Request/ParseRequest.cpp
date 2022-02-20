@@ -48,6 +48,27 @@ void Request::parseAndSetStartLine()
 	m_request.erase(0,  m_request.find(LF) + 1);
 }
 
+void Request::setHost()
+{
+	std::string	host = m_headers["Host"];
+	if (host.find(':') != std::string::npos)
+	{
+		host = host.substr(host.find(':') + 1, host.length() - 1);
+		std::istringstream(host) >> m_port;
+	}
+}
+
+void Request::setConnection()
+{
+	if (m_headers.count("Connection"))
+	{
+		if (m_headers["Connection"] == "keep-alive")
+		{
+			m_keep_alive = true;
+		}
+	}
+}
+
 void Request::parseAndSetHeaders()
 {
 	std::string token;
@@ -67,20 +88,8 @@ void Request::parseAndSetHeaders()
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
 
-	std::string	host = m_headers["Host"];
-	if (host.find(':') != std::string::npos)
-	{
-		host = host.substr(host.find(':') + 1, host.length() - 1);
-		std::istringstream(host) >> m_port;
-	}
-
-	if (m_headers.count("Connection"))
-	{
-		if (m_headers["Connection"] == "keep-alive")
-		{
-			m_keep_alive = true;
-		}
-	}
+	setHost();
+	setConnection();
 }
 
 void Request::printRequest()
