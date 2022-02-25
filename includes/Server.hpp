@@ -17,6 +17,8 @@
 
 # include <poll.h>
 
+typedef std::vector<struct pollfd> pollfd_vec_t;
+
 class Server
 {
 public:

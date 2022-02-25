@@ -8,9 +8,10 @@ SRC =   main.cpp\
 		srcs/Server.cpp \
 		srcs/Socket.cpp \
 		srcs/Client.cpp \
-		Request/ParseRequest.cpp \
-		Request/ErrorHandling.cpp \
-		Request/Request.cpp
+		srcs/request/ParseRequest.cpp \
+		srcs/request/ErrorHandling.cpp \
+		srcs/request/Request.cpp \
+		srcs/ConfigUtil.cpp
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)

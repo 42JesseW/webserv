@@ -1,26 +1,18 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   Request.cpp                                        :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: katherine <katherine@student.codam.nl>       +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/01/31 10:27:00 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 13:57:54 by katherine     ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
+#include "Request.hpp"
 
-#include <Request.hpp>
-
-Request::Request() : m_status(200) {}
+Request::Request() : m_status(200), m_port(80), m_keep_alive(false) {}
 
 Request::Request(const Request &copy)
 {
 	m_status = copy.m_status;
-	m_method = copy.m_method;
 	m_target = copy.m_target;
+	m_query = copy.m_query;
+	m_method = copy.m_method;
 	m_version = copy.m_version;
+	m_request = copy.m_request;
 	m_headers = copy.m_headers;
+	m_port = copy.m_port;
+	m_keep_alive = copy.m_keep_alive;
 	m_body = copy.m_body;
 }
 
@@ -33,27 +25,33 @@ Request & Request::operator=(const Request &copy)
 	return (*this);
 }
 
-std::string Request::getRequest()
+void	Request::setExtension() {}
+
+int	Request::getStatus()
 {
-	return (m_request);
+	return (m_status);
 }
 
-std::string  Request::getMethod()
+std::string	Request::getTarget()
 {
-	return (m_method);
+	return (m_target);
 }
 
-std::map<std::string, std::string> Request::getHeaders()
+std::string	Request::getQuery()
+{
+	return (m_query);
+}
+std::map<std::string, std::string>	Request::getHeaders()
 {
 	return (m_headers);
 }
 
-std::string Request::getBody()
+std::string	Request::getBody()
 {
 	return (m_body);
 }
 
-int Request::getStatus()
+bool Request::keepAlive()
 {
-	return (m_status);
+	return (m_keep_alive);
 }

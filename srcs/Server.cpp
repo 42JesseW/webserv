@@ -235,4 +235,5 @@ void						Server::handleConnection(int client_socket)
     Request new_request;
 
     new_request.handleRequest(client_socket);
+    new_request.printRequest();
 }

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   ErrorHandling.cpp                                  :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: katherine <katherine@student.codam.nl>       +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/02/09 13:58:06 by katherine     #+#    #+#                 */
-/*   Updated: 2022/02/11 13:50:51 by katherine     ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Request.hpp"
 
 void    Request::errorChecking()
@@ -21,10 +9,6 @@ void    Request::errorChecking()
         this->checkStatusLine();
         this->checkHeaders();
     }
-    if ( getenv( "PATH" ) ) // QUERY_STRING variable exists
-        query = std::getenv( "PATH" ); // retrieve QUERY_STRING value
-    std::cout << "Query: "<< query << std::endl;
-    std::cout << "Status: " << m_status << std::endl;
 }
 
 void    Request::checkStatusLine()
