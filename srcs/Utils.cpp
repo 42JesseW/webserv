@@ -52,4 +52,22 @@ namespace ft
         }
         return (file_contents);
     }
+
+    char            *strdup(const char *str)
+    {
+        size_t  idx;
+        char    *dup;
+
+        dup = new(std::nothrow) char[std::strlen(str) + 1];
+        if (!dup)
+            return (NULL);
+        idx = 0;
+        while (str[idx])
+        {
+            dup[idx] = str[idx];
+            idx++;
+        }
+        dup[idx] = '\0';
+        return (dup);
+    }
 }

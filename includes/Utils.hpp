@@ -11,6 +11,8 @@ namespace ft
 	int             stringToInt(const std::string& str);
 	std::string     readFileContent(std::ifstream& file_stream, const std::string& file_name);
 
+	char            *strdup(const char *str);
+
     template< class InputIt, class T >
     size_t  count( InputIt first, InputIt last, const T& value )
     {
@@ -25,6 +27,7 @@ namespace ft
         }
         return (counter);
     }
+
 }
 
 #endif
