@@ -12,6 +12,7 @@
 # define DFL_CGI_PROG   "php-cgi"
 
 # define UNSET_PID      (-1)
+# define UNSET_PIPE     0
 # define MAX_PIPE_SIZE  65536
 
 # include <Common.hpp>
@@ -61,17 +62,35 @@ public:
  * Encapsulates all operations and data related to
  * a Common Gateway Interface program used by the
  * webserver.
+ *
+ * It has the following responsibilities:
+ *  1. Hold all information relation to:
+ *    1.1. The CGI program
+ *      1.1.1. environment variables passed
+ *      1.1.2. data written to the CGI
+ *      1.1.3. state information regarding the execution
+ *        1.1.3.1. process ID
+ *        1.1.3.2. pipe file descriptors
+ *    1.2. The incoming request
+ *      1.2.1. request body
+ *      1.2.2. header information and server information
+ *  2. Execute the CGI program specified by user
+ *    2.1. Using .setProgramPath()
+ *  3. Be able to be reset by its user
  */
 class CGI
 {
 private:
     typedef std::map<std::string, std::string>  env_t;
+    typedef std::vector<std::string>            arg_t;
 
 private:
     /* program path should be checked at exec stage */
     std::string     m_program_path;
     std::string     m_request_body;
     env_t           m_environ;
+    arg_t           m_args;
+    char            **m_argv;
     char            **m_envp;
 
     /*
@@ -98,10 +117,24 @@ public:
 
     void            setProgramPath(const std::string& path);
 
+    pid_t&          getForkedPid(void);
+    int&            getPipeReadFd(void);
+
     /*
      * initialize the CGI structure using the Request object
      */
     void            init(SimpleRequest& request);
+
+    /*
+     * Last step in using the CGI object:
+     * - .init
+     * - .exec
+     * - .reset
+     *
+     * Resets all the variables inside of instance so
+     * that it can be used again for another request.
+     */
+    void            reset(void);
 
     /*
      * Creates the file descriptor that points to the read end of
@@ -115,10 +148,8 @@ public:
     int             exec(void);
 
 private:
-    void            _resetInstance(void);
-    void            _resetInstanceEnvp(int idx);
-
     char            **_environToEnvp(void);
+    char            **_argsToArgv(void);
     void            _execExitFail(void);
 
     /* get a value from a map but with a default value if it does not exist */

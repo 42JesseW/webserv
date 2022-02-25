@@ -3,6 +3,7 @@
 CGI::CGI() :
     m_program_path(DFL_CGI_DIR "/" DFL_CGI_PROG),
     m_fork_pid(UNSET_PID),
+    m_argv(NULL),
     m_envp(NULL)
 {
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
@@ -16,7 +17,8 @@ CGI::CGI(const CGI &cpy)
 
 CGI::~CGI()
 {
-    _resetInstanceEnvp(m_environ.size());
+    ft::freeCharArr(&m_envp);
+    ft::freeCharArr(&m_argv);
 }
 
 CGI&                CGI::operator=(const CGI &rhs)
@@ -25,6 +27,11 @@ CGI&                CGI::operator=(const CGI &rhs)
     {
         m_program_path = rhs.m_program_path;
         m_environ = rhs.m_environ;
+        ft::freeCharArr(&m_envp);
+        m_envp = _environToEnvp();
+        m_args = rhs.m_args;
+        ft::freeCharArr(&m_argv);
+        m_argv = _argsToArgv();
         m_pipe_in[0] = rhs.m_pipe_in[0];
         m_pipe_in[1] = rhs.m_pipe_in[1];
         m_pipe_out[0] = rhs.m_pipe_out[0];
@@ -36,6 +43,16 @@ CGI&                CGI::operator=(const CGI &rhs)
 void                CGI::setProgramPath(const std::string& path)
 {
     m_program_path = path;
+}
+
+pid_t&              CGI::getForkedPid(void)
+{
+    return (m_fork_pid);
+}
+
+int&                CGI::getPipeReadFd(void)
+{
+    return (m_pipe_out[0]);
 }
 
 /*
@@ -99,6 +116,11 @@ void                CGI::init(SimpleRequest& request)
     if (!m_envp)
         throw std::runtime_error("Failed to allocate for GGI::m_envp");
 
+    m_args.push_back(m_program_path);                                   // TODO extra arguments must be passed here
+    m_argv = _argsToArgv();
+    if (!m_argv)
+        throw std::runtime_error("Failed to allocate for CGI::m_argv");
+
     /* create the two pipes needed for .exec and make output pipe's read part `non_blocking` */
     if (pipe(m_pipe_in) == SYS_ERROR || pipe(m_pipe_out) == SYS_ERROR)  // TODO testcase
         throw std::runtime_error("Failed to create pipes for CGI object");
@@ -119,7 +141,6 @@ void                CGI::init(SimpleRequest& request)
 int                 CGI::exec(void)
 {
     pid_t   pid;
-    char    *argv[] = {ft::strdup(m_program_path.c_str()), NULL};
 
     if (m_pipe_in[0] == 0 || m_pipe_in[1] == 0)
         throw std::invalid_argument("CGI class not initialised");
@@ -144,7 +165,7 @@ int                 CGI::exec(void)
             _execExitFail();
 
         /* call the CGI program using provided arguments. This call will take over child process */
-        if (execve(m_program_path.c_str(), argv, m_envp) == SYS_ERROR)
+        if (execve(m_program_path.c_str(), m_argv, m_envp) == SYS_ERROR)
         {
             /*
              * write the error description to the write end of the out pipe
@@ -167,27 +188,21 @@ void                CGI::_execExitFail(void)
     std::string err(strerror(errno));
 
     write(m_pipe_out[1], err.c_str(), err.size());
-    _resetInstanceEnvp(m_environ.size());
+    ft::freeCharArr(&m_envp);
+    ft::freeCharArr(&m_argv);
     exit(EXIT_FAILURE);
 }
 
-void                CGI::_resetInstance(void)
+void                CGI::reset(void)
 {
     m_program_path.clear();
     m_request_body.clear();
-    _resetInstanceEnvp(m_environ.size());
+    ft::freeCharArr(&m_envp);
+    ft::freeCharArr(&m_argv);
     m_environ.clear();
     m_fork_pid = UNSET_PID;
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
-}
-
-void                CGI::_resetInstanceEnvp(int idx)
-{
-    for (int i = 0; i < idx; ++i)
-        delete m_envp[i];
-    delete [] m_envp;
-    m_envp = NULL;
 }
 
 char                **CGI::_environToEnvp(void)
@@ -207,12 +222,43 @@ char                **CGI::_environToEnvp(void)
         envp[idx] = ft::strdup(tmp.c_str());
         if (!envp[idx])
         {
-            _resetInstanceEnvp(idx);
+            while (idx > 0)
+            {
+                delete envp[idx];
+                --idx;
+            }
+            delete [] envp;
             return (NULL);
         }
     }
     envp[idx] = NULL;
     return (envp);
+}
+
+char                **CGI::_argsToArgv(void)
+{
+    int     idx;
+    char    **argv;
+
+    argv = new(std::nothrow) char*[m_args.size() + 1];
+    if (!argv)
+        return (NULL);
+    for (idx = 0; idx < m_args.size(); ++idx)
+    {
+        argv[idx] = ft::strdup(m_args[idx].c_str());
+        if (!argv[idx])
+        {
+            while (idx > 0)
+            {
+                delete argv[idx];
+                --idx;
+            }
+            delete [] argv;
+            return (NULL);
+        }
+    }
+    argv[idx] = NULL;
+    return (argv);
 }
 
 SimpleRequest::SimpleRequest()

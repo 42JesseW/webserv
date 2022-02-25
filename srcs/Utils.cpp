@@ -70,4 +70,17 @@ namespace ft
         dup[idx] = '\0';
         return (dup);
     }
+
+    void            freeCharArr(char ***arr)
+    {
+        char    **p;
+
+        if (!*arr)
+            return ;
+        p = *arr;
+        for (int idx = 0; p[idx]; ++idx)
+            delete p[idx];
+        delete [] p;
+        *arr = NULL;
+    }
 }

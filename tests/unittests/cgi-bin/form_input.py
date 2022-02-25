@@ -6,10 +6,8 @@ import cgitb
 cgitb.enable()
 
 input_data = cgi.FieldStorage()
-print(input_data)
 
-print('Content-Type: text/html') # HTML is following
-print('')                         # Leave a blank line
+print('Content-Type:text/html\r\n\r\n')
 print('<h1>Addition Results</h1>')
 try:
     num1 = int(input_data["num1"].value)
