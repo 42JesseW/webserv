@@ -26,7 +26,6 @@ class Request
 		int										m_port;
 
 		void									setHost();
-		void									setConnection();
 
 	public:
 		Request();

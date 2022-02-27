@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-Request::Request() : m_status(200), m_port(80) {}
+Request::Request() : m_status(200), m_uri("/"), m_path("/"), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -29,30 +29,30 @@ void	Request::setExtension() {}
 
 int	&Request::getStatus()
 {
-	return (&m_status);
+	return (m_status);
 }
 
 std::string	&Request::getUri()
 {
-	return (&m_uri);
+	return (m_uri);
 }
 
 std::string	&Request::getPath()
 {
-	return (&m_path);
+	return (m_path);
 }
 
 std::string	&Request::getQuery()
 {
-	return (&m_query);
+	return (m_query);
 }
 
 std::map<std::string, std::string>	&Request::getHeaders()
 {
-	return (&m_headers);
+	return (m_headers);
 }
 
 std::string	&Request::getBody()
 {
-	return (&m_body);
+	return (m_body);
 }

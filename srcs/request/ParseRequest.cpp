@@ -31,21 +31,31 @@ void Request::divideRequest()
 void Request::parseAndSetStartLine()
 {
 	m_method = m_request.substr(0, m_request.find(' '));
-	m_request.erase(0,  m_request.find(' ') + 1);
-	m_request.erase(0,  m_request.find_first_not_of(' '));
+	m_request.erase(0, m_request.find(' ') + 1);
+	m_request.erase(0, m_request.find_first_not_of(' '));
+	std::string m_url = m_request.substr(0, m_request.find(' '));
+	m_request.erase(0, m_request.find(' ') + 1);
+	m_request.erase(0, m_request.find_first_not_of(' '));
+	m_version = m_request.substr(0, m_request.find(LF));
+	m_request.erase(0, m_request.find(LF) + 1);
 
-	m_target = m_request.substr(0, m_request.find(' '));
-
-	if (m_target.find('?') != std::string::npos)
+	if (!m_url.empty())
 	{
-		m_query = m_target.substr(m_target.find('?') + 1, m_target.find(' '));
-		m_target = m_target.substr(0, m_target.find('?'));
+		if (m_url.find("pl") != std::string::npos)
+		{
+			m_uri = m_url.substr(1, m_url.find(".pl") + 2);
+			m_url.erase(0, m_url.find(".pl") + 3);
+		}
+		if (m_url.find('?') != std::string::npos)
+		{
+			m_query = m_url.substr(m_url.find('?') + 1);
+			m_url.erase(m_url.find('?'));
+		}
+		if (!m_url.empty())
+		{
+			m_path = m_url;
+		}
 	}
-	m_request.erase(0,  m_request.find(' ') + 1);
-	m_request.erase(0,  m_request.find_first_not_of(' '));
-	
-	m_version = m_request.substr(0, m_request.find(CR));
-	m_request.erase(0,  m_request.find(LF) + 1);
 }
 
 void Request::setHost()
@@ -55,17 +65,6 @@ void Request::setHost()
 	{
 		host = host.substr(host.find(':') + 1, host.length() - 1);
 		std::istringstream(host) >> m_port;
-	}
-}
-
-void Request::setConnection()
-{
-	if (m_headers.count("Connection"))
-	{
-		if (m_headers["Connection"] == "keep-alive")
-		{
-			m_keep_alive = true;
-		}
 	}
 }
 
@@ -89,14 +88,14 @@ void Request::parseAndSetHeaders()
 	}
 
 	setHost();
-	setConnection();
 }
 
 void Request::printRequest()
 {
 	std::cout << "------------------ START LINE ------------------" << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
-	std::cout << "Target: " << m_target << std::endl;
+	std::cout << "Uri: " << m_uri << std::endl;
+	std::cout << "Path: " << m_path << std::endl;
 	std::cout << "Query: " << m_query << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
 
