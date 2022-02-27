@@ -1,18 +1,18 @@
 #include "Request.hpp"
 
-Request::Request() : m_status(200), m_port(80), m_keep_alive(false) {}
+Request::Request() : m_status(200), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
 	m_status = copy.m_status;
-	m_target = copy.m_target;
+	m_uri = copy.m_uri;
+	m_path = copy.m_path;
 	m_query = copy.m_query;
 	m_method = copy.m_method;
 	m_version = copy.m_version;
 	m_request = copy.m_request;
 	m_headers = copy.m_headers;
 	m_port = copy.m_port;
-	m_keep_alive = copy.m_keep_alive;
 	m_body = copy.m_body;
 }
 
@@ -27,31 +27,32 @@ Request & Request::operator=(const Request &copy)
 
 void	Request::setExtension() {}
 
-int	Request::getStatus()
+int	&Request::getStatus()
 {
-	return (m_status);
+	return (&m_status);
 }
 
-std::string	Request::getTarget()
+std::string	&Request::getUri()
 {
-	return (m_target);
+	return (&m_uri);
 }
 
-std::string	Request::getQuery()
+std::string	&Request::getPath()
 {
-	return (m_query);
-}
-std::map<std::string, std::string>	Request::getHeaders()
-{
-	return (m_headers);
+	return (&m_path);
 }
 
-std::string	Request::getBody()
+std::string	&Request::getQuery()
 {
-	return (m_body);
+	return (&m_query);
 }
 
-bool Request::keepAlive()
+std::map<std::string, std::string>	&Request::getHeaders()
 {
-	return (m_keep_alive);
+	return (&m_headers);
+}
+
+std::string	&Request::getBody()
+{
+	return (&m_body);
 }
