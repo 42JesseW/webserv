@@ -1,0 +1,152 @@
+[
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/main.cpp.o -c /home/danali/Documents/Codam/webserv_dev/main.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/main.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Client.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Client.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Client.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Config.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Config.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Config.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/ConfigUtil.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/ConfigUtil.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/ConfigUtil.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Option.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Option.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Option.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Route.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Route.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Route.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Server.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Server.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Server.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Socket.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Socket.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Socket.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/Utils.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Utils.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Utils.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/request/ErrorHandling.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/ErrorHandling.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/ErrorHandling.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/request/ParseRequest.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/ParseRequest.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/ParseRequest.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/request/Request.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/Request.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/Request.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/response/GetResponse.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/response/GetResponse.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/response/GetResponse.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes  -g   -std=gnu++98 -o CMakeFiles/webserv.dir/srcs/response/Response.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/response/Response.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/response/Response.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tests.dir/unittests/test_config.cpp.o -c /home/danali/Documents/Codam/webserv_dev/tests/unittests/test_config.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/tests/unittests/test_config.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tests.dir/unittests/test_options.cpp.o -c /home/danali/Documents/Codam/webserv_dev/tests/unittests/test_options.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/tests/unittests/test_options.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tests.dir/unittests/test_request.cpp.o -c /home/danali/Documents/Codam/webserv_dev/tests/unittests/test_request.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/tests/unittests/test_request.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Client.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Client.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Client.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Config.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Config.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Config.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/ConfigUtil.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/ConfigUtil.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/ConfigUtil.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Option.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Option.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Option.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Route.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Route.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Route.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Server.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Server.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Server.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Socket.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Socket.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Socket.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/Utils.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/Utils.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/Utils.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/request/ErrorHandling.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/ErrorHandling.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/ErrorHandling.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/request/ParseRequest.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/ParseRequest.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/ParseRequest.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/request/Request.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/request/Request.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/request/Request.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/response/GetResponse.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/response/GetResponse.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/response/GetResponse.cpp"
+},
+{
+  "directory": "/home/danali/Documents/Codam/webserv_dev/build/tests",
+  "command": "/bin/x86_64-linux-gnu-g++-9   -I/home/danali/Documents/Codam/webserv_dev/includes -I/home/danali/Documents/Codam/webserv_dev/tests/includes -I/home/danali/Documents/Codam/webserv_dev/tests/.  -g   -std=gnu++11 -o CMakeFiles/tester.dir/__/srcs/response/Response.cpp.o -c /home/danali/Documents/Codam/webserv_dev/srcs/response/Response.cpp",
+  "file": "/home/danali/Documents/Codam/webserv_dev/srcs/response/Response.cpp"
+}
+]
