@@ -2,13 +2,12 @@
 # define GETRESPONSE_HPP
 
 # include <Response.hpp>
-# include "StatusCodes.hpp"
+# include <ConfigUtil.hpp>
 # include <sstream>
 
 class GetResponse : public Response
 {
 	private:
-		StatusCodes		m_status_map;
 		int				m_status_code;
 		std::string		m_response;
 
@@ -21,7 +20,7 @@ class GetResponse : public Response
 		GetResponse& operator = (const GetResponse &copy);
 
 		int					handleMethod();
-		void				buildStartLine();
+		void				buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		// void				buildHeaders();
 		void				buildBody();
 

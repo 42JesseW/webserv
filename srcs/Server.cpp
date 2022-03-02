@@ -148,7 +148,7 @@ void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter, Request *ne
 		// else if (new_request->getMethod() == "DELETE")
 		// 	DeleteResponse	new_response(*new_request);
 
-        new_response.buildResponse();
+        new_response.buildResponse(m_error_files);
 
         send(m_pfds[i].fd, new_response.getResponse().c_str(), new_response.getResponse().length(), 0);
         close(m_pfds[i].fd);

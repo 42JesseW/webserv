@@ -43,20 +43,20 @@ std::string			GetResponse::ft_itos(int nbr)
 	return (static_cast<std::ostringstream&>((std::ostringstream() << std::dec << nbr)).str());
 }
 
-void				GetResponse::buildStartLine()
+void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 {
-	std::string								str_status_code;
-	std::string 							reason_phrase;
-	std::string								white_space;
-	std::map<int, std::string>::iterator	it;
-	std::map<int, std::string>				tmp_map;
+	std::string									str_status_code;
+	std::string 								reason_phrase;
+	std::string									white_space;
+	ConfigUtil::status_code_map_t::iterator		it;
+	std::map<int, std::string>					tmp_map;
 
 	str_status_code = ft_itos(m_status_code);
 
-	tmp_map = m_status_map.getStatusCodesMap();
-	it = tmp_map.find(m_status_code);
-	if (it != tmp_map.end())
-		reason_phrase = it->second;
+	// tmp_map = m_status_map.getStatusCodesMap();
+	it = m_error_files.find(m_status_code);
+	if (it != m_error_files.end())
+		reason_phrase = it->second.first;
 	else
 	{
 		// throw exception?

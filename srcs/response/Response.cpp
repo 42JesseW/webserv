@@ -30,10 +30,10 @@ std::string const &		Response::getResponse() const
 	return (m_response);
 }
 
-void					Response::buildResponse()
+void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	handleMethod();
-	buildStartLine();
+	buildStartLine(m_error_files);
 	buildBody();
 	// m_response = m_start_line + m_headers + m_body;
 	m_response = m_start_line + "\r\n\r\n" + m_body;
