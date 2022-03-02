@@ -1,5 +1,9 @@
 #include <catch.hpp>
 #include <sys/poll.h>
+#ifdef __linux__
+# include <sys/wait.h>
+# include <limits.h>
+#endif
 
 #define private         public
 #define POLL_NO_TIMEOUT 0
