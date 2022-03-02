@@ -8,7 +8,7 @@ SRC =   main.cpp\
 		srcs/Server.cpp \
 		srcs/Socket.cpp \
 		srcs/Client.cpp \
-		srcs/request/ParseRequest.cpp \
+		srcs/request/HandleRequest.cpp \
 		srcs/request/ErrorHandling.cpp \
 		srcs/request/Request.cpp \
 		srcs/ConfigUtil.cpp

@@ -13,7 +13,7 @@ void    Request::errorChecking()
 
 void    Request::checkStatusLine()
 {
-    if (m_method.empty() || m_uri.empty() || m_version.empty())
+    if (m_method.empty() || m_version.empty())
         m_status = 400;
     else if (m_method != "GET" && m_method != "POST" && m_method != "DELETE")
         m_status = 405;

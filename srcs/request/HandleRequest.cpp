@@ -41,21 +41,13 @@ void Request::parseAndSetStartLine()
 
 	if (!m_url.empty())
 	{
-		if (m_url.find("pl") != std::string::npos)
-		{
-			m_uri = m_url.substr(1, m_url.find(".pl") + 2);
-			m_url.erase(0, m_url.find(".pl") + 3);
-		}
 		if (m_url.find('?') != std::string::npos)
 		{
 			m_query = m_url.substr(m_url.find('?') + 1);
 			m_url.erase(m_url.find('?'));
 		}
-		if (!m_url.empty())
-		{
-			m_path = m_url;
-		}
 	}
+	m_target = m_url;
 }
 
 void Request::setHost()
@@ -93,14 +85,14 @@ void Request::parseAndSetHeaders()
 void Request::printRequest()
 {
 	std::cout << "------------------ START LINE ------------------" << std::endl;
+	std::cout << "Status: " << m_status << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
-	std::cout << "Uri: " << m_uri << std::endl;
-	std::cout << "Path: " << m_path << std::endl;
-	std::cout << "Query: " << m_query << std::endl;
+	std::cout << "Query:" << m_query << std::endl;
+	std::cout << "Target: " << m_target << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
+	std::cout << "Port: " << m_port << std::endl;
 
 	std::cout << "------------------ HEADERS ------------------" << std::endl;
-	std::cout << "Port: " << m_port << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_headers.begin(); it != m_headers.end(); ++it)
 		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 

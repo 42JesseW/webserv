@@ -1,12 +1,11 @@
 #include "Request.hpp"
 
-Request::Request() : m_status(200), m_uri("/"), m_path("/"), m_port(80) {}
+Request::Request() : m_status(200), m_target("/"), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
 	m_status = copy.m_status;
-	m_uri = copy.m_uri;
-	m_path = copy.m_path;
+	m_target = copy.m_target;
 	m_query = copy.m_query;
 	m_method = copy.m_method;
 	m_version = copy.m_version;
@@ -32,14 +31,9 @@ int	&Request::getStatus()
 	return (m_status);
 }
 
-std::string	&Request::getUri()
+std::string	&Request::getTarget()
 {
-	return (m_uri);
-}
-
-std::string	&Request::getPath()
-{
-	return (m_path);
+	return (m_target);
 }
 
 std::string	&Request::getQuery()

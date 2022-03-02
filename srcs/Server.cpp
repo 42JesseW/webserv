@@ -233,7 +233,11 @@ int                         Server::acceptNewConnection(void)
 void						Server::handleConnection(int client_socket)
 {
     Request new_request;
+    //Route   *route;
+    //Response  *response;
 
     new_request.handleRequest(client_socket);
+    //route = _matchRequestToRoute(new_request)
+    //response = _buildResponseFromRoute()
     new_request.printRequest();
 }

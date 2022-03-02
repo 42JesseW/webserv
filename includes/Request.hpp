@@ -12,8 +12,7 @@ class Request
 {
 	protected:
 		int										m_status;
-		std::string								m_uri;
-		std::string								m_path;
+		std::string								m_target;
 		std::string								m_query;
 		std::map<std::string, std::string>		m_headers;
 		std::string								m_body;
@@ -43,8 +42,7 @@ class Request
 		virtual void							setExtension();
 
 		int										&getStatus();
-		std::string								&getUri();
-		std::string								&getPath();
+		std::string								&getTarget();
 		std::string								&getQuery();
 		std::map<std::string, std::string>		&getHeaders();
 		std::string								&getBody();
