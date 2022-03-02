@@ -31,11 +31,12 @@ GetResponse & GetResponse::operator=(const GetResponse &copy)
 	return (*this);
 }
 
-int					GetResponse::handleMethod()
+void				GetResponse::handleMethod()
 {
 	// Processes the GET Method and returns the status code
-	m_status_code = 200;
-	return (m_status_code);
+	m_status_code = m_request.getStatus();
+	// if (m_status_code != 200)
+		/* handle errors */
 }
 
 std::string			GetResponse::ft_itos(int nbr)
@@ -49,11 +50,9 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	std::string 								reason_phrase;
 	std::string									white_space;
 	ConfigUtil::status_code_map_t::iterator		it;
-	std::map<int, std::string>					tmp_map;
 
 	str_status_code = ft_itos(m_status_code);
 
-	// tmp_map = m_status_map.getStatusCodesMap();
 	it = m_error_files.find(m_status_code);
 	if (it != m_error_files.end())
 		reason_phrase = it->second.first;
@@ -65,7 +64,7 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	}
 
 	white_space = " ";
-	m_start_line = HTTP_VERSION + white_space + str_status_code + white_space + reason_phrase;
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase;
 }
 
 void				GetResponse::buildBody()

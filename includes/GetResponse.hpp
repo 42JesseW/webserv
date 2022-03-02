@@ -19,7 +19,7 @@ class GetResponse : public Response
 
 		GetResponse& operator = (const GetResponse &copy);
 
-		int					handleMethod();
+		void				handleMethod();
 		void				buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		// void				buildHeaders();
 		void				buildBody();

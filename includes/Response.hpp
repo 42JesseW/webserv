@@ -1,8 +1,6 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# define HTTP_VERSION "HTTP/1.1"
-
 # include <Common.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
@@ -31,7 +29,7 @@ class Response
 		std::string const &							getResponse() const;
 
 		// For each child class to define
-		virtual int								handleMethod() = 0;
+		virtual void							handleMethod() = 0;
 		virtual void							buildStartLine(ConfigUtil::status_code_map_t& m_error_files) = 0;
 		// virtual void							buildHeaders() = 0;
 		virtual void							buildBody() = 0;
