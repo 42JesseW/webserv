@@ -10,6 +10,9 @@ namespace ft
 	std::string		intToString(int num);
 	int             stringToInt(const std::string& str);
 	std::string     readFileContent(std::ifstream& file_stream, const std::string& file_name);
+	void            freeCharArr(char ***arr);
+
+    char            *strdup(const char *str);
 
     template< class InputIt, class T >
     size_t  count( InputIt first, InputIt last, const T& value )
