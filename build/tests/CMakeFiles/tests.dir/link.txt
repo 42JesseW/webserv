@@ -1,1 +1,0 @@
-/bin/x86_64-linux-gnu-g++-9  -g   CMakeFiles/tests.dir/unittests/test_config.cpp.o CMakeFiles/tests.dir/unittests/test_options.cpp.o CMakeFiles/tests.dir/unittests/test_request.cpp.o  -o tests  libtester.a 
