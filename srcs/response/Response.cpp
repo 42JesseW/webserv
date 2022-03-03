@@ -38,7 +38,7 @@ std::string const &		Response::getResponse() const
 
 void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
-	handleMethod();
+	// handleMethod();
 	buildStartLine(m_error_files);
 	buildBody();
 	// m_response = m_start_line + m_headers + m_body;
