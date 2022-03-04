@@ -39,11 +39,14 @@ class Request
 		void 									parseAndSetStartLine();
 		void 									parseAndSetHeaders();
 		
-		virtual void							setExtension();
+		void									setRequest(std::string new_request); // For testing only
 
 		int										&getStatus();
 		std::string								&getTarget();
 		std::string								&getQuery();
+		std::string								&getMethod();
+		std::string								&getVersion();
+		int										&getPort();
 		std::map<std::string, std::string>		&getHeaders();
 		std::string								&getBody();
 		
@@ -51,6 +54,7 @@ class Request
 		void									checkStatusLine();
 		void									checkHeaders();
 
+		void									resetRequest();
 		void									printRequest();
 };
 
