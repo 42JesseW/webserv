@@ -5,15 +5,19 @@ void Request::handleRequest(int client_socket)
 	char    buffer[BUFF_SIZE];
 	int     bytes_read = 0;
 
-	while ((bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT)) > 0)
-	{
-		m_request.append(buffer, bytes_read);
-		std::memset(buffer, 0, BUFF_SIZE);
-	}
+	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
+	this->m_request.append(buffer, bytes_read);
+	std::memset(buffer, 0, BUFF_SIZE);
+	std::cout << "Bytes read: " << bytes_read << std::endl;
 	if (bytes_read == -1)
+	{
 		m_status = 400;
-	divideRequest();
-	errorChecking();
+	}
+	if (bytes_read == 0)
+	{
+		divideRequest();
+		errorChecking();
+	}	
 }
 
 void Request::divideRequest()
@@ -87,8 +91,8 @@ void Request::printRequest()
 	std::cout << "------------------ START LINE ------------------" << std::endl;
 	std::cout << "Status: " << m_status << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
-	std::cout << "Query:" << m_query << std::endl;
 	std::cout << "Target: " << m_target << std::endl;
+	std::cout << "Query:" << m_query << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
 	std::cout << "Port: " << m_port << std::endl;
 
