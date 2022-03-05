@@ -1,21 +1,23 @@
 NAME = webserv
 
 SRC =   main.cpp\
-		srcs/Config.cpp \
-		srcs/Option.cpp \
-		srcs/Utils.cpp \
-        srcs/Route.cpp \
-		srcs/Server.cpp \
-		srcs/Socket.cpp \
-		srcs/Client.cpp \
-		srcs/request/ParseRequest.cpp \
-		srcs/request/ErrorHandling.cpp \
-		srcs/request/Request.cpp \
-		srcs/ConfigUtil.cpp
+		srcs/Config.cpp\
+		srcs/Option.cpp\
+		srcs/Utils.cpp\
+        srcs/Route.cpp\
+		srcs/Server.cpp\
+		srcs/Socket.cpp\
+		srcs/Client.cpp\
+		srcs/ConfigUtil.cpp\
+		srcs/request/ParseRequest.cpp\
+		srcs/request/ErrorHandling.cpp\
+		srcs/request/Request.cpp\
+		srcs/response/Response.cpp\
+		srcs/response/GetResponse.cpp
 
 OBJS = $(SRC:.cpp=.o)
 FT_OBJS = $(FT_SRC:.cpp=.o)
-CFLAGS = -Wall -Wextra -pedantic -g -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address
 
 all: $(NAME)
 
