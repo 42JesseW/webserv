@@ -241,12 +241,11 @@ int                         Server::acceptNewConnection(void)
 
 void						Server::handleConnection(int client_socket, Request *new_request)
 {
-    Client this_client = m_clients.at(client_socket);
+    Client *this_client = &m_clients.at(client_socket);
     //Route   *route;
-    //Response  *response;
 
-    this_client.getRequest().handleRequest(client_socket);
+    this_client->getRequest().handleRequest(client_socket, new_request);
     //route = _matchRequestToRoute(new_request)
     //response = _buildResponseFromRoute()
-    this_client.getRequest().printRequest();
+    new_request->printRequest();
 }

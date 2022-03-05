@@ -9,26 +9,36 @@ SRC =   main.cpp\
 		srcs/Socket.cpp\
 		srcs/Client.cpp\
 		srcs/ConfigUtil.cpp\
-		srcs/request/ParseRequest.cpp\
+		srcs/request/HandleRequest.cpp\
 		srcs/request/ErrorHandling.cpp\
 		srcs/request/Request.cpp\
 		srcs/response/Response.cpp\
 		srcs/response/GetResponse.cpp
 
+TEST =	tests/unittests/main.cpp\
+		tests/unittests/test_request.cpp\
+		srcs/request/Request.cpp\
+		srcs/request/HandleRequest.cpp\
+		srcs/request/ErrorHandling.cpp\
+
 OBJS = $(SRC:.cpp=.o)
-FT_OBJS = $(FT_SRC:.cpp=.o)
+TEST_OBJS = $(TEST:.cpp=.o)
 CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address
+TFLAGS = -Wall -Werror -Wextra -std=c++11 -pedantic -g -fsanitize=address
 
 all: $(NAME)
 
 $(NAME):	$(OBJS)
 	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
 
-%.o:	%.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
+%.o: %.cpp
+	$(CXX) $(TFLAGS) -c $< -o $@ -I includes
+
+test: $(TEST_OBJS)
+	$(CXX) $(TFLAGS) -o $(NAME) $(TEST_OBJS)
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(TEST_OBJS) a.out
 
 fclean: 	clean
 	rm -f $(NAME)

@@ -1,22 +1,21 @@
 #include <Request.hpp>
 
-void Request::handleRequest(int client_socket)
+void Request::handleRequest(int client_socket, Request *client_request)
 {
 	char    buffer[BUFF_SIZE];
 	int     bytes_read = 0;
 
 	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
-	this->m_request.append(buffer, bytes_read);
+	client_request->m_request.append(buffer, bytes_read);
 	std::memset(buffer, 0, BUFF_SIZE);
-	std::cout << "Bytes read: " << bytes_read << std::endl;
 	if (bytes_read == -1)
 	{
-		m_status = 400;
+		client_request->m_status = 400;
 	}
-	if (bytes_read == 0)
+	else if (bytes_read >= 0)
 	{
-		divideRequest();
-		errorChecking();
+		client_request->divideRequest();
+		client_request->errorChecking();
 	}	
 }
 
@@ -40,7 +39,7 @@ void Request::parseAndSetStartLine()
 	std::string m_url = m_request.substr(0, m_request.find(' '));
 	m_request.erase(0, m_request.find(' ') + 1);
 	m_request.erase(0, m_request.find_first_not_of(' '));
-	m_version = m_request.substr(0, m_request.find(LF));
+	m_version = m_request.substr(0, m_request.find(CR));
 	m_request.erase(0, m_request.find(LF) + 1);
 
 	if (!m_url.empty())
@@ -56,11 +55,18 @@ void Request::parseAndSetStartLine()
 
 void Request::setHost()
 {
-	std::string	host = m_headers["Host"];
-	if (host.find(':') != std::string::npos)
+	if (m_headers.find("Host") == m_headers.end())
 	{
-		host = host.substr(host.find(':') + 1, host.length() - 1);
-		std::istringstream(host) >> m_port;
+		m_status = 400;
+	}
+	else 
+	{
+		std::string	host = m_headers["Host"];
+		if (host.find(':') != std::string::npos)
+		{
+			host = host.substr(host.find(':') + 1, host.length() - 1);
+			std::istringstream(host) >> m_port;
+		}
 	}
 }
 
@@ -70,19 +76,15 @@ void Request::parseAndSetHeaders()
 	std::string key;
 	std::string value;
 
-	// CR (\r)
-	// LF (\n)
-
 	while (m_request[0] != '\r' && !m_request.empty())
 	{
-		token = m_request.substr(0, m_request.find(LF));
+		token = m_request.substr(0, m_request.find(CR));
 		key = m_request.substr(0, m_request.find(':'));
 		m_request.erase(0, m_request.find(':') + 2);
 		value = m_request.substr(0, m_request.find(CR));
 		m_headers.insert(std::pair<std::string, std::string>(key, value));
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
-
 	setHost();
 }
 
@@ -92,7 +94,7 @@ void Request::printRequest()
 	std::cout << "Status: " << m_status << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
 	std::cout << "Target: " << m_target << std::endl;
-	std::cout << "Query:" << m_query << std::endl;
+	std::cout << "Query: " << m_query << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
 	std::cout << "Port: " << m_port << std::endl;
 
