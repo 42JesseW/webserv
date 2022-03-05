@@ -38,7 +38,10 @@ void				GetResponse::handleMethod()
 
 std::string			GetResponse::ft_itos(int nbr)
 {
-	return (static_cast<std::ostringstream&>((std::ostringstream() << std::dec << nbr)).str());
+    std::ostringstream  ss;
+
+    ss << std::dec << nbr;
+	return (ss.str());
 }
 
 void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)

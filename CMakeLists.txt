@@ -7,6 +7,6 @@ include_directories(includes)
 
 file(GLOB_RECURSE SOURCES srcs/*.cpp srcs/**/*.cpp)
 
-add_executable(webserv main.cpp ${SOURCES})
+add_executable(webserv ${SOURCES})
 
 add_subdirectory(tests)

@@ -1,0 +1,40 @@
+name: Continuous-Integration
+
+on:
+  push:
+    branches: [ master, development ]
+
+  pull_request:
+    branches: [ master, development ]
+
+  # allows to run workflow manually from Github API, CLI or Web interface
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: makefile check
+        run: |
+          make
+          make clean
+          make fclean
+          make minishell
+          make re
+
+  build-linux:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: makefile check
+        run: |
+          make
+          make clean
+          make fclean
+          make minishell
+          make re
