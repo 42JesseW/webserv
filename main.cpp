@@ -19,7 +19,7 @@ int     main(int argc, char *argv[])
     {
         config->loadFile();
         thread_ids = new pthread_t[config->getServers().size()];
-        for (int idx = 0; idx < config->getServers().size(); ++idx)
+        for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
         {
             server = &config->getServers().at(idx);
             if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Server::threadedPoll, server) == SYS_ERROR)
@@ -28,7 +28,7 @@ int     main(int argc, char *argv[])
                 break ;
             }
         }
-        for (int idx = 0; idx < config->getServers().size(); ++idx)
+        for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
             pthread_join(thread_ids[idx], NULL);
     }
     catch (const std::invalid_argument& e)

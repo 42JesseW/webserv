@@ -119,7 +119,7 @@ void						Server::_handleErrorEvents(int i, pollfd_vec_t::iterator iter)
     }
 }
 
-void                        Server::_handlePollin(int i)
+void                        Server::_handlePollin(int i, Request *new_request)
 {
     if (m_pfds[i].revents & POLLIN)
     {
@@ -132,20 +132,25 @@ void                        Server::_handlePollin(int i)
             }
         }
         else
-            handleConnection(m_pfds[i].fd);
+            handleConnection(m_pfds[i].fd, new_request);
         usleep(2000);
     }
 }
 
-void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter)
+void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request)
 {
     if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
     {
-        char buff[4096];
+        // if (new_request->getMethod() == "GET")
+            GetResponse new_response(*new_request);
+		// else if (new_request->getMethod() == "POST")
+        //     PostResponse new_response(*new_request);
+		// else if (new_request->getMethod() == "DELETE")
+		// 	DeleteResponse	new_response(*new_request);
 
-        // to be replaced with response object creation
-        snprintf((char *)buff, sizeof(buff), "HTTP/1.0 200 OK\r\n\r\nThey see me pollin', they hatin'");
-        send(m_pfds[i].fd, (char *)buff, strlen((char *)buff), 0);
+        new_response.buildResponse(m_error_files);
+
+        send(m_pfds[i].fd, new_response.getResponse().c_str(), new_response.getResponse().length(), 0);
         close(m_pfds[i].fd);
         m_pfds.erase(iter);
     }
@@ -153,14 +158,18 @@ void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter)
 
 void                        *Server::threadedPoll(void *instance)
 {
+    struct pollfd           pollfds;
     pollfd_vec_t            *pfds;
     pollfd_vec_t::iterator  iter;
     Server                  *server;
     int                     poll_count;
+    Request                 new_request;
 
     server = (Server *)instance;
     pfds = &server->getPollPfds();
-    pfds->push_back( (struct pollfd){.fd = server->getSockFd(), .events = POLLIN} );
+    pollfds.fd = server->getSockFd();
+    pollfds.events = POLLIN;
+    pfds->push_back(pollfds);
     for ( ;; )
     {
         poll_count = poll(&server->getPollPfds().at(0), server->getPollPfds().size(), POLL_NO_TIMEOUT);
@@ -174,8 +183,8 @@ void                        *Server::threadedPoll(void *instance)
         for (size_t i = 0; i < server->getPollPfds().size(); i++)
         {
             server->_handleErrorEvents(i, iter);
-            server->_handlePollin(i);
-            server->_handlePollout(i, iter);
+            server->_handlePollin(i, &new_request);
+            server->_handlePollout(i, iter, &new_request);
             iter++;
         }
     }
@@ -230,7 +239,7 @@ int                         Server::acceptNewConnection(void)
     return (SOCK_SUCCESS);
 }
 
-void						Server::handleConnection(int client_socket)
+void						Server::handleConnection(int client_socket, Request *new_request)
 {
     Client this_client = m_clients.at(client_socket);
     //Route   *route;

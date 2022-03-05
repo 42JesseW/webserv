@@ -39,10 +39,11 @@ Config::OptionHttp&     Config::OptionHttp::operator = (const Config::OptionHttp
 }
 
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
-void            Config::OptionHttp::parse(void *obj, tokens_t &tokens)
+void            Config::OptionHttp::parse(void *obj, tokens_t& tokens)
 {
     Config  *config;
 
+    (void)tokens;
     config = (Config*)obj;
     if (config->m_has_http_set)
         throw std::invalid_argument("Only one http block is allowed");

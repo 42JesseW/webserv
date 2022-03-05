@@ -19,15 +19,18 @@ Request::~Request() {}
 
 Request & Request::operator=(const Request &copy)
 {
-	m_status = copy.m_status;
-	m_target = copy.m_target;
-	m_query = copy.m_query;
-	m_method = copy.m_method;
-	m_version = copy.m_version;
-	m_request = copy.m_request;
-	m_headers = copy.m_headers;
-	m_port = copy.m_port;
-	m_body = copy.m_body;
+	if (this != &copy)
+	{
+		m_status = copy.m_status;
+		m_target = copy.m_target;
+		m_query = copy.m_query;
+		m_method = copy.m_method;
+		m_version = copy.m_version;
+		m_request = copy.m_request;
+		m_headers = copy.m_headers;
+		m_port = copy.m_port;
+		m_body = copy.m_body;
+	}
 	return (*this);
 }
 

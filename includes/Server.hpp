@@ -14,6 +14,7 @@
 # include <Client.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
+# include <GetResponse.hpp>
 
 # include <poll.h>
 
@@ -57,14 +58,14 @@ public:
     int                         initListener(const std::string& host);
 
     int							acceptNewConnection(void);
-    void						handleConnection(int client_socket);
+    void						handleConnection(int client_socket, Request *new_request);
 
     static void                 *threadedPoll(void *instance);
 
 private:
     void						_handleErrorEvents(int i, pollfd_vec_t::iterator iter);
-    void						_handlePollin(int i);
-    void						_handlePollout(int i, pollfd_vec_t::iterator iter);
+    void						_handlePollin(int i, Request *new_request);
+    void						_handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request);
     void                        _addToPfds(int client_socket);
 
 };
