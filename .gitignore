@@ -4,5 +4,6 @@ a.out
 .DS_Store
 *.o
 .venv/
+.pytest_cache/
 .vscode/
 webserv
