@@ -38,8 +38,7 @@ namespace ft
 
         try
         {
-            const char *cstr = file_name.c_str();
-            file_stream.open(cstr);
+            file_stream.open(file_name.c_str());
             file_content_stream << file_stream.rdbuf();
             file_contents = file_content_stream.str();
         }
@@ -52,5 +51,36 @@ namespace ft
             std::cerr << "[ERROR] Error opening file: " << file_name << '\n';
         }
         return (file_contents);
+    }
+
+    char            *strdup(const char *str)
+    {
+        size_t  idx;
+        char    *dup;
+
+        dup = new(std::nothrow) char[std::strlen(str) + 1];
+        if (!dup)
+            return (NULL);
+        idx = 0;
+        while (str[idx])
+        {
+            dup[idx] = str[idx];
+            idx++;
+        }
+        dup[idx] = '\0';
+        return (dup);
+    }
+
+    void            freeCharArr(char ***arr)
+    {
+        char    **p;
+
+        if (!*arr)
+            return ;
+        p = *arr;
+        for (int idx = 0; p[idx]; ++idx)
+            delete p[idx];
+        delete [] p;
+        *arr = NULL;
     }
 }

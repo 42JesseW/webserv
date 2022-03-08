@@ -1,2 +1,7 @@
 .idea/
 cmake-build-debug/
+a.out
+.DS_Store
+*.o
+.venv/
+.vscode/
