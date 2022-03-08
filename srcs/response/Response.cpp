@@ -45,4 +45,5 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildHeaders();
 	buildBody();
 	m_response = m_start_line + m_headers_str + m_body;
+	std::cout << m_response << std::endl;
 }

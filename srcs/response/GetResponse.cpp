@@ -68,11 +68,12 @@ std::pair<std::string, std::string>	GetResponse::_buildDate()
 {
 	std::time_t		rawtime;
 	struct std::tm	*ptm;
+	char			buf[50];
 
 	time(&rawtime);
 	ptm = gmtime(&rawtime);
-	
-	return (std::make_pair("Date", "Wed, 21 Oct 2015 07:28:00 GMT"));
+	strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
+	return (std::make_pair("Date", buf));
 }
 
 void								GetResponse::buildHeaders()
@@ -90,14 +91,16 @@ void								GetResponse::buildHeaders()
 	// _buildTransferEncoding();
 
 	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
-		m_headers_str.append(it->first + ':' + it->second + ' ');
+		m_headers_str.append(it->first + ": " + it->second + CRLF);
 
-	m_headers_str += "\r\n\r\n";
-	m_headers_str += "\r\n\r\n";
+	m_headers_str.append(CRLF);
+	// m_headers_str.append("\n");
+	// m_headers_str.append(CRLF);
 	// std::cout << m_headers_str << std::endl;
 }
 
 void								GetResponse::buildBody()
 {
-	m_body = "They see me pollin, they hating.\n"; 
+	m_body = "They see me pollin, they hating.";
+	m_body += CRLF; 
 }
