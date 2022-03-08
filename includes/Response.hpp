@@ -5,12 +5,15 @@
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
 
+# define CRLF "\r\n"
+
 class Response
 {
 	protected:
 		Request 								m_request;
 		std::string								m_start_line;
-		std::map<std::string, std::string>		m_headers;
+		std::map<std::string, std::string>		m_headers_map;
+		std::string								m_headers_str;
 		std::string								m_body;
 		std::string 							m_response;
 

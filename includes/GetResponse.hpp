@@ -3,7 +3,10 @@
 
 # include <Response.hpp>
 # include <ConfigUtil.hpp>
+# include <Utils.hpp>
+
 # include <sstream>
+# include <time.h>
 
 class GetResponse : public Response
 {
@@ -24,7 +27,16 @@ class GetResponse : public Response
 		void				buildHeaders();
 		void				buildBody();
 
-		static std::string	ft_itos(int nbr);
+	private:
+		std::pair<std::string, std::string>	_buildDate();
+		std::pair<std::string, std::string>	_buildLocation();
+		std::pair<std::string, std::string>	_buildRetryAfter();
+		std::pair<std::string, std::string>	_buildAllow();
+		std::pair<std::string, std::string>	_buildServer();
+		std::pair<std::string, std::string>	_buildConnection();
+		std::pair<std::string, std::string>	_buildContentLength();
+		std::pair<std::string, std::string>	_buildContentType();
+		std::pair<std::string, std::string>	_buildTransferEncoding();
 };
 
 #endif

@@ -11,7 +11,8 @@ GetResponse::GetResponse(const GetResponse &copy)
 {
 	m_request = copy.m_request;
 	m_start_line = copy.m_start_line;
-	m_headers = copy.m_headers;
+	m_headers_map = copy.m_headers_map;
+	m_headers_str = copy.m_headers_str;
 	m_body = copy.m_body;
 	m_response = copy.m_response;
 }
@@ -24,24 +25,20 @@ GetResponse & GetResponse::operator=(const GetResponse &copy)
 	{
 		m_request = copy.m_request;
 		m_start_line = copy.m_start_line;
-		m_headers = copy.m_headers;
+		m_headers_map = copy.m_headers_map;
+		m_headers_str = copy.m_headers_str;
 		m_body = copy.m_body;
 		m_response = copy.m_response;
 	}
 	return (*this);
 }
 
-void				GetResponse::handleMethod()
+void								GetResponse::handleMethod()
 {
 	// Processes the GET Method and returns the status code
 }
 
-std::string			GetResponse::ft_itos(int nbr)
-{
-	return (static_cast<std::ostringstream&>((std::ostringstream() << std::dec << nbr)).str());
-}
-
-void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
+void								GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 {
 	std::string									str_status_code;
 	std::string 								reason_phrase;
@@ -51,7 +48,7 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	m_status_code = m_request.getStatus();
 	// if (m_status_code != 200)
 		/* handle errors */
-	str_status_code = ft_itos(m_status_code);
+	str_status_code = ft::intToString(m_status_code);
 
 	it = m_error_files.find(m_status_code);
 	if (it != m_error_files.end())
@@ -64,15 +61,43 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	}
 
 	white_space = " ";
-	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + "\r\n\r\n";
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + CRLF + CRLF;
 }
 
-void				GetResponse::buildHeaders()
+std::pair<std::string, std::string>	GetResponse::_buildDate()
 {
+	std::time_t		rawtime;
+	struct std::tm	*ptm;
+
+	time(&rawtime);
+	ptm = gmtime(&rawtime);
 	
+	return (std::make_pair("Date", "Wed, 21 Oct 2015 07:28:00 GMT"));
 }
 
-void				GetResponse::buildBody()
+void								GetResponse::buildHeaders()
+{
+	std::map<std::string, std::string>::iterator	it;
+
+	m_headers_map.insert(_buildDate());
+	// _buildLocation();
+	// _buildRetryAfter();
+	// _buildAllow();
+	// _buildServer();
+	// _buildConnection();
+	// _buildContentLength();
+	// _buildContentType();
+	// _buildTransferEncoding();
+
+	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
+		m_headers_str.append(it->first + ':' + it->second + ' ');
+
+	m_headers_str += "\r\n\r\n";
+	m_headers_str += "\r\n\r\n";
+	// std::cout << m_headers_str << std::endl;
+}
+
+void								GetResponse::buildBody()
 {
 	m_body = "They see me pollin, they hating.\n"; 
 }
