@@ -90,6 +90,7 @@ void								GetResponse::buildHeaders()
 	m_headers_map.insert(_buildDate());
 	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
 		m_headers_map.insert(_buildLocation());
+	// check if there are other redirecton 
 	if (m_status_code == 503 || m_status_code == 429 || m_status_code == 301)
 		m_headers_map.insert(_buildRetryAfter());
 	// _buildAllow();
