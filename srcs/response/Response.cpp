@@ -40,8 +40,9 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	// handleMethod();
 	buildStartLine(m_error_files);
+	buildHeaders();
 	buildBody();
 	// m_response = m_start_line + m_headers + m_body;
-	m_response = m_start_line + "\r\n\r\n" + m_body;
+	m_response = m_start_line + m_body;
 	// std::cout << "Start line is " << m_start_line << std::endl;
 }

@@ -31,7 +31,7 @@ class Response
 		// For each child class to define
 		virtual void							handleMethod() = 0;
 		virtual void							buildStartLine(ConfigUtil::status_code_map_t& m_error_files) = 0;
-		// virtual void							buildHeaders() = 0;
+		virtual void							buildHeaders() = 0;
 		virtual void							buildBody() = 0;
 		virtual void							buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 };

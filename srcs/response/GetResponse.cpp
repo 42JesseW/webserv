@@ -64,7 +64,12 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	}
 
 	white_space = " ";
-	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase;
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + "\r\n\r\n";
+}
+
+void				GetResponse::buildHeaders()
+{
+	
 }
 
 void				GetResponse::buildBody()
