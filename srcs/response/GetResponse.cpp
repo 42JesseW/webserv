@@ -76,13 +76,22 @@ std::pair<std::string, std::string>	GetResponse::_buildDate()
 	return (std::make_pair("Date", buf));
 }
 
+// WIP 
+std::pair<std::string, std::string>	GetResponse::_buildLocation()
+{
+	// we need the route.m_redirect->url member
+	return (std::make_pair("Location", ));
+}
+
 void								GetResponse::buildHeaders()
 {
 	std::map<std::string, std::string>::iterator	it;
 
 	m_headers_map.insert(_buildDate());
-	// _buildLocation();
-	// _buildRetryAfter();
+	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
+		m_headers_map.insert(_buildLocation());
+	if (m_status_code == 503 || m_status_code == 429 || m_status_code == 301)
+		m_headers_map.insert(_buildRetryAfter());
 	// _buildAllow();
 	// _buildServer();
 	// _buildConnection();
