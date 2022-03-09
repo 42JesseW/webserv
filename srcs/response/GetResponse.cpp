@@ -11,7 +11,8 @@ GetResponse::GetResponse(const GetResponse &copy)
 {
 	m_request = copy.m_request;
 	m_start_line = copy.m_start_line;
-	m_headers = copy.m_headers;
+	m_headers_map = copy.m_headers_map;
+	m_headers_str = copy.m_headers_str;
 	m_body = copy.m_body;
 	m_response = copy.m_response;
 }
@@ -24,14 +25,15 @@ GetResponse & GetResponse::operator=(const GetResponse &copy)
 	{
 		m_request = copy.m_request;
 		m_start_line = copy.m_start_line;
-		m_headers = copy.m_headers;
+		m_headers_map = copy.m_headers_map;
+		m_headers_str = copy.m_headers_str;
 		m_body = copy.m_body;
 		m_response = copy.m_response;
 	}
 	return (*this);
 }
 
-void				GetResponse::handleMethod()
+void								GetResponse::handleMethod()
 {
 	// Processes the GET Method and returns the status code
 }
@@ -59,10 +61,79 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	}
 
 	white_space = " ";
-	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase;
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + CRLF + CRLF;
 }
 
-void				GetResponse::buildBody()
+std::pair<std::string, std::string>	GetResponse::_buildDate()
 {
-	m_body = "They see me pollin, they hating.\n"; 
+	std::time_t		rawtime;
+	struct std::tm	*ptm;
+	char			buf[50];
+
+	time(&rawtime);
+	ptm = gmtime(&rawtime);
+	strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
+	return (std::make_pair("Date", buf));
+}
+
+// WIP 
+std::pair<std::string, std::string>	GetResponse::_buildLocation()
+{
+	// we need the route.m_redirect->url member
+	return (std::make_pair("Location", ));
+}
+
+std::pair<std::string, std::string>	GetResponse::_buildRetryAfter()
+{
+	return (std::make_pair("Retry-After", RETRY_AFTER_SEC));
+}
+
+// WIP
+std::pair<std::string, std::string>	GetResponse::_buildAllow()
+{
+	// we need the route.m_accepted_methods and because it's a vector we need to transform it to "GET, POST, DELETE"
+	return (std::make_pair("Allow", ));
+}
+
+// not sure if that can mess up the reponse - test and remove if needed
+std::pair<std::string, std::string>	GetResponse::_buildServer()
+{
+	return (std::make_pair("Server", "Websurf/1.0.0 (Unix)"));
+}
+
+std::pair<std::string, std::string>	GetResponse::_buildConnection()
+{
+}
+
+void								GetResponse::buildHeaders()
+{
+	std::map<std::string, std::string>::iterator	it;
+
+	m_headers_map.insert(_buildDate());
+	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
+		m_headers_map.insert(_buildLocation());
+	// check if there are other redirecton 
+	if (m_status_code == 503 || m_status_code == 429 || (m_status_code >= 300 && m_status_code < 400))
+		m_headers_map.insert(_buildRetryAfter());
+	if (m_status_code == 405)
+		m_headers_map.insert(_buildAllow());
+	_buildServer();
+	_buildConnection();
+	// _buildContentLength();
+	// _buildContentType();
+	// _buildTransferEncoding();
+
+	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
+		m_headers_str.append(it->first + ": " + it->second + CRLF);
+
+	m_headers_str.append(CRLF);
+	// m_headers_str.append("\n");
+	// m_headers_str.append(CRLF);
+	// std::cout << m_headers_str << std::endl;
+}
+
+void								GetResponse::buildBody()
+{
+	m_body = "They see me pollin, they hating.";
+	m_body += CRLF; 
 }
