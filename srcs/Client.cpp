@@ -1,6 +1,7 @@
 #include "../includes/Client.hpp"
 
-Client::Client()
+
+Client::Client() : m_request()
 {
 
 }
@@ -21,4 +22,19 @@ Client&     Client::operator = (const Client &client)
     {
     }
     return (*this);
+}
+
+void    Client::setSocket(int socket)
+{
+    m_socket = socket;
+}
+
+Request & Client::getRequest()
+{
+    return (m_request);
+}
+
+int & Client::getSocket()
+{
+    return (m_socket);
 }
