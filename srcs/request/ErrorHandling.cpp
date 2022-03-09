@@ -4,7 +4,7 @@ void    Request::errorChecking()
 {
     std::string query;
 
-    if (m_status == 200)
+    if (this->getStatus() == 200)
     {
         this->checkStatusLine();
         this->checkHeaders();
@@ -13,18 +13,18 @@ void    Request::errorChecking()
 
 void    Request::checkStatusLine()
 {
-    if (m_method.empty() || m_target.empty() || m_version.empty())
-        m_status = 400;
+    if (m_method.empty() || m_version.empty())
+        this->setStatus(400);
     else if (m_method != "GET" && m_method != "POST" && m_method != "DELETE")
-        m_status = 405;
+        this->setStatus(405);
     else if (m_version != ALLOWED_VERSION)
-        m_status = 426;
+        this->setStatus(426);
 }
 
 void    Request::checkHeaders()
 {
     if (m_headers.find("Host") == m_headers.end())
-        m_status = 400;
+        this->setStatus(400);
     else if (m_headers.find("Expect") != m_headers.end() && m_headers["Expect"] != "100-continue")
-        m_status = 417;
+        this->setStatus(417);
 }

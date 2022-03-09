@@ -1,36 +1,48 @@
-NAME		= webserv
+NAME = webserv
+CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
 
-INCLUDE_DIR	= includes
+ifndef TEST
+	SRC =   main.cpp\
+			srcs/Config.cpp\
+			srcs/Option.cpp\
+			srcs/Utils.cpp\
+			srcs/Route.cpp\
+			srcs/Server.cpp\
+			srcs/Socket.cpp\
+			srcs/Client.cpp\
+			srcs/ConfigUtil.cpp\
+			srcs/request/HandleRequest.cpp\
+			srcs/request/ErrorHandling.cpp\
+			srcs/request/Request.cpp\
+			srcs/response/Response.cpp\
+			srcs/response/GetResponse.cpp
 
-SRC_DIR		= srcs
-SRC			= $(SRC_DIR)/main.cpp \
-		  	  $(SRC_DIR)/Config.cpp \
-		  	  $(SRC_DIR)/Option.cpp \
-		  	  $(SRC_DIR)/Utils.cpp \
-          	  $(SRC_DIR)/Route.cpp \
-		  	  $(SRC_DIR)/Server.cpp \
-			  $(SRC_DIR)/Socket.cpp \
-			  $(SRC_DIR)/Client.cpp \
-			  $(SRC_DIR)/ConfigUtil.cpp \
-			  $(SRC_DIR)/request/ParseRequest.cpp \
-			  $(SRC_DIR)/request/ErrorHandling.cpp \
-			  $(SRC_DIR)/request/Request.cpp \
-			  $(SRC_DIR)/response/Response.cpp \
-			  $(SRC_DIR)/response/GetResponse.cpp
+	CFLAGS += -std=c++98 
+else
+	SRC =	tests/unittests/main.cpp\
+		tests/unittests/test_request.cpp\
+		srcs/request/Request.cpp\
+		srcs/request/HandleRequest.cpp\
+		srcs/request/ErrorHandling.cpp
 
-OBJS		= $(SRC:.cpp=.o)
-CFLAGS		= -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address
+	CFLAGS += -std=c++11
+endif
+
+OBJS = $(SRC:.cpp=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
 
-%.o:	%.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIR)
+%.o: %.cpp
+	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
+
+test: $(OBJS)
+	$(MAKE) TEST=1
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(TEST_OBJS)
 
 fclean: 	clean
 	rm -f $(NAME)
