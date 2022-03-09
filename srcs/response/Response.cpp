@@ -66,7 +66,7 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 	}
 
 	white_space = " ";
-	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + CRLF + CRLF;
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + CRLF;
 }
 
 string_pair_t			Response::_buildDate()
@@ -78,7 +78,7 @@ string_pair_t			Response::_buildDate()
 	time(&rawtime);
 	ptm = gmtime(&rawtime);
 	strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
-	return (std::make_pair("Date", buf));
+	return (std::make_pair("Date", std::string(buf)));
 }
 
 // WIP 
@@ -108,7 +108,7 @@ string_pair_t			Response::_buildServer()
 
 string_pair_t			Response::_buildConnection()
 {
-    return (std::make_pair("Connection", ""));
+    return (std::make_pair("Connection", "closed"));
 }
 
 void					Response::buildHeaders()
@@ -118,30 +118,27 @@ void					Response::buildHeaders()
 	m_headers_map.insert(_buildDate());
 	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
 		m_headers_map.insert(_buildLocation());
-	// check if there are other redirecton 
 	if (m_status_code == 503 || m_status_code == 429 || (m_status_code >= 300 && m_status_code < 400))
 		m_headers_map.insert(_buildRetryAfter());
 	if (m_status_code == 405)
 		m_headers_map.insert(_buildAllow());
-	_buildServer();
-	_buildConnection();
+	m_headers_map.insert(_buildServer());
+	m_headers_map.insert(_buildConnection());
 	// _buildContentLength();
 	// _buildContentType();
 	// _buildTransferEncoding();
 
 	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
-		m_headers_str.append(it->first + ": " + it->second + CRLF);
+		m_headers_str += (it->first + ": " + it->second + CRLF);
 
-	m_headers_str.append(CRLF);
-	// m_headers_str.append("\n");
-	// m_headers_str.append(CRLF);
+	m_headers_str += "\n";
 	// std::cout << m_headers_str << std::endl;
 }
 
 void						Response::buildBody()
 {
 	m_body = "They see me pollin, they hating.";
-	m_body += CRLF; 
+	m_body += "\r\n"; 
 }
 
 void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
@@ -151,5 +148,5 @@ void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildHeaders();
 	buildBody();
 	m_response = m_start_line + m_headers_str + m_body;
-	std::cout << m_response << std::endl;
+	// std::cout << m_response << std::endl;
 }
