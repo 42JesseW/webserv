@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
-project(tests C CXX)
+project(tests CXX)
 
-set(HEADERS catch.hpp)
-set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(${PROJECT_SOURCE_DIR}/includes .)
+include_directories(${PROJECT_SOURCE_DIR}/includes)
 
 file(GLOB_RECURSE TEST_SOURCES ../srcs/*.cpp ../srcs/**/*.cpp)
 
+# remove main.cpp from the TEST_SOURCES list
+list(REMOVE_ITEM TEST_SOURCES ../srcs/main.cpp)
+
 add_library(tester STATIC ${TEST_SOURCES})
 
-file(GLOB_RECURSE SOURCES main.cpp unittests/test_*.cpp)
+file(GLOB_RECURSE SOURCES unittests/main.cpp unittests/test_*.cpp)
 
 add_executable(tests ${SOURCES})
 
