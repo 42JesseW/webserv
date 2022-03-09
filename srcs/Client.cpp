@@ -24,17 +24,22 @@ Client&     Client::operator = (const Client &client)
     return (*this);
 }
 
-void    Client::setSocket(int socket)
+void		Client::setSocket(int socket)
 {
     m_socket = socket;
 }
 
-Request & Client::getRequest()
+Request &	Client::getRequest()
 {
     return (m_request);
 }
 
-int & Client::getSocket()
+int &		Client::getSocket()
 {
     return (m_socket);
+}
+
+Response & Client::getResponse()
+{
+    return (m_response);
 }

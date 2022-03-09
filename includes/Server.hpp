@@ -14,7 +14,7 @@
 # include <Client.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
-# include <GetResponse.hpp>
+# include <Response.hpp>
 
 # include <poll.h>
 
@@ -65,7 +65,7 @@ public:
 private:
     void						_handleErrorEvents(int i, pollfd_vec_t::iterator iter);
     void						_handlePollin(int i);
-    void						_handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request);
+    void						_handlePollout(int i, pollfd_vec_t::iterator iter);
     void                        _addToPfds(int client_socket);
 
 };

@@ -38,7 +38,113 @@ std::string const &		Response::getResponse() const
 	return (m_response);
 }
 
-void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
+void					Response::handleMethod()
+{
+	// WIP
+}
+
+void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
+{
+	std::string									str_status_code;
+	std::string 								reason_phrase;
+	std::string									white_space;
+	ConfigUtil::status_code_map_t::iterator		it;
+
+	m_status_code = m_request.getStatus();
+	// if (m_status_code != 200)
+		/* handle errors */
+	str_status_code = ft::intToString(m_status_code);
+
+	it = m_error_files.find(m_status_code);
+	if (it != m_error_files.end())
+		reason_phrase = it->second.first;
+	else
+	{
+		// throw exception?
+		std::cout << "Error: status code" <<std::endl;
+		std::exit(EXIT_FAILURE);
+	}
+
+	white_space = " ";
+	m_start_line = ALLOWED_VERSION + white_space + str_status_code + white_space + reason_phrase + CRLF + CRLF;
+}
+
+string_pair_t			Response::_buildDate()
+{
+	std::time_t		rawtime;
+	struct std::tm	*ptm;
+	char			buf[50];
+
+	time(&rawtime);
+	ptm = gmtime(&rawtime);
+	strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
+	return (std::make_pair("Date", buf));
+}
+
+// WIP 
+string_pair_t			Response::_buildLocation()
+{
+	// we need the route.m_redirect->url member
+	return (std::make_pair("Location", ""));
+}
+
+string_pair_t			Response::_buildRetryAfter()
+{
+	return (std::make_pair("Retry-After", RETRY_AFTER_SEC));
+}
+
+// WIP
+string_pair_t			Response::_buildAllow()
+{
+	// we need the route.m_accepted_methods and because it's a vector we need to transform it to "GET, POST, DELETE"
+	return (std::make_pair("Allow", ""));
+}
+
+// not sure if that can mess up the reponse - test and remove if needed
+string_pair_t			Response::_buildServer()
+{
+	return (std::make_pair("Server", "Websurf/1.0.0 (Unix)"));
+}
+
+string_pair_t			Response::_buildConnection()
+{
+    return (std::make_pair("Connection", ""));
+}
+
+void					Response::buildHeaders()
+{
+	std::map<std::string, std::string>::iterator	it;
+
+	m_headers_map.insert(_buildDate());
+	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
+		m_headers_map.insert(_buildLocation());
+	// check if there are other redirecton 
+	if (m_status_code == 503 || m_status_code == 429 || (m_status_code >= 300 && m_status_code < 400))
+		m_headers_map.insert(_buildRetryAfter());
+	if (m_status_code == 405)
+		m_headers_map.insert(_buildAllow());
+	_buildServer();
+	_buildConnection();
+	// _buildContentLength();
+	// _buildContentType();
+	// _buildTransferEncoding();
+
+	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
+		m_headers_str.append(it->first + ": " + it->second + CRLF);
+
+	m_headers_str.append(CRLF);
+	// m_headers_str.append("\n");
+	// m_headers_str.append(CRLF);
+	// std::cout << m_headers_str << std::endl;
+}
+
+void						Response::buildBody()
+{
+	m_body = "They see me pollin, they hating.";
+	m_body += CRLF; 
+}
+
+void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	// handleMethod();
 	buildStartLine(m_error_files);
