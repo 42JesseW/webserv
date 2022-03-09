@@ -1,19 +1,22 @@
-#include "Request.hpp"
+#include <Request.hpp>
 
-void Request::handleRequest(int client_socket)
+void Request::handleRequest(int client_socket, Request *client_request)
 {
 	char    buffer[BUFF_SIZE];
 	int     bytes_read = 0;
 
-	while ((bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT)) > 0)
-	{
-		m_request.append(buffer, bytes_read);
-		std::memset(buffer, 0, BUFF_SIZE);
-	}
+	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
+	client_request->m_request.append(buffer, bytes_read);
+	std::memset(buffer, 0, BUFF_SIZE);
 	if (bytes_read == -1)
-		m_status = 400;
-	divideRequest();
-	errorChecking();
+	{
+		client_request->m_status = 400;
+	}
+	else if (bytes_read >= 0)
+	{
+		client_request->divideRequest();
+		client_request->errorChecking();
+	}	
 }
 
 void Request::divideRequest()
@@ -31,40 +34,38 @@ void Request::divideRequest()
 void Request::parseAndSetStartLine()
 {
 	m_method = m_request.substr(0, m_request.find(' '));
-	m_request.erase(0,  m_request.find(' ') + 1);
-	m_request.erase(0,  m_request.find_first_not_of(' '));
-
-	m_target = m_request.substr(0, m_request.find(' '));
-
-	if (m_target.find('?') != std::string::npos)
-	{
-		m_query = m_target.substr(m_target.find('?') + 1, m_target.find(' '));
-		m_target = m_target.substr(0, m_target.find('?'));
-	}
-	m_request.erase(0,  m_request.find(' ') + 1);
-	m_request.erase(0,  m_request.find_first_not_of(' '));
-	
+	m_request.erase(0, m_request.find(' ') + 1);
+	m_request.erase(0, m_request.find_first_not_of(' '));
+	std::string m_url = m_request.substr(0, m_request.find(' '));
+	m_request.erase(0, m_request.find(' ') + 1);
+	m_request.erase(0, m_request.find_first_not_of(' '));
 	m_version = m_request.substr(0, m_request.find(CR));
-	m_request.erase(0,  m_request.find(LF) + 1);
+	m_request.erase(0, m_request.find(LF) + 1);
+
+	if (!m_url.empty())
+	{
+		if (m_url.find('?') != std::string::npos)
+		{
+			m_query = m_url.substr(m_url.find('?') + 1);
+			m_url.erase(m_url.find('?'));
+		}
+	}
+	m_target = m_url;
 }
 
 void Request::setHost()
 {
-	std::string	host = m_headers["Host"];
-	if (host.find(':') != std::string::npos)
+	if (m_headers.find("Host") == m_headers.end())
 	{
-		host = host.substr(host.find(':') + 1, host.length() - 1);
-		std::istringstream(host) >> m_port;
+		m_status = 400;
 	}
-}
-
-void Request::setConnection()
-{
-	if (m_headers.count("Connection"))
+	else 
 	{
-		if (m_headers["Connection"] == "keep-alive")
+		std::string	host = m_headers["Host"];
+		if (host.find(':') != std::string::npos)
 		{
-			m_keep_alive = true;
+			host = host.substr(host.find(':') + 1, host.length() - 1);
+			std::istringstream(host) >> m_port;
 		}
 	}
 }
@@ -75,33 +76,29 @@ void Request::parseAndSetHeaders()
 	std::string key;
 	std::string value;
 
-	// CR (\r)
-	// LF (\n)
-
 	while (m_request[0] != '\r' && !m_request.empty())
 	{
-		token = m_request.substr(0, m_request.find(LF));
+		token = m_request.substr(0, m_request.find(CR));
 		key = m_request.substr(0, m_request.find(':'));
 		m_request.erase(0, m_request.find(':') + 2);
 		value = m_request.substr(0, m_request.find(CR));
 		m_headers.insert(std::pair<std::string, std::string>(key, value));
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
-
 	setHost();
-	setConnection();
 }
 
 void Request::printRequest()
 {
 	std::cout << "------------------ START LINE ------------------" << std::endl;
+	std::cout << "Status: " << m_status << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
 	std::cout << "Target: " << m_target << std::endl;
 	std::cout << "Query: " << m_query << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
+	std::cout << "Port: " << m_port << std::endl;
 
 	std::cout << "------------------ HEADERS ------------------" << std::endl;
-	std::cout << "Port: " << m_port << std::endl;
 	for (std::map<std::string, std::string>::iterator it = m_headers.begin(); it != m_headers.end(); ++it)
 		std::cout << "{" << it->first << "} {" << it->second << "}" << std::endl;
 

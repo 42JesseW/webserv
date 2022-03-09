@@ -1,6 +1,7 @@
 #include "../includes/Client.hpp"
 
-Client::Client()
+
+Client::Client() : m_request()
 {
 
 }
@@ -21,4 +22,9 @@ Client&     Client::operator = (const Client &client)
     {
     }
     return (*this);
+}
+
+Request & Client::getRequest()
+{
+    return (m_request);
 }

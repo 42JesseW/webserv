@@ -3,7 +3,7 @@
 
 # include <Common.hpp>
 
-# define BUFF_SIZE 2048
+# define BUFF_SIZE 4096
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
@@ -23,10 +23,8 @@ class Request
 		std::string								m_version;
 		std::string								m_request;
 		int										m_port;
-		bool									m_keep_alive;
 
 		void									setHost();
-		void									setConnection();
 
 	public:
 		Request();
@@ -36,25 +34,28 @@ class Request
 		Request& operator = (const Request &Copy);
 
 		// Parsing
-		void									handleRequest(int client_socket);
+		void									handleRequest(int client_socket, Request *client_request);
 		void									divideRequest();
 		void 									parseAndSetStartLine();
 		void 									parseAndSetHeaders();
 		
-		virtual void							setExtension();
+		void									setRequest(std::string new_request); // For testing only
 
-		int										getStatus();
-		std::string								getTarget();
-		std::string								getQuery();
-		std::map<std::string, std::string>		getHeaders();
-		std::string								getBody();
+		int										&getStatus();
+		std::string								&getTarget();
+		std::string								&getQuery();
+		std::string								&getMethod();
+		std::string								&getVersion();
+		int										&getPort();
+		std::map<std::string, std::string>		&getHeaders();
+		std::string								&getBody();
 		
 		void									errorChecking();
 		void									checkStatusLine();
 		void									checkHeaders();
 
+		void									resetRequest();
 		void									printRequest();
-		bool									keepAlive();
 };
 
 #endif
