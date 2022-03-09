@@ -3,7 +3,7 @@
 
 # include <Common.hpp>
 
-# define BUFF_SIZE 4096
+# define BUFF_SIZE 20
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
@@ -33,7 +33,6 @@ class Request
 
 		Request& operator = (const Request &Copy);
 
-		// Parsing
 		void									handleRequest(int client_socket);
 		void									divideRequest();
 		void 									parseAndSetStartLine();
