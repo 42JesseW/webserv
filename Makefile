@@ -32,7 +32,7 @@ $(NAME):	$(OBJS)
 	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
 
 %.o: %.cpp
-	$(CXX) $(TFLAGS) -c $< -o $@ -I includes
+	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
 
 test: $(TEST_OBJS)
 	$(CXX) $(TFLAGS) -o $(NAME) $(TEST_OBJS)

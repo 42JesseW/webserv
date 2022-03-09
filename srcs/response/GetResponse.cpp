@@ -36,11 +36,6 @@ void				GetResponse::handleMethod()
 	// Processes the GET Method and returns the status code
 }
 
-std::string			GetResponse::ft_itos(int nbr)
-{
-	return (static_cast<std::ostringstream&>((std::ostringstream() << std::dec << nbr)).str());
-}
-
 void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 {
 	std::string									str_status_code;
@@ -51,7 +46,7 @@ void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files
 	m_status_code = m_request.getStatus();
 	// if (m_status_code != 200)
 		/* handle errors */
-	str_status_code = ft_itos(m_status_code);
+	str_status_code = ft::intToString(m_status_code);
 
 	it = m_error_files.find(m_status_code);
 	if (it != m_error_files.end())

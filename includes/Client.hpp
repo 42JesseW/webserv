@@ -6,18 +6,23 @@
 
 class Client
 {
-private:
-	Request		m_request;
-	// Response	m_response;
+	private:
 
-public:
-	Client();
-	Client(const Client& client);
-	~Client();
+	public:
+		int			m_socket;
+		Request		m_request;
+		// Response	*m_response;
 
-	Client& operator = (const Client& client);	
+		Client();
+		Client(const Client& client);
+		~Client();
 
-	Request		&getRequest();
+		Client& operator = (const Client& client);
+
+		void		setSocket(int socket);
+
+		int			&getSocket();
+		Request		&getRequest();
 };
 
 #endif

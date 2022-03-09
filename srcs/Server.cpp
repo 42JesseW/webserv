@@ -119,7 +119,7 @@ void						Server::_handleErrorEvents(int i, pollfd_vec_t::iterator iter)
     }
 }
 
-void                        Server::_handlePollin(int i, Request *new_request)
+void                        Server::_handlePollin(int i)
 {
     if (m_pfds[i].revents & POLLIN)
     {
@@ -132,7 +132,7 @@ void                        Server::_handlePollin(int i, Request *new_request)
             }
         }
         else
-            handleConnection(m_pfds[i].fd, new_request);
+            handleConnection(m_pfds[i].fd);
         usleep(2000);
     }
 }
@@ -183,7 +183,7 @@ void                        *Server::threadedPoll(void *instance)
         for (size_t i = 0; i < server->getPollPfds().size(); i++)
         {
             server->_handleErrorEvents(i, iter);
-            server->_handlePollin(i, &new_request);
+            server->_handlePollin(i);
             server->_handlePollout(i, iter, &new_request);
             iter++;
         }
@@ -239,13 +239,14 @@ int                         Server::acceptNewConnection(void)
     return (SOCK_SUCCESS);
 }
 
-void						Server::handleConnection(int client_socket, Request *new_request)
+void						Server::handleConnection(int client_socket)
 {
     Client *this_client = &m_clients.at(client_socket);
+    this_client->setSocket(client_socket);
     //Route   *route;
 
-    this_client->getRequest().handleRequest(client_socket, new_request);
+    this_client->m_request.handleRequest(client_socket);
     //route = _matchRequestToRoute(new_request)
     //response = _buildResponseFromRoute()
-    new_request->printRequest();
+    this_client->m_request.printRequest();
 }
