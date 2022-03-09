@@ -29,7 +29,7 @@ class GetResponse : public Response
 		void				buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		void				buildHeaders();
 		void				buildBody();
-
+    
 	private:
 		std::pair<std::string, std::string>	_buildDate();
 		std::pair<std::string, std::string>	_buildLocation();

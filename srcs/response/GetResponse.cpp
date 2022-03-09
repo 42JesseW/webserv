@@ -38,7 +38,7 @@ void								GetResponse::handleMethod()
 	// Processes the GET Method and returns the status code
 }
 
-void								GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
+void				GetResponse::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 {
 	std::string									str_status_code;
 	std::string 								reason_phrase;
