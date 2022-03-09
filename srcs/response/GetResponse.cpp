@@ -80,7 +80,7 @@ std::pair<std::string, std::string>	GetResponse::_buildDate()
 std::pair<std::string, std::string>	GetResponse::_buildLocation()
 {
 	// we need the route.m_redirect->url member
-	return (std::make_pair("Location", ));
+	return (std::make_pair("Location", ""));
 }
 
 std::pair<std::string, std::string>	GetResponse::_buildRetryAfter()
@@ -92,7 +92,7 @@ std::pair<std::string, std::string>	GetResponse::_buildRetryAfter()
 std::pair<std::string, std::string>	GetResponse::_buildAllow()
 {
 	// we need the route.m_accepted_methods and because it's a vector we need to transform it to "GET, POST, DELETE"
-	return (std::make_pair("Allow", ));
+	return (std::make_pair("Allow", ""));
 }
 
 // not sure if that can mess up the reponse - test and remove if needed
@@ -103,6 +103,7 @@ std::pair<std::string, std::string>	GetResponse::_buildServer()
 
 std::pair<std::string, std::string>	GetResponse::_buildConnection()
 {
+    return (std::make_pair("Connection", ""));
 }
 
 void								GetResponse::buildHeaders()

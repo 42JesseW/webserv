@@ -5,3 +5,4 @@ a.out
 *.o
 .venv/
 .vscode/
+webserv
