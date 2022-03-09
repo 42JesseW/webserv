@@ -22,7 +22,7 @@ jobs:
           make
           make clean
           make fclean
-          make minishell
+          make webserv
           make re
 
   build-linux:
@@ -36,5 +36,5 @@ jobs:
           make
           make clean
           make fclean
-          make minishell
+          make webserv
           make re
