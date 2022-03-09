@@ -103,7 +103,6 @@ std::pair<std::string, std::string>	GetResponse::_buildServer()
 
 std::pair<std::string, std::string>	GetResponse::_buildConnection()
 {
-
 }
 
 void								GetResponse::buildHeaders()
