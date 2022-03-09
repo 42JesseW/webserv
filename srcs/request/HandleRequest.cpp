@@ -13,10 +13,11 @@ void Request::handleRequest(int client_socket)
 	else
 	{
 		this->m_request.append(buffer, bytes_read);
-		if (bytes_read >= 0 && !m_request.empty()) // change it to 0 if the loop works correctly
+		if (bytes_read < BUFF_SIZE && !m_request.empty())
 		{
 			this->divideRequest();
 			this->errorChecking();
+			this->printRequest();
 		}
 	}
 	std::memset(buffer, 0, BUFF_SIZE);
