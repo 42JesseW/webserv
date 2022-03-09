@@ -108,7 +108,7 @@ string_pair_t			Response::_buildServer()
 
 string_pair_t			Response::_buildConnection()
 {
-    return (std::make_pair("Connection", "closed"));
+    return (std::make_pair("Connection", "close"));
 }
 
 void					Response::buildHeaders()
