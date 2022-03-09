@@ -83,6 +83,29 @@ std::pair<std::string, std::string>	GetResponse::_buildLocation()
 	return (std::make_pair("Location", ));
 }
 
+std::pair<std::string, std::string>	GetResponse::_buildRetryAfter()
+{
+	return (std::make_pair("Retry-After", RETRY_AFTER_SEC));
+}
+
+// WIP
+std::pair<std::string, std::string>	GetResponse::_buildAllow()
+{
+	// we need the route.m_accepted_methods and because it's a vector we need to transform it to "GET, POST, DELETE"
+	return (std::make_pair("Allow", ));
+}
+
+// not sure if that can mess up the reponse - test and remove if needed
+std::pair<std::string, std::string>	GetResponse::_buildServer()
+{
+	return (std::make_pair("Server", "Websurf/1.0.0 (Unix)"));
+}
+
+std::pair<std::string, std::string>	GetResponse::_buildConnection()
+{
+
+}
+
 void								GetResponse::buildHeaders()
 {
 	std::map<std::string, std::string>::iterator	it;
@@ -91,11 +114,12 @@ void								GetResponse::buildHeaders()
 	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
 		m_headers_map.insert(_buildLocation());
 	// check if there are other redirecton 
-	if (m_status_code == 503 || m_status_code == 429 || m_status_code == 301)
+	if (m_status_code == 503 || m_status_code == 429 || (m_status_code >= 300 && m_status_code < 400))
 		m_headers_map.insert(_buildRetryAfter());
-	// _buildAllow();
-	// _buildServer();
-	// _buildConnection();
+	if (m_status_code == 405)
+		m_headers_map.insert(_buildAllow());
+	_buildServer();
+	_buildConnection();
 	// _buildContentLength();
 	// _buildContentType();
 	// _buildTransferEncoding();

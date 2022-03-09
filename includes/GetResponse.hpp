@@ -9,6 +9,8 @@
 # include <sstream>
 # include <time.h>
 
+# define RETRY_AFTER_SEC "120"
+
 class GetResponse : public Response
 {
 	private:
