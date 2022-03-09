@@ -1,6 +1,6 @@
-#include "Request.hpp"
+#include <Request.hpp>
 
-Request::Request() : m_status(200), m_port(80), m_keep_alive(false) {}
+Request::Request() : m_status(200), m_target("/"), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -12,7 +12,6 @@ Request::Request(const Request &copy)
 	m_request = copy.m_request;
 	m_headers = copy.m_headers;
 	m_port = copy.m_port;
-	m_keep_alive = copy.m_keep_alive;
 	m_body = copy.m_body;
 }
 
@@ -30,39 +29,65 @@ Request & Request::operator=(const Request &copy)
 		m_request = copy.m_request;
 		m_headers = copy.m_headers;
 		m_port = copy.m_port;
-		m_keep_alive = copy.m_keep_alive;
 		m_body = copy.m_body;
 	}
 	return (*this);
 }
 
-void	Request::setExtension() {}
+void Request::setRequest(std::string new_request)
+{
+	this->resetRequest();
+	this->m_request = new_request;
+}
 
-int	Request::getStatus()
+int	&Request::getStatus()
 {
 	return (m_status);
 }
 
-std::string	Request::getTarget()
+std::string	&Request::getTarget()
 {
 	return (m_target);
 }
 
-std::string	Request::getQuery()
+std::string	&Request::getQuery()
 {
 	return (m_query);
 }
-std::map<std::string, std::string>	Request::getHeaders()
+
+std::string	&Request::getMethod()
+{
+	return (m_method);
+}
+
+std::string	&Request::getVersion()
+{
+	return (m_version);
+}
+int	&Request::getPort()
+{
+	return (m_port);
+}
+
+std::map<std::string, std::string>	&Request::getHeaders()
 {
 	return (m_headers);
 }
 
-std::string	Request::getBody()
+std::string	&Request::getBody()
 {
 	return (m_body);
 }
 
-bool Request::keepAlive()
+void	Request::resetRequest() 
 {
-	return (m_keep_alive);
+	m_status = 200;
+	m_target = "/";
+	m_query.clear();
+	m_method.clear();
+	m_version.clear();
+	m_request.clear();
+	m_headers.clear();
+	m_port = 80;
+	m_body.clear();
 }
