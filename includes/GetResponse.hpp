@@ -3,7 +3,13 @@
 
 # include <Response.hpp>
 # include <ConfigUtil.hpp>
+# include <Utils.hpp>
+# include <Route.hpp>
+
 # include <sstream>
+# include <time.h>
+
+# define RETRY_AFTER_SEC "120"
 
 class GetResponse : public Response
 {
@@ -21,8 +27,19 @@ class GetResponse : public Response
 
 		void				handleMethod();
 		void				buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
-		// void				buildHeaders();
+		void				buildHeaders();
 		void				buildBody();
+    
+	private:
+		std::pair<std::string, std::string>	_buildDate();
+		std::pair<std::string, std::string>	_buildLocation();
+		std::pair<std::string, std::string>	_buildRetryAfter();
+		std::pair<std::string, std::string>	_buildAllow();
+		std::pair<std::string, std::string>	_buildServer();
+		std::pair<std::string, std::string>	_buildConnection();
+		std::pair<std::string, std::string>	_buildContentLength();
+		std::pair<std::string, std::string>	_buildContentType();
+		std::pair<std::string, std::string>	_buildTransferEncoding();
 };
 
 #endif
