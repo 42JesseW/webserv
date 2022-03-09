@@ -1,44 +1,48 @@
 NAME = webserv
+CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
 
-SRC =   main.cpp\
-		srcs/Config.cpp\
-		srcs/Option.cpp\
-		srcs/Utils.cpp\
-        srcs/Route.cpp\
-		srcs/Server.cpp\
-		srcs/Socket.cpp\
-		srcs/Client.cpp\
-		srcs/ConfigUtil.cpp\
-		srcs/request/HandleRequest.cpp\
-		srcs/request/ErrorHandling.cpp\
-		srcs/request/Request.cpp\
-		srcs/response/Response.cpp\
-		srcs/response/GetResponse.cpp
+ifndef TEST
+	SRC =   main.cpp\
+			srcs/Config.cpp\
+			srcs/Option.cpp\
+			srcs/Utils.cpp\
+			srcs/Route.cpp\
+			srcs/Server.cpp\
+			srcs/Socket.cpp\
+			srcs/Client.cpp\
+			srcs/ConfigUtil.cpp\
+			srcs/request/HandleRequest.cpp\
+			srcs/request/ErrorHandling.cpp\
+			srcs/request/Request.cpp\
+			srcs/response/Response.cpp\
+			srcs/response/GetResponse.cpp
 
-TEST =	tests/unittests/main.cpp\
+	CFLAGS += -std=c++98 
+else
+	SRC =	tests/unittests/main.cpp\
 		tests/unittests/test_request.cpp\
 		srcs/request/Request.cpp\
 		srcs/request/HandleRequest.cpp\
-		srcs/request/ErrorHandling.cpp\
+		srcs/request/ErrorHandling.cpp
+
+	CFLAGS += -std=c++11
+endif
 
 OBJS = $(SRC:.cpp=.o)
-TEST_OBJS = $(TEST:.cpp=.o)
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -pedantic -g -fsanitize=address
-TFLAGS = -Wall -Werror -Wextra -std=c++11 -pedantic -g -fsanitize=address
 
 all: $(NAME)
 
-$(NAME):	$(OBJS)
+$(NAME): $(OBJS)
 	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
 
 %.o: %.cpp
-	$(CXX) $(TFLAGS) -c $< -o $@ -I includes
+	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
 
-test: $(TEST_OBJS)
-	$(CXX) $(TFLAGS) -o $(NAME) $(TEST_OBJS)
+test: $(OBJS)
+	$(MAKE) TEST=1
 
 clean:
-	rm -f $(OBJS) $(TEST_OBJS) a.out
+	rm -f $(OBJS) $(TEST_OBJS)
 
 fclean: 	clean
 	rm -f $(NAME)

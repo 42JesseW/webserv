@@ -1,22 +1,25 @@
 #include <Request.hpp>
 
-void Request::handleRequest(int client_socket, Request *client_request)
+void Request::handleRequest(int client_socket)
 {
 	char    buffer[BUFF_SIZE];
 	int     bytes_read = 0;
 
 	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
-	client_request->m_request.append(buffer, bytes_read);
-	std::memset(buffer, 0, BUFF_SIZE);
 	if (bytes_read == -1)
 	{
-		client_request->m_status = 400;
+		this->setStatus(400);
 	}
-	else if (bytes_read >= 0)
+	else
 	{
-		client_request->divideRequest();
-		client_request->errorChecking();
-	}	
+		this->m_request.append(buffer, bytes_read);
+		if (bytes_read >= 0 && !m_request.empty()) // change it to 0 if the loop works correctly
+		{
+			this->divideRequest();
+			this->errorChecking();
+		}
+	}
+	std::memset(buffer, 0, BUFF_SIZE);
 }
 
 void Request::divideRequest()
@@ -57,7 +60,7 @@ void Request::setHost()
 {
 	if (m_headers.find("Host") == m_headers.end())
 	{
-		m_status = 400;
+		this->setStatus(400);
 	}
 	else 
 	{

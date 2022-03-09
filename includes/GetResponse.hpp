@@ -23,8 +23,6 @@ class GetResponse : public Response
 		void				buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		// void				buildHeaders();
 		void				buildBody();
-
-		static std::string	ft_itos(int nbr);
 };
 
 #endif

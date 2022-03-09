@@ -1,6 +1,6 @@
 #include <Request.hpp>
 
-Request::Request() : m_status(200), m_target("/"), m_port(80) {}
+Request::Request() : m_target("/"), m_status(200), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -38,6 +38,11 @@ void Request::setRequest(std::string new_request)
 {
 	this->resetRequest();
 	this->m_request = new_request;
+}
+
+void Request::setStatus(int status)
+{
+	m_status = status;
 }
 
 int	&Request::getStatus()
