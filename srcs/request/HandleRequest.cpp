@@ -13,7 +13,7 @@ void Request::handleRequest(int client_socket)
 	else
 	{
 		this->m_request.append(buffer, bytes_read);
-		if (bytes_read >= 0 && !m_request.empty())
+		if (bytes_read >= 0 && !m_request.empty()) // change it to 0 if the loop works correctly
 		{
 			this->divideRequest();
 			this->errorChecking();
