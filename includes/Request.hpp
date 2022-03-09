@@ -3,7 +3,7 @@
 
 # include <Common.hpp>
 
-# define BUFF_SIZE 20
+# define BUFF_SIZE 4096
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"

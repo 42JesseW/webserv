@@ -1,4 +1,5 @@
 #include <Server.hpp>
+#include <signal.h>
 
 Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
