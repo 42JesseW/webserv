@@ -11,7 +11,6 @@
 class Request
 {
 	protected:
-		int										m_status;
 		std::string								m_target;
 		std::string								m_query;
 		std::map<std::string, std::string>		m_headers;
@@ -19,6 +18,7 @@ class Request
 		std::string     						m_extension;
 
 	private:
+		int										m_status;
 		std::string 							m_method;
 		std::string								m_version;
 		std::string								m_request;
@@ -34,12 +34,13 @@ class Request
 		Request& operator = (const Request &Copy);
 
 		// Parsing
-		void									handleRequest(int client_socket, Request *client_request);
+		void									handleRequest(int client_socket);
 		void									divideRequest();
 		void 									parseAndSetStartLine();
 		void 									parseAndSetHeaders();
 		
 		void									setRequest(std::string new_request); // For testing only
+		void									setStatus(int status);
 
 		int										&getStatus();
 		std::string								&getTarget();
