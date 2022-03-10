@@ -1,4 +1,5 @@
 #include <Server.hpp>
+#include <signal.h>
 
 Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
@@ -139,7 +140,7 @@ void                        Server::_handlePollin(int i)
 
 void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request)
 {
-    if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
+    if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)) && !(m_pfds[i].revents & POLLIN))
     {
         // if (new_request->getMethod() == "GET")
             GetResponse new_response(*new_request);
@@ -248,5 +249,4 @@ void						Server::handleConnection(int client_socket)
     this_client->m_request.handleRequest(client_socket);
     //route = _matchRequestToRoute(new_request)
     //response = _buildResponseFromRoute()
-    this_client->m_request.printRequest();
 }

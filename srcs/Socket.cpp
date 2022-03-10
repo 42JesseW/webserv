@@ -88,20 +88,20 @@ int        Socket::init()
     if (m_address != DFL_SERVER_HOST)
         m_sock_addr.sin_addr.s_addr = inet_addr(m_address.c_str());
 
-    /* bind address to currently nameless socket */
-    if (m_sock_addr.sin_addr.s_addr == INADDR_NONE ||
-        bind(m_sock_fd, (SA *)&m_sock_addr, (socklen_t)sizeof(m_sock_addr)) == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to bind to address.");
-    }
-
     /* loose the 'address currently in use' error because the kernel hasn't properly cleaned everything up */
     yes = 1;
     if (setsockopt(m_sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == SOCK_ERROR)
     {
         /* some error handling */
         throw std::runtime_error(std::string(__func__) + ": Failed to set sock options.");
+    }
+
+    /* bind address to currently nameless socket */
+    if (m_sock_addr.sin_addr.s_addr == INADDR_NONE ||
+        bind(m_sock_fd, (SA *)&m_sock_addr, (socklen_t)sizeof(m_sock_addr)) == SOCK_ERROR)
+    {
+        /* some error handling */
+        throw std::runtime_error(std::string(__func__) + ": Failed to bind to address.");
     }
 
     /* set the socket to be non blocking so recv() and send() functions don't block */

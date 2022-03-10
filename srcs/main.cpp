@@ -1,5 +1,6 @@
 #include <Config.hpp>
 #include <Server.hpp>
+#include <signal.h>
 
 #include <pthread.h>
 
@@ -18,6 +19,7 @@ static char ascii_wave[] = "\n"
    T "╚███╔███╔╝███████╗██████╔╝███████║╚██████╔╝██║  ██║██║     " B "             ,/             ~-_         \n" R
    T " ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     " B "           -''                 ~~--..__.\n" R
    B ".-..____.-..____.-..____.-.._____.-..____.-..________.-..____.-.._..-'\n" R;
+
 
 int     main(int argc, char *argv[])
 {
