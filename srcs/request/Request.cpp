@@ -1,6 +1,6 @@
 #include <Request.hpp>
 
-Request::Request() : m_target("/"), m_status(200), m_port(80) {}
+Request::Request() : m_target("/"), m_done(false), m_status(200), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -13,6 +13,8 @@ Request::Request(const Request &copy)
 	m_headers = copy.m_headers;
 	m_port = copy.m_port;
 	m_body = copy.m_body;
+	m_done = copy.m_done;
+	m_filename = copy.m_filename;
 }
 
 Request::~Request() {}
@@ -30,19 +32,26 @@ Request & Request::operator=(const Request &copy)
 		m_headers = copy.m_headers;
 		m_port = copy.m_port;
 		m_body = copy.m_body;
+		m_done = copy.m_done;
+		m_filename = copy.m_filename;
 	}
 	return (*this);
 }
 
 void Request::setRequest(std::string new_request)
 {
-	this->resetRequest();
-	this->m_request = new_request;
+	resetRequest();
+	m_request = new_request;
 }
 
 void Request::setStatus(int status)
 {
 	m_status = status;
+}
+
+void Request::setDone(bool status)
+{
+	m_done = status;
 }
 
 int	&Request::getStatus()
@@ -69,9 +78,20 @@ std::string	&Request::getVersion()
 {
 	return (m_version);
 }
+
+std::string &Request::getFilename()
+{
+	return (m_filename);
+}
+
 int	&Request::getPort()
 {
 	return (m_port);
+}
+
+bool &Request::isDone()
+{
+	return (m_done);
 }
 
 std::map<std::string, std::string>	&Request::getHeaders()
@@ -86,13 +106,16 @@ std::string	&Request::getBody()
 
 void	Request::resetRequest() 
 {
-	m_status = 200;
 	m_target = "/";
+	m_filename.clear();
 	m_query.clear();
+	m_headers.clear();
+	m_body.clear();
+	m_done = false;
+	m_cgi_path.clear();
+	m_status = 200;
 	m_method.clear();
 	m_version.clear();
 	m_request.clear();
-	m_headers.clear();
 	m_port = 80;
-	m_body.clear();
 }

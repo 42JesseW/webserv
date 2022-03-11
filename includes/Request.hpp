@@ -12,10 +12,12 @@ class Request
 {
 	protected:
 		std::string								m_target;
+		std::string								m_filename;
 		std::string								m_query;
 		std::map<std::string, std::string>		m_headers;
 		std::string								m_body;
-		std::string     						m_extension;
+		bool									m_done;
+		std::string								m_cgi_path;
 
 	private:
 		int										m_status;
@@ -37,18 +39,23 @@ class Request
 		void									divideRequest();
 		void 									parseAndSetStartLine();
 		void 									parseAndSetHeaders();
+		void									parseQuery(std::string url);
+		void									parseFilenamesAndCGI();
 		
 		void									setRequest(std::string new_request); // For testing only
 		void									setStatus(int status);
+		void									setDone(bool status);
 
 		int										&getStatus();
+		int										&getPort();
 		std::string								&getTarget();
 		std::string								&getQuery();
 		std::string								&getMethod();
 		std::string								&getVersion();
-		int										&getPort();
-		std::map<std::string, std::string>		&getHeaders();
+		std::string								&getFilename();
 		std::string								&getBody();
+		std::map<std::string, std::string>		&getHeaders();
+		bool									&isDone();
 		
 		void									errorChecking();
 		void									checkStatusLine();
