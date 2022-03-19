@@ -1,7 +1,0 @@
-/home/danali/Documents/Codam/webserv/build/CMakeFiles/rebuild_cache.dir
-/home/danali/Documents/Codam/webserv/build/CMakeFiles/edit_cache.dir
-/home/danali/Documents/Codam/webserv/build/CMakeFiles/webserv.dir
-/home/danali/Documents/Codam/webserv/build/tests/CMakeFiles/rebuild_cache.dir
-/home/danali/Documents/Codam/webserv/build/tests/CMakeFiles/tests.dir
-/home/danali/Documents/Codam/webserv/build/tests/CMakeFiles/edit_cache.dir
-/home/danali/Documents/Codam/webserv/build/tests/CMakeFiles/tester.dir
