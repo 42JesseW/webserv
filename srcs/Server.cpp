@@ -244,9 +244,13 @@ void						Server::handleConnection(int client_socket)
 {
     Client *this_client = &m_clients.at(client_socket);
     this_client->setSocket(client_socket);
-    //Route   *route;
 
     this_client->m_request.handleRequest(client_socket);
-    //route = _matchRequestToRoute(new_request)
-    //response = _buildResponseFromRoute()
+    if (this_client->m_request.isDone())
+    {
+        this_client->setCorrectRoute(this->getRoutes());
+        this_client->checkRoute();
+        this_client->m_request.setDone(false);
+        this_client->m_request.printRequest();
+    }
 }

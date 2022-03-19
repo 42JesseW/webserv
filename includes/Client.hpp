@@ -2,7 +2,8 @@
 
 # define CLIENT_HPP
 
-#include "../includes/Request.hpp"
+#include <Request.hpp>
+#include <Route.hpp>
 
 class Client
 {
@@ -11,6 +12,7 @@ class Client
 	public:
 		int			m_socket;
 		Request		m_request;
+		Route		m_route;
 		// Response	*m_response;
 
 		Client();
@@ -23,6 +25,12 @@ class Client
 
 		int			&getSocket();
 		Request		&getRequest();
+
+		void		setCorrectRoute(std::vector<Route> &server_routes);
+		void		checkRoute();
+		void		checkAcceptedMethods();
+		void		checkRedirects();
+		void		checkFileSearchPath();
 };
 
 #endif

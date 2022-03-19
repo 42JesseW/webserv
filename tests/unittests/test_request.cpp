@@ -87,7 +87,7 @@ TEST_CASE("Basic get request")
 
 	SECTION("Status")
 	{
-		REQUIRE(new_request->getStatus() == 200);
+		REQUIRE(new_request->getStatus() == HTTP_STATUS_OK);
 	}
 }
 
@@ -127,7 +127,7 @@ TEST_CASE("Basic post request")
 
 	SECTION("Status")
 	{
-		REQUIRE(new_request->getStatus() == 200);
+		REQUIRE(new_request->getStatus() == HTTP_STATUS_OK);
 	}
 }
 
@@ -163,7 +163,7 @@ TEST_CASE("Basic delete request")
 
 	SECTION("Status")
 	{
-		REQUIRE(new_request->getStatus() == 200);
+		REQUIRE(new_request->getStatus() == HTTP_STATUS_OK);
 	}
 }
 

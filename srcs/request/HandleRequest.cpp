@@ -8,16 +8,16 @@ void Request::handleRequest(int client_socket)
 	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
 	if (bytes_read == -1)
 	{
-		this->setStatus(400);
+		setStatus(400);
 	}
 	else
 	{
-		this->m_request.append(buffer, bytes_read);
+		m_request.append(buffer, bytes_read);
 		if (bytes_read < BUFF_SIZE && !m_request.empty())
 		{
-			this->divideRequest();
-			this->errorChecking();
-			this->printRequest();
+			divideRequest();
+			errorChecking();
+			setDone(true);
 		}
 	}
 	std::memset(buffer, 0, BUFF_SIZE);
@@ -25,8 +25,8 @@ void Request::handleRequest(int client_socket)
 
 void Request::divideRequest()
 {
-	this->parseAndSetStartLine();
-	this->parseAndSetHeaders();
+	parseAndSetStartLine();
+	parseAndSetHeaders();
 	if (!m_request.empty())
 	{
 		m_request.erase(0, 2);
@@ -35,33 +35,77 @@ void Request::divideRequest()
 	m_request.clear();
 }
 
+void Request::parseFilenamesAndCGI()
+{
+	if (std::count(m_target.begin(), m_target.end(), '.') > 2)
+	{
+		setStatus(418);
+	}
+	else if (std::count(m_target.begin(), m_target.end(), '.') == 2)
+    {
+		std::string tmp = m_target.substr(m_target.find_first_of('.'));
+		m_target.erase(m_target.find_first_of('.'));
+		m_target.append(tmp.substr(0, tmp.find_first_of('/')));
+		tmp.erase(0, tmp.find_first_of('/'));
+		m_cgi_path = tmp;
+		if (std::count(m_target.begin(), m_target.end(), '/') > 1)
+		{
+			m_filename = m_target.substr(m_target.find_last_of('/'));
+			m_target.erase(m_target.find_last_of('/'));
+		}
+		else
+		{
+			m_filename = m_target.substr(m_target.find('/'));
+			m_target = "/";
+		}
+    }
+    else
+    {
+		m_filename = m_target.substr(m_target.find_last_of('/'));
+		m_target.erase(m_target.find_last_of('/'));
+		if (m_target.empty())
+		{
+			m_target = "/";
+		}
+    }
+}
+
+void Request::parseQuery(std::string url)
+{
+	if (!url.empty())
+	{
+		if (url.find('?') != std::string::npos)
+		{
+			m_query = url.substr(url.find('?') + 1);
+			url.erase(url.find('?'));
+		}
+	}
+	if (!url.empty())
+	{
+		m_target = url;
+	}
+}
+
 void Request::parseAndSetStartLine()
 {
 	m_method = m_request.substr(0, m_request.find(' '));
 	m_request.erase(0, m_request.find(' ') + 1);
 	m_request.erase(0, m_request.find_first_not_of(' '));
-	std::string m_url = m_request.substr(0, m_request.find(' '));
+	std::string url = m_request.substr(0, m_request.find(' '));
 	m_request.erase(0, m_request.find(' ') + 1);
 	m_request.erase(0, m_request.find_first_not_of(' '));
 	m_version = m_request.substr(0, m_request.find(CR));
 	m_request.erase(0, m_request.find(LF) + 1);
 
-	if (!m_url.empty())
-	{
-		if (m_url.find('?') != std::string::npos)
-		{
-			m_query = m_url.substr(m_url.find('?') + 1);
-			m_url.erase(m_url.find('?'));
-		}
-	}
-	m_target = m_url;
+	parseQuery(url);
+	parseFilenamesAndCGI();
 }
 
 void Request::setHost()
 {
 	if (m_headers.find("Host") == m_headers.end())
 	{
-		this->setStatus(400);
+		setStatus(400);
 	}
 	else 
 	{
@@ -98,6 +142,8 @@ void Request::printRequest()
 	std::cout << "Status: " << m_status << std::endl;
 	std::cout << "Method: " << m_method << std::endl;
 	std::cout << "Target: " << m_target << std::endl;
+	std::cout << "Filename: " << m_filename << std::endl;
+	std::cout << "CGI: " << m_cgi_path << std::endl;
 	std::cout << "Query: " << m_query << std::endl;
 	std::cout << "Version: " << m_version << std::endl;
 	std::cout << "Port: " << m_port << std::endl;
