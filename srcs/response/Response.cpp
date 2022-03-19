@@ -2,7 +2,7 @@
 
 Response::Response() {}
 
-Response::Response(Request &re, Route &ro)
+Response::Response(const Request &re, const Route &ro)
 {
 	m_request = re;
 	m_route = ro;
@@ -11,7 +11,6 @@ Response::Response(Request &re, Route &ro)
 Response::Response(const Response &copy)
 {
 	m_request = copy.m_request;
-	m_route = copy.m_route;
 	m_start_line = copy.m_start_line;
 	m_headers_map = copy.m_headers_map;
 	m_headers_str = copy.m_headers_str;
@@ -26,7 +25,6 @@ Response & Response::operator=(const Response &copy)
 	if (this != &copy)
 	{
 		m_request = copy.m_request;
-		m_route = copy.m_route;
 		m_start_line = copy.m_start_line;
 		m_headers_map = copy.m_headers_map;
 		m_headers_str = copy.m_headers_str;
@@ -64,7 +62,6 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 	ConfigUtil::status_code_map_t::iterator		it;
 
 	m_status_code = m_request.getStatus();
-	std::cout << "status code is " << m_status_code << std::endl;
 	// if (m_status_code != 200)
 		/* handle errors */
 	str_status_code = ft::intToString(m_status_code);
@@ -175,19 +172,8 @@ void					Response::buildHeaders()
 		m_headers_str += (it->first + ": " + it->second + CRLF);
 
 	m_headers_str += "\n";
+	// std::cout << m_headers_str << std::endl;
 }
-
-// std::string					Response::_readFileIntoString(const std::string &path)
-// {
-// 	std::ifstream	input_file(path);
-
-// 	if (!input_file.is_open())
-// 	{
-// 		// error handling
-// 		exit (EXIT_FAILURE);
-// 	}
-// }
-
 
 void						Response::buildBody()
 {
@@ -196,13 +182,17 @@ void						Response::buildBody()
 	// 	if (m_status_code < 300 && m_status_code >= 400)
 	// 	{
 			std::string path;
+			std::string method;
 
+			method = m_request.getMethod();
+			std::cout << " method is : " << path << std::endl;
 			path = m_route.getBaseUrl();
 			std::cout << " path is : " << path << std::endl;
 			// m_body = _readFileIntoString(path);
 
 	// 	}
 	// }
+	m_body = "HEllo";
 }
 
 void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
@@ -211,4 +201,5 @@ void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildBody();
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
+	// std::cout << m_response << std::endl;
 }

@@ -14,7 +14,7 @@
 # include <Client.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
-# include <Response.hpp>
+// # include <GetResponse.hpp>
 
 # include <poll.h>
 
