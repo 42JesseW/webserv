@@ -81,7 +81,7 @@ def webserv(request):
         thread.daemon = True
         thread.start()
         yield wrapper
-
+    thread.join()
 
 @pytest.mark.parametrize(
     'config, port',
@@ -110,11 +110,7 @@ def webserv(request):
 class TestStatusCode2xx:
 
     def test_statuscode_200(self, config, port, make_webserv):
-        # print(webserv)
-        # assert make_webserv == 0
-        # resp = requests.get('http://localhost:8082')
-        # print(resp.content)
-        assert 1
+        assert make_webserv == 0
 
 
 class TestStatusCode3xx:
