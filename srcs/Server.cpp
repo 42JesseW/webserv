@@ -249,6 +249,7 @@ void						Server::handleConnection(int client_socket)
     if (this_client->m_request.isDone())
     {
         this_client->setCorrectRoute(this->getRoutes());
+        this_client->checkRoute();
         this_client->m_request.setDone(false);
         this_client->m_request.printRequest();
     }

@@ -27,6 +27,10 @@ class Client
 		Request		&getRequest();
 
 		void		setCorrectRoute(std::vector<Route> server_routes);
+		void		checkRoute();
+		void		checkAcceptedMethods();
+		void		checkRedirects();
+		void		checkFileSearchPath();
 };
 
 #endif
