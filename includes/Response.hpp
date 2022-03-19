@@ -8,6 +8,8 @@
 # include <Route.hpp>
 
 # include <time.h>
+# include <ctime>
+# include <cstdlib>
 
 # define CRLF "\r\n"
 # define RETRY_AFTER_SEC "120"

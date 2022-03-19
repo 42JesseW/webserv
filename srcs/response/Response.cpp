@@ -77,7 +77,8 @@ string_pair_t			Response::_buildDate()
 
 	time(&rawtime);
 	ptm = gmtime(&rawtime);
-	strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
+	// strftime(buf, 500, "%a, %d %b %G %T GMT", ptm);
+	strftime(buf, 500, "%a, %d %b %Y %H:%M:%S GMT", ptm);
 	return (std::make_pair("Date", std::string(buf)));
 }
 
