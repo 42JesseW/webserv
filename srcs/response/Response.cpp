@@ -100,7 +100,6 @@ string_pair_t			Response::_buildAllow()
 	return (std::make_pair("Allow", ""));
 }
 
-// not sure if that can mess up the reponse - test and remove if needed
 string_pair_t			Response::_buildServer()
 {
 	return (std::make_pair("Server", "Websurf/1.0.0 (Unix)"));
@@ -111,9 +110,35 @@ string_pair_t			Response::_buildConnection()
     return (std::make_pair("Connection", "close"));
 }
 
+string_pair_t			Response::_buildTransferEncoding()
+{
+	return (std::make_pair("Transfer-Encoding", "chunked"));
+}
+
+string_pair_t			Response::_buildContentLength()
+{
+	int			string_size;
+	std::string	str_string_size;
+
+	string_size = m_body.size();
+	str_string_size = ft::intToString(string_size);
+	return (std::make_pair("Content-Length", str_string_size));
+}
+
+// check if there is a case we have different Content-Type
+string_pair_t			Response::_buildContentType()
+{
+	std::string	content_type;
+
+	content_type = "text/html; charset=\"utf-8\"";
+	return(std::make_pair("Content-Type", content_type));
+}
+
 void					Response::buildHeaders()
 {
 	std::map<std::string, std::string>::iterator	it;
+	// to be removed
+	int	chunked = 0;
 
 	m_headers_map.insert(_buildDate());
 	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
@@ -124,9 +149,13 @@ void					Response::buildHeaders()
 		m_headers_map.insert(_buildAllow());
 	m_headers_map.insert(_buildServer());
 	m_headers_map.insert(_buildConnection());
-	// _buildContentLength();
-	// _buildContentType();
-	// _buildTransferEncoding();
+	// Content-Length and Transfer-Encoding cannot be used both at the same time. 
+	// We use a flag chunked (==cgi i think) to indicate which one needs to be used
+	if (chunked)
+		m_headers_map.insert(_buildTransferEncoding());
+	else
+		m_headers_map.insert(_buildContentLength());
+	m_headers_map.insert(_buildContentType());
 
 	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)
 		m_headers_str += (it->first + ": " + it->second + CRLF);
@@ -145,8 +174,8 @@ void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	// handleMethod();
 	buildStartLine(m_error_files);
-	buildHeaders();
 	buildBody();
+	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
 	// std::cout << m_response << std::endl;
 }
