@@ -14,17 +14,17 @@ void    Request::errorChecking()
 void    Request::checkStatusLine()
 {
     if (m_method.empty() || m_version.empty())
-        setStatus(400);
+        setStatus(HTTP_STATUS_BAD_REQUEST);
     else if (m_method != "GET" && m_method != "POST" && m_method != "DELETE")
-        setStatus(405);
+        setStatus(HTTP_STATUS_METHOD_NOT_ALLOWED);
     else if (m_version != ALLOWED_VERSION)
-        setStatus(426);
+        setStatus(HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED);
 }
 
 void    Request::checkHeaders()
 {
     if (m_headers.find("Host") == m_headers.end())
-        setStatus(400);
+        setStatus(HTTP_STATUS_BAD_REQUEST);
     else if (m_headers.find("Expect") != m_headers.end() && m_headers["Expect"] != "100-continue")
-        setStatus(417);
+        setStatus(HTTP_STATUS_EXPECTATION_FAILED);
 }

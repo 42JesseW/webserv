@@ -50,7 +50,7 @@ void    Client::setCorrectRoute(std::vector<Route> &server_routes)
 				return ;
 			}
 		}
-		m_request.setStatus(404);
+		m_request.setStatus(HTTP_STATUS_NOT_FOUND);
 	}
 }
 
@@ -72,7 +72,7 @@ void Client::checkAcceptedMethods()
 				return;
 			}
 		}
-		m_request.setStatus(405);
+		m_request.setStatus(HTTP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
 
@@ -97,7 +97,7 @@ void Client::checkFileSearchPath()
 		filepath.erase(0,1);
 		if (open(filepath.c_str(), O_RDONLY) == -1)
 		{
-			m_request.setStatus(404);
+			m_request.setStatus(HTTP_STATUS_NOT_FOUND);
 		}
 	}
 }

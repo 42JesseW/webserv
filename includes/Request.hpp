@@ -7,7 +7,7 @@
 # define CR '\r'
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
-# define HTTP_STATUS_OK 200
+
 
 class Request
 {
