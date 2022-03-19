@@ -38,9 +38,9 @@ int & Client::getSocket()
 	return (m_socket);
 }
 
-void    Client::setCorrectRoute(std::vector<Route> server_routes)
+void    Client::setCorrectRoute(std::vector<Route> &server_routes)
 {
-	if (m_request.getStatus() == 200) 
+	if (m_request.getStatus()== HTTP_STATUS_OK) 
 	{
 		for (std::vector<Route>::iterator it = server_routes.begin(); it != server_routes.end(); it++)
 		{
@@ -63,7 +63,7 @@ void Client::checkRoute()
 
 void Client::checkAcceptedMethods()
 {
-	if (m_request.getStatus() == 200)
+	if (m_request.getStatus() == HTTP_STATUS_OK)
 	{
 		for (std::vector<std::string>::iterator it = m_route.getAcceptedMethods().begin(); it != m_route.getAcceptedMethods().end(); it++)
 		{
@@ -78,7 +78,7 @@ void Client::checkAcceptedMethods()
 
 void Client::checkRedirects()
 {
-	if (m_request.getStatus() == 200) 
+	if (m_request.getStatus() == HTTP_STATUS_OK) 
 	{
 		if (m_route.getRedir() != NULL)
 		{
@@ -91,7 +91,7 @@ void Client::checkFileSearchPath()
 {
 	std::string filepath;
 
-	if (m_request.getStatus() == 200)
+	if (m_request.getStatus() == HTTP_STATUS_OK)
 	{
 		filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
 		filepath.erase(0,1);

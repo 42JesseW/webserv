@@ -4,7 +4,7 @@ void    Request::errorChecking()
 {
     std::string query;
 
-    if (getStatus() == 200)
+    if (getStatus() == HTTP_STATUS_OK)
     {
         checkStatusLine();
         checkHeaders();
