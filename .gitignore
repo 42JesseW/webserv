@@ -8,3 +8,4 @@ a.out
 .pytest_cache/
 .vscode/
 webserv
+__pycache__/
