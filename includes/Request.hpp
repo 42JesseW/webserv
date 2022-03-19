@@ -2,6 +2,7 @@
 # define REQUEST_HPP
 
 # include <Common.hpp>
+# include <algorithm>
 
 # define BUFF_SIZE 10
 # define CR '\r'

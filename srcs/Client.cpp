@@ -1,6 +1,6 @@
 #include <Client.hpp>
 
-Client::Client() : m_request()
+Client::Client() : m_response(m_request, m_route)
 {
 
 }

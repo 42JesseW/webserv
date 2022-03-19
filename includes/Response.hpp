@@ -4,13 +4,27 @@
 # include <Common.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
+# include <Utils.hpp>
+# include <Route.hpp>
+
+# include <time.h>
+# include <ctime>
+# include <cstdlib>
+# include <iostream>
+# include <fstream>
+# include <sstream>
 
 # define CRLF "\r\n"
+# define RETRY_AFTER_SEC "120"
+
+typedef std::pair<std::string, std::string> string_pair_t;
 
 class Response
 {
-	protected:
+	private:
 		Request 								m_request;
+		Route 									m_route;
+		int										m_status_code;
 		std::string								m_start_line;
 		std::map<std::string, std::string>		m_headers_map;
 		std::string								m_headers_str;
@@ -19,24 +33,35 @@ class Response
 
 	public:
 		Response();
-		Response(const Request &r);
+		Response(Request &re, Route &ro);
 		Response(const Response &copy);
-		virtual ~Response();
+		~Response();
 
 		Response& operator = (const Response &copy);
 
 		// Getters
-		// std::string								getStartLine();
-		// std::map<std::string, std::string>		getHeaders();
-		// std::string								getBody();
-		std::string const &							getResponse() const;
+		std::string const &			getStartLine() const;
+		std::string const &			getHeaders() const;
+		std::string const &			getBody() const;
+		std::string const &			getResponse() const;
 
-		// For each child class to define
-		virtual void							handleMethod() = 0;
-		virtual void							buildStartLine(ConfigUtil::status_code_map_t& m_error_files) = 0;
-		virtual void							buildHeaders() = 0;
-		virtual void							buildBody() = 0;
-		virtual void							buildResponse(ConfigUtil::status_code_map_t& m_error_files);
+		// void							handleMethod();
+		void						buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
+		void						buildHeaders();
+		void						buildBody();
+		void						buildResponse(ConfigUtil::status_code_map_t& m_error_files);
+
+	private:
+		string_pair_t	_buildDate();
+		string_pair_t	_buildLocation();
+		string_pair_t	_buildRetryAfter();
+		string_pair_t	_buildAllow();
+		string_pair_t	_buildServer();
+		string_pair_t	_buildConnection();
+		string_pair_t	_buildContentLength();
+		string_pair_t	_buildContentType();
+		string_pair_t	_buildTransferEncoding();
+		std::string		_readFileIntoString(const std::string &path);
 };
 
 #endif

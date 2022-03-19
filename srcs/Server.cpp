@@ -138,20 +138,16 @@ void                        Server::_handlePollin(int i)
     }
 }
 
-void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter, Request *new_request)
+void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter)
 {
-    if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)) && !(m_pfds[i].revents & POLLIN))
+    if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)))
     {
-        // if (new_request->getMethod() == "GET")
-            GetResponse new_response(*new_request);
-		// else if (new_request->getMethod() == "POST")
-        //     PostResponse new_response(*new_request);
-		// else if (new_request->getMethod() == "DELETE")
-		// 	DeleteResponse	new_response(*new_request);
+		m_clients.at(m_pfds[i].fd).m_response.buildResponse(m_error_files);
 
-        new_response.buildResponse(m_error_files);
+    	// new_response = m_clients.at(m_pfds[i].fd).m_response;
+        // new_response.buildResponse(m_error_files);
 
-        send(m_pfds[i].fd, new_response.getResponse().c_str(), new_response.getResponse().length(), 0);
+        send(m_pfds[i].fd, m_clients.at(m_pfds[i].fd).m_response.getResponse().c_str(), m_clients.at(m_pfds[i].fd).m_response.getResponse().length(), 0);
         close(m_pfds[i].fd);
         m_pfds.erase(iter);
     }
@@ -164,7 +160,6 @@ void                        *Server::threadedPoll(void *instance)
     pollfd_vec_t::iterator  iter;
     Server                  *server;
     int                     poll_count;
-    Request                 new_request;
 
     server = (Server *)instance;
     pfds = &server->getPollPfds();
@@ -185,7 +180,7 @@ void                        *Server::threadedPoll(void *instance)
         {
             server->_handleErrorEvents(i, iter);
             server->_handlePollin(i);
-            server->_handlePollout(i, iter, &new_request);
+            server->_handlePollout(i, iter);
             iter++;
         }
     }
@@ -246,6 +241,7 @@ void						Server::handleConnection(int client_socket)
     this_client->setSocket(client_socket);
 
     this_client->m_request.handleRequest(client_socket);
+    this_client->m_request.printRequest();
     if (this_client->m_request.isDone())
     {
         this_client->setCorrectRoute(this->getRoutes());
