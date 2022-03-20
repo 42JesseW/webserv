@@ -93,11 +93,11 @@ void Client::searchFile()
 
 	filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
 	filepath.erase(0,1);
-	if (open(filepath.c_str(), O_RDONLY) == -1)
+	if (open(filepath.c_str(), O_RDONLY) != -1)
 	{
-		m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+		m_request.setStatus(HTTP_STATUS_OK);
 	}
-	m_request.setStatus(HTTP_STATUS_OK);
+	m_request.setStatus(HTTP_STATUS_NOT_FOUND);
 }
 
 void Client::searchDefaultIndexPages()
@@ -111,6 +111,7 @@ void Client::searchDefaultIndexPages()
 		filepath.erase(0,1);
 		if (open(filepath.c_str(), O_RDONLY) != -1)
 		{
+			m_request.setStatus(HTTP_STATUS_OK);
 			return ;
 		}
 		filepath.clear();
@@ -127,6 +128,7 @@ bool Client::seachCGIExtensions()
 	{
 		if (extension == *it)
 		{
+			m_request.setStatus(HTTP_STATUS_OK);
 			return (true);
 		}
 	}
@@ -146,7 +148,9 @@ void Client::checkFileSearchPath()
 		else
 		{
 			if (!seachCGIExtensions())
+			{
 				searchFile();
+			}
 		}
 	}
 }
