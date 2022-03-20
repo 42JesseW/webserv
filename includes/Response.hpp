@@ -10,6 +10,9 @@
 # include <time.h>
 # include <ctime>
 # include <cstdlib>
+# include <iostream>
+# include <fstream>
+# include <sstream>
 
 # define CRLF "\r\n"
 # define RETRY_AFTER_SEC "120"
@@ -30,22 +33,27 @@ class Response
 
 	public:
 		Response();
-		Response(const Request &re, const Route &ro);
+		Response(Request &re, Route &ro);
 		Response(const Response &copy);
 		~Response();
 
 		Response& operator = (const Response &copy);
 
 		// Getters
-		std::string const &				getStartLine() const;
-		std::string	const &				getHeaders() const;
-		std::string	const &				getBody() const;
-		std::string const &				getResponse() const;
+		Request const &											getRequest() const;
+		Route const &											getRoute() const;
+		int const &												getStatusCode() const;					
+		std::string const &										getStartLine() const;
+		std::map<std::string, std::string> const &				getHeadersMap() const;
+		std::string	const &										getHeadersStr() const;
+		std::string	const &										getBody() const;
+		std::string const &										getResponse() const;
 
-		void							buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
-		void							buildHeaders();
-		void							buildBody();
-		void							buildResponse(ConfigUtil::status_code_map_t& m_error_files);
+		void			buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
+		void			buildHeaders();
+		void			buildBody();
+		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
+		void			resetResponse();
 
 	private:
 		string_pair_t	_buildDate();
@@ -57,6 +65,7 @@ class Response
 		string_pair_t	_buildContentLength();
 		string_pair_t	_buildContentType();
 		string_pair_t	_buildTransferEncoding();
+		int				_readFileIntoString(const std::string &path);
 };
 
 #endif

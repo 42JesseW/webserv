@@ -143,12 +143,14 @@ void						Server::_handlePollout(int i, pollfd_vec_t::iterator iter)
     if (m_pfds[i].revents & POLLOUT && !(m_pfds[i].revents & (POLLERR | POLLNVAL | POLLHUP)) && !(m_pfds[i].revents & POLLIN))
     {
         Client *this_client = &m_clients.at(m_pfds[i].fd);
+        Response this_response(this_client->m_request, this_client->m_route);
 
+        this_client->m_response = this_response;
         this_client->m_response.buildResponse(m_error_files);
-
         send(m_pfds[i].fd, this_client->m_response.getResponse().c_str(), this_client->m_response.getResponse().length(), 0);
         close(m_pfds[i].fd);
         m_pfds.erase(iter);
+        this_client->m_response.resetResponse();
     }
 }
 
@@ -238,7 +240,7 @@ void						Server::handleConnection(int client_socket)
 {
     Client *this_client = &m_clients.at(client_socket);
     this_client->setSocket(client_socket);
-
+    
 	this_client->m_request.handleRequest(client_socket);
     if (this_client->m_request.isDone())
     {

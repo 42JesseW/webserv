@@ -2,15 +2,16 @@
 
 Response::Response() {}
 
-Response::Response(const Request &re, const Route &ro)
+Response::Response(Request &re, Route &ro) : m_request(re), m_route(ro)
 {
-	m_request = re;
-	m_route = ro;
+
 }
 
 Response::Response(const Response &copy)
 {
 	m_request = copy.m_request;
+	m_route = copy.m_route;
+	m_status_code = copy.m_status_code;
 	m_start_line = copy.m_start_line;
 	m_headers_map = copy.m_headers_map;
 	m_headers_str = copy.m_headers_str;
@@ -25,6 +26,8 @@ Response & Response::operator=(const Response &copy)
 	if (this != &copy)
 	{
 		m_request = copy.m_request;
+		m_route = copy.m_route;
+		m_status_code = copy.m_status_code;
 		m_start_line = copy.m_start_line;
 		m_headers_map = copy.m_headers_map;
 		m_headers_str = copy.m_headers_str;
@@ -34,22 +37,42 @@ Response & Response::operator=(const Response &copy)
 	return (*this);
 }
 
-std::string const &		Response::getStartLine() const
+Request const &									Response::getRequest() const
+{
+	return (m_request);
+}
+
+Route const &									Response::getRoute() const
+{
+	return (m_route);
+}
+
+int const &										Response::getStatusCode() const
+{
+	return (m_status_code);
+}
+
+std::string const &								Response::getStartLine() const
 {
 	return (m_start_line);
 }
 
-std::string const &		Response::getHeaders() const
+std::map<std::string, std::string> const &		Response::getHeadersMap() const
+{
+	return (m_headers_map);
+}
+
+std::string const &								Response::getHeadersStr() const
 {
 	return (m_headers_str);
 }
 
-std::string const &		Response::getBody() const
+std::string const &								Response::getBody() const
 {
 	return (m_body);
 }
 
-std::string const &		Response::getResponse() const
+std::string const &								Response::getResponse() const
 {
 	return (m_response);
 }
@@ -172,34 +195,64 @@ void					Response::buildHeaders()
 		m_headers_str += (it->first + ": " + it->second + CRLF);
 
 	m_headers_str += "\n";
-	// std::cout << m_headers_str << std::endl;
 }
 
-void						Response::buildBody()
+int 					Response::_readFileIntoString(const std::string &path)
 {
-	// if (m_request.getMethod() == "GET" && m_status_code == 200)
-	// {
-	// 	if (m_status_code < 300 && m_status_code >= 400)
-	// 	{
-			std::string path;
-			std::string method;
+	std::string new_path;
 
-			method = m_request.getMethod();
-			std::cout << " method is : " << path << std::endl;
-			path = m_route.getBaseUrl();
-			std::cout << " path is : " << path << std::endl;
-			// m_body = _readFileIntoString(path);
+	new_path = "html/" + path;
+	std::ifstream input_file(new_path.c_str());
 
-	// 	}
-	// }
-	m_body = "HEllo";
+	if (!input_file.is_open())
+		return (0);
+
+	m_body = std::string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+
+	return (1);
 }
 
-void						Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
+void					Response::buildBody()
+{
+	if (m_request.getMethod() == "GET" && m_status_code == 200)
+	{
+		std::string							path;
+		std::vector<std::string>			path_vector;
+		std::vector<std::string>::iterator	iter;
+
+		path_vector = m_route.getIndexFiles();
+		path = m_route.getBaseUrl();
+		if (path.at(path.length() - 1) == '/')
+		{
+			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
+			{
+				if (_readFileIntoString(path_vector.at(iter - path_vector.begin())))
+					break;	
+			}
+			if (iter == path_vector.end())
+			// to change to what the config file brings
+				_readFileIntoString("page_not_found.html");
+		}
+	}
+	if (m_request.getMethod() == "GET" && m_status_code == 404)
+		_readFileIntoString("page_not_found.html");
+}
+
+void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	buildStartLine(m_error_files);
 	buildBody();
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
-	// std::cout << m_response << std::endl;
+}
+
+void					Response::resetResponse()
+{
+	m_request.resetRequest();
+	m_status_code = 0;
+	m_start_line.clear();
+	m_headers_map.clear();
+	m_headers_str.clear();
+	m_body.clear();
+	m_response.clear();
 }
