@@ -1,6 +1,6 @@
 #include <Request.hpp>
 
-Request::Request() : m_target("/"), m_done(false), m_status(HTTP_STATUS_OK), m_port(80) {}
+Request::Request() : m_target("/"), m_filename("/"), m_done(false), m_status(HTTP_STATUS_OK), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -107,6 +107,7 @@ std::string	&Request::getBody()
 void	Request::resetRequest() 
 {
 	m_target = "/";
+	m_filename = "/";
 	m_filename.clear();
 	m_query.clear();
 	m_headers.clear();

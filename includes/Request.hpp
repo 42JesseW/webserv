@@ -8,7 +8,6 @@
 # define LF '\n'
 # define ALLOWED_VERSION "HTTP/1.1"
 
-
 class Request
 {
 	protected:

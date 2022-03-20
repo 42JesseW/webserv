@@ -90,14 +90,34 @@ void Client::checkRedirects()
 void Client::checkFileSearchPath()
 {
 	std::string filepath;
+	std::vector<std::string>::iterator it;
 
 	if (m_request.getStatus() == HTTP_STATUS_OK)
 	{
-		filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
-		filepath.erase(0,1);
-		if (open(filepath.c_str(), O_RDONLY) == -1)
+		if (m_request.getFilename() == "/")
 		{
-			m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+			for(it = m_route.getIndexFiles().begin(); it != m_route.getIndexFiles().end(); it++)
+			{
+				filepath.append(m_route.getFileSearchPath() + "/" + *it);
+				filepath.erase(0,1);
+				std::cout << "FILEPATH: " << filepath << std::endl;
+				if (open(filepath.c_str(), O_RDONLY) == -1)
+				{
+					std::cout << "COULDNT OPEN" << std::endl;
+					m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+					return ;
+				}
+				filepath.clear();
+			}
+		}
+		else 
+		{
+			filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
+			filepath.erase(0,1);
+			if (open(filepath.c_str(), O_RDONLY) == -1)
+			{
+				m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+			}
 		}
 	}
 }
