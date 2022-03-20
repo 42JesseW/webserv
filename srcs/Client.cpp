@@ -87,37 +87,66 @@ void Client::checkRedirects()
 	}
 }
 
-void Client::checkFileSearchPath()
+void Client::searchFile()
+{
+	std::string filepath;
+
+	filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
+	filepath.erase(0,1);
+	if (open(filepath.c_str(), O_RDONLY) == -1)
+	{
+		m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+	}
+	m_request.setStatus(HTTP_STATUS_OK);
+}
+
+void Client::searchDefaultIndexPages()
 {
 	std::string filepath;
 	std::vector<std::string>::iterator it;
+
+	for(it = m_route.getIndexFiles().begin(); it != m_route.getIndexFiles().end(); it++)
+	{
+		filepath.append(m_route.getFileSearchPath() + "/" + *it);
+		filepath.erase(0,1);
+		if (open(filepath.c_str(), O_RDONLY) != -1)
+		{
+			return ;
+		}
+		filepath.clear();
+	}
+	m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+}
+
+bool Client::seachCGIExtensions()
+{
+	std::string extension = m_request.getFilename().substr(m_request.getFilename().find('.'));
+	std::vector<std::string>::iterator it;
+
+	for(it = m_route.getCgiFileExtensions().begin(); it != m_route.getCgiFileExtensions().end(); it++)
+	{
+		if (extension == *it)
+		{
+			return (true);
+		}
+	}
+	m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+	return (false);
+}
+
+void Client::checkFileSearchPath()
+{
 
 	if (m_request.getStatus() == HTTP_STATUS_OK)
 	{
 		if (m_request.getFilename() == "/")
 		{
-			for(it = m_route.getIndexFiles().begin(); it != m_route.getIndexFiles().end(); it++)
-			{
-				filepath.append(m_route.getFileSearchPath() + "/" + *it);
-				filepath.erase(0,1);
-				std::cout << "FILEPATH: " << filepath << std::endl;
-				if (open(filepath.c_str(), O_RDONLY) == -1)
-				{
-					std::cout << "COULDNT OPEN" << std::endl;
-					m_request.setStatus(HTTP_STATUS_NOT_FOUND);
-					return ;
-				}
-				filepath.clear();
-			}
+			searchDefaultIndexPages();
 		}
-		else 
+		else
 		{
-			filepath.append(m_route.getFileSearchPath() + m_request.getFilename());
-			filepath.erase(0,1);
-			if (open(filepath.c_str(), O_RDONLY) == -1)
-			{
-				m_request.setStatus(HTTP_STATUS_NOT_FOUND);
-			}
+			if (!seachCGIExtensions())
+				searchFile();
 		}
 	}
 }

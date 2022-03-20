@@ -54,6 +54,7 @@ class Request
 		std::string								&getVersion();
 		std::string								&getFilename();
 		std::string								&getBody();
+		std::string								&getCGIPath();
 		std::map<std::string, std::string>		&getHeaders();
 		bool									&isDone();
 		

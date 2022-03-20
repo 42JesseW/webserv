@@ -51,6 +51,15 @@ static std::string  basic_delete_request_wrong =
 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
 	"Host: localhost\r\n\r\n";
 
+// Advanced requests
+
+static std::string  advanced_get_request =
+	"GET /script.py/html/index.html HTTP/1.1\r\n"
+	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+	"Host: localhost\r\n"
+	"Accept-Language: en-us\r\n"
+	"Accept-Encoding: gzip, deflate\r\n\r\n";
+
 // Basic requests that would succeed
 
 TEST_CASE("Basic get request")
@@ -206,5 +215,23 @@ TEST_CASE("Wrong basic delete request")
 	SECTION("Status")
 	{
 		REQUIRE(new_request->getStatus() == 405);
+	}
+}
+
+TEST_CASE("Advanced get request")
+{
+	new_request->setRequest(advanced_get_request);
+	new_request->divideRequest();
+	new_request->errorChecking();
+
+	SECTION("Start line")
+	{
+        REQUIRE(new_request->getMethod() == "GET");
+        REQUIRE(new_request->getTarget() == "/");
+		REQUIRE(new_request->getFilename() == "/script.py");
+        REQUIRE(new_request->getQuery().empty());
+        REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
+		REQUIRE(new_request->getCGIPath() == "/html/index.html");
+		REQUIRE(new_request->getPort() == 80);
 	}
 }

@@ -84,6 +84,11 @@ std::string &Request::getFilename()
 	return (m_filename);
 }
 
+std::string &Request::getCGIPath()
+{
+	return (m_cgi_path);
+}
+
 int	&Request::getPort()
 {
 	return (m_port);
