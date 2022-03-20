@@ -100,7 +100,8 @@ TEST_CASE("Basic post request")
 	SECTION("Start line")
 	{
         REQUIRE(new_request->getMethod() == "POST");
-        REQUIRE(new_request->getTarget() == "/index.html");
+        REQUIRE(new_request->getTarget() == "/");
+		REQUIRE(new_request->getFilename() == "/index.html");
         REQUIRE(new_request->getQuery().empty());
         REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
 		REQUIRE(new_request->getPort() == 8082);
@@ -140,7 +141,8 @@ TEST_CASE("Basic delete request")
 	SECTION("Start line")
 	{
         REQUIRE(new_request->getMethod() == "DELETE");
-        REQUIRE(new_request->getTarget() == "/index.html");
+        REQUIRE(new_request->getTarget() == "/");
+		REQUIRE(new_request->getFilename() == "/index.html");
         REQUIRE(new_request->getQuery().empty());
         REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
 		REQUIRE(new_request->getPort() == 80);
@@ -177,7 +179,7 @@ TEST_CASE("Wrong basic get request")
 
 	SECTION("Status")
 	{
-		REQUIRE(new_request->getStatus() == 426);
+		REQUIRE(new_request->getStatus() == 505);
 	}
 }
 

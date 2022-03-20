@@ -24,4 +24,6 @@ typedef void    *(*THREAD_FUNC_PTR)(void *);
 # include <arpa/inet.h>
 # include <sys/socket.h>
 
+# include <StatusCodes.hpp>
+
 #endif
