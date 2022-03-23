@@ -57,6 +57,8 @@ class Request
 		std::string								&getCGIPath();
 		std::map<std::string, std::string>		&getHeaders();
 		bool									&isDone();
+
+		void									decodeRequest();
 		
 		void									errorChecking();
 		void									checkStatusLine();

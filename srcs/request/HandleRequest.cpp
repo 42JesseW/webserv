@@ -32,6 +32,10 @@ void Request::divideRequest()
 		m_request.erase(0, 2);
 		m_body = m_request;
 	}
+	if(getHeaders().find("Host")->second == "localhost:8082")
+	{
+		decodeRequest();
+	}
 	m_request.clear();
 }
 

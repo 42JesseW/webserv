@@ -14,6 +14,7 @@ ifndef TEST
             srcs/request/HandleRequest.cpp\
             srcs/request/ErrorHandling.cpp\
             srcs/request/Request.cpp\
+			srcs/request/Decoder.cpp\
             srcs/response/Response.cpp\
             srcs/response/GetResponse.cpp
 
