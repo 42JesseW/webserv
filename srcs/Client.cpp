@@ -97,7 +97,10 @@ void Client::searchFile()
 	{
 		m_request.setStatus(HTTP_STATUS_OK);
 	}
-	m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+    else
+    {
+        m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+    }
 }
 
 void Client::searchDefaultIndexPages()
@@ -111,6 +114,7 @@ void Client::searchDefaultIndexPages()
 		filepath.erase(0,1);
 		if (open(filepath.c_str(), O_RDONLY) != -1)
 		{
+            std::cout << "FOUND THE DEFAULT FILE" << std::endl;
 			m_request.setStatus(HTTP_STATUS_OK);
 			return ;
 		}
