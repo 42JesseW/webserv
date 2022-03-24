@@ -8,7 +8,7 @@ void Request::handleRequest(int client_socket)
 	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
 	if (bytes_read == -1)
 	{
-		setStatus(400);
+		setStatus(HTTP_STATUS_BAD_REQUEST);
 	}
 	else
 	{
@@ -39,7 +39,7 @@ void Request::parseFilenamesAndCGI()
 {
 	if (std::count(m_target.begin(), m_target.end(), '.') > 2)
 	{
-		setStatus(418);
+		setStatus(HTTP_STATUS_TEAPOT);
 	}
 	else if (std::count(m_target.begin(), m_target.end(), '.') == 2)
     {
@@ -105,7 +105,7 @@ void Request::setHost()
 {
 	if (m_headers.find("Host") == m_headers.end())
 	{
-		setStatus(400);
+		setStatus(HTTP_STATUS_BAD_REQUEST);
 	}
 	else 
 	{

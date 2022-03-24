@@ -1,6 +1,6 @@
 #include <Request.hpp>
 
-Request::Request() : m_target("/"), m_done(false), m_status(200), m_port(80) {}
+Request::Request() : m_target("/"), m_done(false), m_status(HTTP_STATUS_OK), m_port(80) {}
 
 Request::Request(const Request &copy)
 {
@@ -113,7 +113,7 @@ void	Request::resetRequest()
 	m_body.clear();
 	m_done = false;
 	m_cgi_path.clear();
-	m_status = 200;
+	m_status = HTTP_STATUS_OK;
 	m_method.clear();
 	m_version.clear();
 	m_request.clear();
