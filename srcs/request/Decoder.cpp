@@ -2,7 +2,7 @@
 
 void    Request::decodeRequest()
 {
-    std::cout << "Body: " << getBody() << std::endl;
+    std::cout << "Decode the request" << std::endl;
 }
 
 // length := 0
