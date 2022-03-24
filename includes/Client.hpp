@@ -2,8 +2,9 @@
 
 # define CLIENT_HPP
 
-#include <Request.hpp>
-#include <Route.hpp>
+# include <Request.hpp>
+# include <Route.hpp>
+# include <Response.hpp>
 
 class Client
 {
@@ -16,7 +17,7 @@ class Client
 		int			m_socket;
 		Request		m_request;
 		Route		m_route;
-		// Response	*m_response;
+		Response	m_response;
 
 		Client();
 		Client(const Client& client);
