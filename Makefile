@@ -15,7 +15,6 @@ ifndef TEST
             srcs/request/ErrorHandling.cpp\
             srcs/request/Request.cpp\
             srcs/response/Response.cpp\
-            srcs/response/GetResponse.cpp
 
     CFLAGS  += -std=c++98
 else
