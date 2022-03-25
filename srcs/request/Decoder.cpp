@@ -2,27 +2,20 @@
 
 void    Request::decodeRequest()
 {
-    std::cout << "Decode the request" << std::endl;
+    int content_length = 0;
+    std::string new_body;
+    int chunked_size;
+
+    std::istringstream(m_body.substr(0, m_body.find('\r'))) >> std::hex >> chunked_size;
+    while(chunked_size > 0)
+    {
+        m_body.erase(0, m_body.find('\n') + 1);
+        new_body.append(m_body.substr(0, chunked_size + 1));
+        m_body.erase(0, chunked_size + 1);
+        m_body.erase(0, m_body.find('\n') + 1);
+        content_length += chunked_size;
+        std::istringstream(m_body.substr(0, m_body.find('\r'))) >> std::hex >> chunked_size;
+    }
+    m_body.clear();
+    m_body = new_body;
 }
-
-// length := 0
-// read chunk-size, chunk-ext (if any), and CRLF
-
-// while (chunk-size > 0) {
-//     read chunk-data and CRLF
-//     append chunk-data to decoded-body
-//     length := length + chunk-size
-//     read chunk-size, chunk-ext (if any), and CRLF
-// }
-
-// read trailer field
-// while (trailer field is not empty) {
-//     if (trailer field is allowed to be sent in a trailer) {
-//         append trailer field to existing header fields
-//     }
-//     read trailer-field
-// }
-
-// Content-Length := length
-// Remove "chunked" from Transfer-Encoding
-// Remove Trailer from existing header fields
