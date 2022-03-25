@@ -10,7 +10,6 @@
 # define ALLOWED_VERSION "HTTP/1.1"
 # define HTTP_STATUS_OK 200
 
-
 class Request
 {
 	protected:
@@ -57,8 +56,11 @@ class Request
 		std::string								&getVersion();
 		std::string								&getFilename();
 		std::string								&getBody();
+		std::string								&getCGIPath();
 		std::map<std::string, std::string>		&getHeaders();
 		bool									&isDone();
+
+		void									decodeRequest();
 		
 		void									errorChecking();
 		void									checkStatusLine();

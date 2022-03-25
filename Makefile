@@ -14,6 +14,7 @@ ifndef TEST
             srcs/request/HandleRequest.cpp\
             srcs/request/ErrorHandling.cpp\
             srcs/request/Request.cpp\
+			srcs/request/Decoder.cpp\
             srcs/response/Response.cpp\
 
     CFLAGS  += -std=c++98
@@ -22,7 +23,8 @@ else
 	        tests/unittests/test_request.cpp\
             srcs/request/Request.cpp\
 	        srcs/request/HandleRequest.cpp\
-	        srcs/request/ErrorHandling.cpp
+	        srcs/request/ErrorHandling.cpp\
+			srcs/request/Decoder.cpp
 
     CFLAGS  += -std=c++11
     NAME    = tester

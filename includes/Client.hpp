@@ -9,6 +9,9 @@
 class Client
 {
 	private:
+		void		searchFile();
+		void 		searchDefaultIndexPages();
+		bool		seachCGIExtensions();
 
 	public:
 		int			m_socket;
