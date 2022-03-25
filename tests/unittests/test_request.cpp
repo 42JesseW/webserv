@@ -60,6 +60,62 @@ static std::string  advanced_get_request =
 	"Accept-Language: en-us\r\n"
 	"Accept-Encoding: gzip, deflate\r\n\r\n";
 
+// Chunked requests
+static std::string chunked_post_request = 
+	"POST /test.html HTTP/1.1\r\n"
+	"Host: localhost:8082\r\n"
+	"Transfer-Encoding: chunked\r\n\r\n"
+	"4\r\n"
+	"Wiki\r\n"
+	"6\r\n"
+	"pedia \r\n"
+	"E\r\n"
+	"in \r\n\r\n"
+	"chunks.\r\n"
+	"0\r\n\r\n";
+
+static std::string chunked_post_request2 = 
+	"POST /test.html HTTP/1.1\r\n"
+	"Host: localhost:8082\r\n"
+	"Transfer-Encoding: chunked\r\n\r\n"
+	"B\r\n"
+	"Bring this \r\n"
+	"5\r\n"
+	"chunk\r\n"
+	"3\r\n"
+	"ed \r\n"
+	"6\r\n"
+	"to me \r\n"
+	"8\r\n"
+	"please a\r\n"
+	"1\r\n"
+	"n\r\n"
+	"2\r\n"
+	"d \r\n"
+	"6\r\n"
+	"thank \r\n"
+	"3\r\n"
+	"you\r\n"
+	"0\r\n"
+	"\r\n";
+
+static std::string chunked_post_request3 = 
+	"POST /test.html HTTP/1.1\r\n"
+	"Host: localhost:8082\r\n"
+	"Transfer-Encoding: chunked\r\n\r\n"
+	"19\r\n"
+	"this is a very long test \r\n"
+	"8\r\n"
+	"request \r\n"
+	"26\r\n"
+	"i don't know what to say to be honest.\r\n"
+	"0\r\n\r\n";
+
+static std::string empty_chunked_post_request = 
+	"POST /test.html HTTP/1.1\r\n"
+	"Host: localhost:8082\r\n"
+	"Transfer-Encoding: chunked\r\n\r\n";
+
 // Basic requests that would succeed
 
 TEST_CASE("Basic get request")
@@ -233,5 +289,77 @@ TEST_CASE("Advanced get request")
         REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
 		REQUIRE(new_request->getCGIPath() == "/html/index.html");
 		REQUIRE(new_request->getPort() == 80);
+	}
+}
+
+TEST_CASE("Chunked post request")
+{
+	new_request->setRequest(chunked_post_request);
+	new_request->divideRequest();
+	new_request->errorChecking();
+
+	SECTION("Headers")
+	{
+        REQUIRE(new_request->getMethod() == "POST");
+		REQUIRE(new_request->getPort() == 8082);
+	}
+
+	SECTION("Body")
+	{
+        REQUIRE(new_request->getBody() == "Wikipedia in \r\n\r\nchunks.");
+	}
+}
+
+TEST_CASE("Chunked post request 2")
+{
+	new_request->setRequest(chunked_post_request2);
+	new_request->divideRequest();
+	new_request->errorChecking();
+
+	SECTION("Headers")
+	{
+        REQUIRE(new_request->getMethod() == "POST");
+		REQUIRE(new_request->getPort() == 8082);
+	}
+
+	SECTION("Body")
+	{
+        REQUIRE(new_request->getBody() == "Bring this chunked to me please and thank you");
+	}
+}
+
+TEST_CASE("Chunked post request 3")
+{
+	new_request->setRequest(chunked_post_request3);
+	new_request->divideRequest();
+	new_request->errorChecking();
+
+	SECTION("Headers")
+	{
+        REQUIRE(new_request->getMethod() == "POST");
+		REQUIRE(new_request->getPort() == 8082);
+	}
+
+	SECTION("Body")
+	{
+        REQUIRE(new_request->getBody() == "this is a very long test request i don't know what to say to be honest.");
+	}
+}
+
+TEST_CASE("Empty chunked post request")
+{
+	new_request->setRequest(empty_chunked_post_request);
+	new_request->divideRequest();
+	new_request->errorChecking();
+
+	SECTION("Headers")
+	{
+        REQUIRE(new_request->getMethod() == "POST");
+		REQUIRE(new_request->getPort() == 8082);
+	}
+
+	SECTION("Body")
+	{
+        REQUIRE(new_request->getBody().empty());
 	}
 }

@@ -23,7 +23,8 @@ else
 	        tests/unittests/test_request.cpp\
             srcs/request/Request.cpp\
 	        srcs/request/HandleRequest.cpp\
-	        srcs/request/ErrorHandling.cpp
+	        srcs/request/ErrorHandling.cpp\
+			srcs/request/Decoder.cpp
 
     CFLAGS  += -std=c++11
     NAME    = tester
