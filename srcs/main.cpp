@@ -1,10 +1,25 @@
 #include <Config.hpp>
 #include <Server.hpp>
-#include <signal.h>
-
-#include <pthread.h>
 
 #include <iostream>
+
+/*
+ * If a signal occurs then the signal handler sets
+ * the m_is_signalled flag in the Config singleton
+ * instance. Both .setSignalled and .isSignalled are
+ * protected by a mutex and can be used to interact
+ * with this flag. The threads use .isSignalled to
+ * check the flag.
+ */
+void            sigint_handler(int sig)
+{
+    ConfigUtil  *util;
+
+    (void)sig;
+    util = &ConfigUtil::getHandle();
+    util->setSignalled();
+    std::cout << "[INFO] Server SIGINT received " << '\n';
+}
 
 /* Seems like "\e" is GNU only and "\033" is the standard sequence. */
 #define B "\033[0;38;2;42;111;240m"
@@ -30,6 +45,7 @@ int     main(int argc, char *argv[])
 
     thread_ids = NULL;
     exit_code = EXIT_SUCCESS;
+    signal(SIGINT, sigint_handler);
     config = &Config::getHandle();
     if (argc > 1)
         config->setFilePath(argv[1]);
@@ -48,7 +64,10 @@ int     main(int argc, char *argv[])
             }
         }
         for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
+        {
             pthread_join(thread_ids[idx], NULL);
+            std::cout << "[INFO] Joined thread " << idx << '\n';
+        }
     }
     catch (const std::invalid_argument& e)
     {

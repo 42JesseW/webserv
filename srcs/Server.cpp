@@ -1,5 +1,4 @@
 #include <Server.hpp>
-#include <signal.h>
 
 Server::Server() : m_client_max_body_size(DFL_MAX_BODY_SIZE)
 {
@@ -19,6 +18,11 @@ Server::Server(const Server &server) :
 
 }
 
+/*
+ * Since Socket object is stack allocated
+ * it will automatically be destructed when
+ * the server destructs.
+ */
 Server::~Server() {}
 
 Server&     Server::operator = (const Server &server)
@@ -161,18 +165,26 @@ void                        *Server::threadedPoll(void *instance)
     pollfd_vec_t::iterator  iter;
     Server                  *server;
     int                     poll_count;
+    ConfigUtil              *util;
 
     server = (Server *)instance;
+    util = &ConfigUtil::getHandle();
     pfds = &server->getPollPfds();
     pollfds.fd = server->getSockFd();
     pollfds.events = POLLIN;
     pfds->push_back(pollfds);
     for ( ;; )
     {
-        poll_count = poll(&server->getPollPfds().at(0), server->getPollPfds().size(), POLL_NO_TIMEOUT);
+        poll_count = poll(&server->getPollPfds().at(0), server->getPollPfds().size(), 500);
         if (poll_count == SYS_ERROR)
         {
             /* do some error handling */
+            break ;
+        }
+
+        if (util->isSignalled())
+        {
+            std::cout << "[INFO] Thread was signalled " << '\n';
             break ;
         }
 

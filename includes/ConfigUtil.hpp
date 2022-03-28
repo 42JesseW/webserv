@@ -18,6 +18,9 @@ private:
     status_code_map_t   m_status_codes;
     methods_t           m_methods;
 
+    bool                m_is_signalled;
+    pthread_mutex_t     m_signal_lock;
+
     static ConfigUtil   *m_handle;
 
 public:
@@ -32,6 +35,9 @@ public:
 
     const methods_t&                        getDefaultMethods(void);
     const status_code_map_t&                getStatusCodeMap(void);
+
+    void                                    setSignalled(void);
+    bool                                    isSignalled(void);
 
 private:
     void                                    _setDefaultStatusCodes(void);
