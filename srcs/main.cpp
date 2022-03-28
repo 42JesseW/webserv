@@ -11,14 +11,14 @@
  * with this flag. The threads use .isSignalled to
  * check the flag.
  */
-void            sigint_handler(int sig)
+void            signal_handler(int sig)
 {
     ConfigUtil  *util;
 
     (void)sig;
     util = &ConfigUtil::getHandle();
     util->setSignalled();
-    std::cout << "[INFO] Server SIGINT received " << '\n';
+    std::cout << "[INFO] Server signal " << sig << " received " << '\n';
 }
 
 /* Seems like "\e" is GNU only and "\033" is the standard sequence. */
@@ -36,6 +36,13 @@ static char ascii_wave[] = "\n"
    B ".-..____.-..____.-..____.-.._____.-..____.-..________.-..____.-.._..-'\n" R;
 
 
+void    catch_signals()
+{
+    signal(SIGINT, &signal_handler);
+    signal(SIGQUIT, &signal_handler);
+    signal(SIGHUP, &signal_handler);
+}
+
 int     main(int argc, char *argv[])
 {
     Config      *config;
@@ -43,9 +50,9 @@ int     main(int argc, char *argv[])
     int         exit_code;
     pthread_t   *thread_ids;
 
+    catch_signals();
     thread_ids = NULL;
     exit_code = EXIT_SUCCESS;
-    signal(SIGINT, sigint_handler);
     config = &Config::getHandle();
     if (argc > 1)
         config->setFilePath(argv[1]);

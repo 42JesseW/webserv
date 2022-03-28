@@ -251,7 +251,7 @@ int                         Server::acceptNewConnection(void)
 void						Server::handleConnection(int client_socket)
 {
     Client *this_client = &m_clients.at(client_socket);
-    this_client->setSocket(client_socket);
+    this_client->setSocketFD(client_socket);
     this_client->m_request.handleRequest(client_socket);
     if (this_client->m_request.isDone())
     {
