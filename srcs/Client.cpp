@@ -23,9 +23,9 @@ Client&     Client::operator = (const Client &client)
 	return (*this);
 }
 
-void    Client::setSocket(int socket)
+void    Client::setSocketFD(int socket)
 {
-	m_socket = socket;
+	m_socket.setFD(socket);
 }
 
 Request & Client::getRequest()
@@ -33,7 +33,7 @@ Request & Client::getRequest()
 	return (m_request);
 }
 
-int & Client::getSocket()
+Socket & Client::getSocket()
 {
 	return (m_socket);
 }

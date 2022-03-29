@@ -33,6 +33,7 @@ public:
 
     void        setAddress(const std::string& address);
     void        setPort(unsigned short port);
+    void        setFD(int fd);
 
     int         init(void);
     int&        getFd(void);

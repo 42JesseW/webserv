@@ -2,7 +2,7 @@
 
 ConfigUtil  *ConfigUtil::m_handle = NULL;
 
-ConfigUtil::ConfigUtil(void)
+ConfigUtil::ConfigUtil(void) : m_is_signalled(false)
 {
     /*
      * use DFL_ERROR_PAGES_PATH from project directory to find .html files
@@ -19,6 +19,7 @@ ConfigUtil::ConfigUtil(void)
     _setDefaultMethods();
     _setDefaultStatusCodes();
     _loadDefaultErrorFiles();
+    pthread_mutex_init( &m_signal_lock, NULL );
 }
 
 ConfigUtil::~ConfigUtil(void)
@@ -144,4 +145,21 @@ void                                    ConfigUtil::_loadDefaultErrorFiles(void)
             continue ;
         m_status_codes[it->first] = std::make_pair(it->second.first, file_contents);
     }
+}
+
+void                                    ConfigUtil::setSignalled(void)
+{
+    pthread_mutex_lock( &m_signal_lock );
+    m_is_signalled = true;
+    pthread_mutex_unlock( &m_signal_lock );
+}
+
+bool                                    ConfigUtil::isSignalled(void)
+{
+    bool    ret;
+
+    pthread_mutex_lock( &m_signal_lock );
+    ret = m_is_signalled;
+    pthread_mutex_unlock( &m_signal_lock );
+    return (ret);
 }

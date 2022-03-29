@@ -1,10 +1,25 @@
 #include <Config.hpp>
 #include <Server.hpp>
-#include <signal.h>
-
-#include <pthread.h>
 
 #include <iostream>
+
+/*
+ * If a signal occurs then the signal handler sets
+ * the m_is_signalled flag in the Config singleton
+ * instance. Both .setSignalled and .isSignalled are
+ * protected by a mutex and can be used to interact
+ * with this flag. The threads use .isSignalled to
+ * check the flag.
+ */
+void            signal_handler(int sig)
+{
+    ConfigUtil  *util;
+
+    (void)sig;
+    util = &ConfigUtil::getHandle();
+    util->setSignalled();
+    std::cout << "[INFO] Server signal " << sig << " received " << '\n';
+}
 
 /* Seems like "\e" is GNU only and "\033" is the standard sequence. */
 #define B "\033[0;38;2;42;111;240m"
@@ -21,6 +36,13 @@ static char ascii_wave[] = "\n"
    B ".-..____.-..____.-..____.-.._____.-..____.-..________.-..____.-.._..-'\n" R;
 
 
+void    catch_signals()
+{
+    signal(SIGINT, &signal_handler);
+    signal(SIGQUIT, &signal_handler);
+    signal(SIGHUP, &signal_handler);
+}
+
 int     main(int argc, char *argv[])
 {
     Config      *config;
@@ -28,6 +50,7 @@ int     main(int argc, char *argv[])
     int         exit_code;
     pthread_t   *thread_ids;
 
+    catch_signals();
     thread_ids = NULL;
     exit_code = EXIT_SUCCESS;
     config = &Config::getHandle();
@@ -48,7 +71,10 @@ int     main(int argc, char *argv[])
             }
         }
         for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
+        {
             pthread_join(thread_ids[idx], NULL);
+            std::cout << "[INFO] Joined thread " << idx << '\n';
+        }
     }
     catch (const std::invalid_argument& e)
     {

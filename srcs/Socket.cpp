@@ -63,6 +63,11 @@ void    Socket::setPort(unsigned short port)
     m_port = port;
 }
 
+void    Socket::setFD(int fd)
+{
+    m_sock_fd = fd;
+}
+
 /*
 ** Initialise socket for listening on specified port.
 ** Use PF_INET instead of AF_INET when calling socket():

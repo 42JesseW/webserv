@@ -5,6 +5,7 @@
 # include <Request.hpp>
 # include <Route.hpp>
 # include <Response.hpp>
+# include <Socket.hpp>
 
 class Client
 {
@@ -14,7 +15,7 @@ class Client
 		bool		seachCGIExtensions();
 
 	public:
-		int			m_socket;
+		Socket		m_socket;
 		Request		m_request;
 		Route		m_route;
 		Response	m_response;
@@ -25,9 +26,9 @@ class Client
 
 		Client& operator = (const Client& client);
 
-		void		setSocket(int socket);
+		void		setSocketFD(int socket);
 
-		int			&getSocket();
+		Socket		&getSocket();
 		Request		&getRequest();
 
 		void		setCorrectRoute(std::vector<Route> &server_routes);
