@@ -18,10 +18,6 @@
 # include <Common.hpp>
 # include <Utils.hpp>
 
-# include <unistd.h>
-
-# include <iostream>
-
 class SimpleRequest
 {
 private:

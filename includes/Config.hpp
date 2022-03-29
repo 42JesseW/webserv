@@ -13,7 +13,6 @@
 # include <Utils.hpp>
 
 # include <stack>
-# include <algorithm>
 
 class Config
 {
