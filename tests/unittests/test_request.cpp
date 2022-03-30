@@ -64,7 +64,7 @@ static std::string  advanced_get_request =
 static std::string chunked_post_request = 
 	"POST /test.html HTTP/1.1\r\n"
 	"Host: localhost:8082\r\n"
-	"Transfer-Encoding: chunked\r\n\r\n"
+	"Content-Encoding: chunked\r\n\r\n"
 	"4\r\n"
 	"Wiki\r\n"
 	"6\r\n"
@@ -77,7 +77,7 @@ static std::string chunked_post_request =
 static std::string chunked_post_request2 = 
 	"POST /test.html HTTP/1.1\r\n"
 	"Host: localhost:8082\r\n"
-	"Transfer-Encoding: chunked\r\n\r\n"
+	"Content-Encoding: chunked\r\n\r\n"
 	"B\r\n"
 	"Bring this \r\n"
 	"5\r\n"
@@ -102,7 +102,7 @@ static std::string chunked_post_request2 =
 static std::string chunked_post_request3 = 
 	"POST /test.html HTTP/1.1\r\n"
 	"Host: localhost:8082\r\n"
-	"Transfer-Encoding: chunked\r\n\r\n"
+	"Content-Encoding: chunked\r\n\r\n"
 	"19\r\n"
 	"this is a very long test \r\n"
 	"8\r\n"
@@ -114,7 +114,7 @@ static std::string chunked_post_request3 =
 static std::string empty_chunked_post_request = 
 	"POST /test.html HTTP/1.1\r\n"
 	"Host: localhost:8082\r\n"
-	"Transfer-Encoding: chunked\r\n\r\n";
+	"Content-Encoding: chunked\r\n\r\n";
 
 // Basic requests that would succeed
 

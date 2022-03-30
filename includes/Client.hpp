@@ -35,6 +35,7 @@ class Client
 		void		checkAcceptedMethods();
 		void		checkRedirects();
 		void		checkFileSearchPath();
+		void		checkDeleteFile();
 };
 
 #endif

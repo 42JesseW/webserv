@@ -141,19 +141,26 @@ bool Client::seachCGIExtensions()
 
 void Client::checkFileSearchPath()
 {
-
 	if (m_request.getStatus() == HTTP_STATUS_OK)
 	{
-		if (m_request.getFilename() == "/")
+		if (m_request.getMethod() == "GET")
 		{
-			searchDefaultIndexPages();
-		}
-		else
-		{
-			if (!seachCGIExtensions())
+			if (m_request.getFilename() == "/")
 			{
-				searchFile();
+				searchDefaultIndexPages();
+			}
+			else
+			{
+				if (!seachCGIExtensions())
+				{
+					searchFile();
+				}
 			}
 		}
+		else if (m_request.getMethod() == "DELETE")
+		{
+			searchFile();
+		}
 	}
+	
 }
