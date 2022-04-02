@@ -32,5 +32,11 @@
 
 #include <unistd.h>
 #include <pthread.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
 
 typedef void            *(*THREAD_FUNC_PTR)(void *);

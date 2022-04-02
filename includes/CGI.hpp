@@ -1,26 +1,22 @@
-#ifndef CGI_HPP
+#pragma once
 
-# define CGI_HPP
+#define CR "\r"
+#define LF "\n"
+#define HTTP_VERSION   "HTTP/1.1"
+#define CGI_VERSION    "CGI/1.1"
 
-# define CR "\r"
-# define LF "\n"
-# define HTTP_VERSION   "HTTP/1.1"
-# define CGI_VERSION    "CGI/1.1"
-# define PROG_VERSION   "Webserv/1.0"
+#define DFL_CGI_DIR    "cgi-bin"
+#define DFL_CGI_PROG   "php-cgi"
 
-# define DFL_CGI_DIR    "cgi-bin"
-# define DFL_CGI_PROG   "php-cgi"
+#define UNSET_PID      (-1)
+#define UNSET_PIPE     0
+#define MAX_PIPE_SIZE  65536
 
-# define UNSET_PID      (-1)
-# define UNSET_PIPE     0
-# define MAX_PIPE_SIZE  65536
+#include <Utils.hpp>
 
-# include <Common.hpp>
-# include <Utils.hpp>
+#include <unistd.h>
 
-# include <unistd.h>
-
-# include <iostream>
+#include <iostream>
 
 class SimpleRequest
 {
@@ -162,5 +158,3 @@ private:
     }
 
 };
-
-#endif

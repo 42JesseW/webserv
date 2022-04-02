@@ -2,13 +2,6 @@
 
 #include <Webserv.hpp>
 
-#include <netdb.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-
 #define A_INFO          struct addrinfo
 #define SA_IN           struct sockaddr_in
 #define SA              struct sockaddr
