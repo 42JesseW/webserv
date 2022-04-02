@@ -1,301 +1,115 @@
-#ifndef CONFIG_HPP
+#pragma once
 
-# define CONFIG_HPP
+#include <ConfigUtil.hpp>
+#include <ServerSocket.hpp>
+#include <Connection.hpp>
+#include <Route.hpp>
 
-# define DFL_ERROR_PAGES_PATH   "conf/error_pages"
-# define DFL_CONFIG_FILE_PATH   "default.conf"
-# define MAX_SERVER_CAP         100
+#include <sys/poll.h>
 
-# include <Common.hpp>
+#define DFL_MAX_BODY_SIZE   1       /* in Megabytes */
+#define DFL_SERVER_NAME     ""
 
-# include <Server.hpp>
-# include <Socket.hpp>
-# include <Utils.hpp>
+#define PORT_UNSET          0
+#define POLL_TIMEOUT_MS     500
+#define POLLIN_SLEEP_MS     2000
 
-# include <stack>
-
-class Config
+/*
+ * A ServerConfig object encapsulates a server
+ * block and its settings in the configuration file.
+ */
+class ServerConfig
 {
-private:
-    /* configuration related */
-    std::string                 m_file_path;
-    std::vector<Server>         m_servers;
-
-    bool                        m_has_http_set;
-
-    static Config               *m_handle;
+public:
+    typedef ConfigUtil::status_code_map_t   status_code_map_t;
+    typedef std::vector<Route*>             routes_t;
 
 private:
-    /* don't implement constructors and assignment since singleton */
-    Config(void);
-    Config(Config const& config);
-
-    void    operator = (const Config& config);
-
-public:
-    typedef enum e_levels
-    {
-        BASE,
-        HTTP,
-        SERVER,
-        LOCATION
-    } t_levels;
-
-    typedef std::deque<std::string>             tokens_t;
-
-    ~Config(void);
+    /* configuration options */
+    std::string                 m_host;
+    uint16_t                    m_port;
+    std::vector<std::string>    m_names;
+    routes_t                    m_routes;
+    status_code_map_t           m_error_files;
+    uint32_t                    m_client_max_body_size;
 
 public:
-    /* implement a singleton pattern since Config references 1 file */
-    static Config&                          getHandle(void);
-
-    std::string&                            getFilePath();
-    std::vector<Server>&                    getServers(void);
-
-    void                                    setFilePath(const std::string& file_path);
-    void                                    loadFile(void);
-
-public:
-    class Option
-    {
-    private:
-        int     m_parse_level;    /* parse_level at which to find option */
-
-    public:
-        typedef std::map<std::string, Option*>  map_config_t;
-
-    public:
-        explicit Option(int parse_level);
-        Option(const Option& cpy);
-        ~Option();
-
-        Option&         operator = (const Option& rhs);
-
-        int             getParseLevel(void);
-
-        // some function that can be used to modify either [Config, Server, Route] objects
-        virtual void    parse(void *obj, tokens_t& tokens) = 0;
-
-    };
-
-private:
-    void                            _mapTokens(tokens_t& tokens);
-
-    static tokens_t&                _tokenizeString(tokens_t& queue,
-                                                    std::string& str,
-                                                    const std::string& delims);
-    static std::string&             _stringReplaceMultiple(std::string& str,
-                                                           const std::string& from,
-                                                           const std::string& to);
-
-
-public:
-    /*
-     *          ( Option )
-     * All subclass based on abstract Option
-     */
-    class OptionHttp : public Option
-    {
-    public:
-        OptionHttp(int parse_level);
-        OptionHttp(const OptionHttp& cpy);
-        ~OptionHttp();
-
-        OptionHttp&     operator = (const OptionHttp& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionClientMaxBodySize : public Option
-    {
-    public:
-        OptionClientMaxBodySize(int parse_level);
-        OptionClientMaxBodySize(const OptionClientMaxBodySize& cpy);
-        ~OptionClientMaxBodySize();
-
-        OptionClientMaxBodySize&     operator = (const OptionClientMaxBodySize& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionErrorPage : public Option
-    {
-    public:
-        OptionErrorPage(int parse_level);
-        OptionErrorPage(const OptionErrorPage& cpy);
-        ~OptionErrorPage();
-
-        OptionErrorPage&     operator = (const OptionErrorPage& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionServer : public Option
-    {
-    public:
-        OptionServer(int parse_level);
-        OptionServer(const OptionServer& cpy);
-        ~OptionServer();
-
-        OptionServer&     operator = (const OptionServer& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionListen : public Option
-    {
-    public:
-        OptionListen(int parse_level);
-        OptionListen(const OptionListen& cpy);
-        ~OptionListen();
-
-        OptionListen&   operator = (const OptionListen& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    private:
-        void            _parseArg(const std::string& arg, std::string& address, short *sin_port);
-
-    };
-
-    class OptionServerName : public Option
-    {
-    public:
-        OptionServerName(int parse_level);
-        OptionServerName(const OptionServerName& cpy);
-        ~OptionServerName();
-
-        OptionServerName&     operator = (const OptionServerName& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionLocation : public Option
-    {
-    public:
-        OptionLocation(int parse_level);
-        OptionLocation(const OptionLocation& cpy);
-        ~OptionLocation();
-
-        OptionLocation&     operator = (const OptionLocation& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionAllowedMethods : public Option
-    {
-    public:
-        OptionAllowedMethods(int parse_level);
-        OptionAllowedMethods(const OptionAllowedMethods& cpy);
-        ~OptionAllowedMethods();
-
-        OptionAllowedMethods&     operator = (const OptionAllowedMethods& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionRoot : public Option
-    {
-    public:
-        OptionRoot(int parse_level);
-        OptionRoot(const OptionRoot& cpy);
-        ~OptionRoot();
-
-        OptionRoot&     operator = (const OptionRoot& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionAutoIndex : public Option
-    {
-    public:
-        OptionAutoIndex(int parse_level);
-        OptionAutoIndex(const OptionAutoIndex& cpy);
-        ~OptionAutoIndex();
-
-        OptionAutoIndex&     operator = (const OptionAutoIndex& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionIndex : public Option
-    {
-    public:
-        OptionIndex(int parse_level);
-        OptionIndex(const OptionIndex& cpy);
-        ~OptionIndex();
-
-        OptionIndex&     operator = (const OptionIndex& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionCgiExtension : public Option
-    {
-    public:
-        OptionCgiExtension(int parse_level);
-        OptionCgiExtension(const OptionCgiExtension& cpy);
-        ~OptionCgiExtension();
-
-        OptionCgiExtension&     operator = (const OptionCgiExtension& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionUploadPath : public Option
-    {
-    public:
-        OptionUploadPath(int parse_level);
-        OptionUploadPath(const OptionUploadPath& cpy);
-        ~OptionUploadPath();
-
-        OptionUploadPath&     operator = (const OptionUploadPath& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    class OptionReturn : public Option
-    {
-    public:
-        OptionReturn(int parse_level);
-        OptionReturn(const OptionReturn& cpy);
-        ~OptionReturn();
-
-        OptionReturn&     operator = (const OptionReturn& rhs);
-
-        void            parse(void *obj, tokens_t& tokens);
-
-    };
-
-    static Config::Option                   *m_option_http;
-    static Config::Option                   *m_option_client_max_body_size;
-    static Config::Option                   *m_option_error_page;
-    static Config::Option                   *m_option_server;
-    static Config::Option                   *m_option_listen;
-    static Config::Option                   *m_option_server_name;
-    static Config::Option                   *m_option_location;
-    static Config::Option                   *m_option_allowed_methods;
-    static Config::Option                   *m_option_root;
-    static Config::Option                   *m_option_autoindex;
-    static Config::Option                   *m_option_index;
-    static Config::Option                   *m_option_cgi_extension;
-    static Config::Option                   *m_option_upload_path;
-    static Config::Option                   *m_option_return;
-
-    static Config::Option::map_config_t&    _getConfigMap(void);
+    ServerConfig(void);
+    ServerConfig(const ServerConfig& cpy);
+    ~ServerConfig(void);
+
+    ServerConfig&               operator = (const ServerConfig& rhs);
+
+    void                        addName(const std::string& name);
+    void                        addRoute(Route *route);
+    void                        setHost(const std::string& host);
+    void                        setPort(uint16_t& port);
+    void                        setClientMaxBodySize(int& size);
+    void                        setStatusBody(int code, const std::string &body);
+
+    std::string&                getHost(void);
+    uint16_t&                   getPort(void);
+    routes_t&                   getRoutes(void);
+    std::vector<std::string>&   getNames(void);
+    status_code_map_t&          getErrorFiles(void);
+
+    void                        clearNames(void);
+    bool                        hasRoutes(void);
+    size_t                      routeAmount(void);
 
 };
 
-#endif
+/*
+ * A PortConfig encapsulates a ServerSocket and
+ * its corresponding ServerConfig(s).
+ */
+class PortConfig
+{
+public:
+    typedef std::vector<struct pollfd>      pollfd_t;
+    typedef std::vector<ServerConfig*>      server_t;
+    typedef std::map<int, Connection*>      clients_t;
+
+private:
+    ServerSocket                *m_sock;
+    clients_t                   m_clients;
+    server_t                    m_server_blocks;
+    pollfd_t                    m_pfds;
+
+    std::string                 m_host;
+    uint16_t                    m_port;
+
+private:
+    PortConfig(void);
+
+public:
+    PortConfig(const std::string& host, uint16_t& port);
+    PortConfig(const PortConfig& cpy);
+    ~PortConfig(void);
+
+    PortConfig&                 operator = (const PortConfig& rhs);
+
+    void                        initSocket(void);
+    ServerSocket                *getSocket(void);
+
+    void                        addClient(int& fd, Connection* conn);
+    void                        addPollFd(struct pollfd& pfd);
+
+    pollfd_t&                   getPollFds(void);
+    uint16_t                    getPort(void);
+    server_t&                   getServers(void);
+    clients_t&                  getClients(void);
+
+    static void                 *pollPort(void *port_config);
+
+    /*
+     * Function that matches a Request object to a Route and sets
+     * the error_files pointer to the corresponding ServerConfig its
+     * custom error file map.
+     */
+    Route                       *getMatchingRoute(Request& request, ConfigUtil::status_code_map_t **error_files);
+
+private:
+    ServerConfig                *_getMatchingServerBlock(Request& request, ConfigUtil::status_code_map_t **error_files);
+
+};

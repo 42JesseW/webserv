@@ -1,22 +1,31 @@
-#include <Config.hpp>
+#include <FileParser.hpp>
 
 /*
  * ( Option )
  */
-Config::Option::Option(int parse_level) : m_parse_level(parse_level) { }
+FileParser::Option::Option(int parse_level) : m_parse_level(parse_level)
+{
+    
+}
 
-Config::Option::Option(const Option &cpy) : m_parse_level(cpy.m_parse_level) { }
+FileParser::Option::Option(const Option &cpy) : m_parse_level(cpy.m_parse_level)
+{
+    
+}
 
-Config::Option::~Option() { }
+FileParser::Option::~Option(void)
+{
+    
+}
 
-Config::Option&     Config::Option::operator = (const Config::Option &rhs)
+FileParser::Option&     FileParser::Option::operator = (const Option &rhs)
 {
     if (this != &rhs)
         m_parse_level = rhs.m_parse_level;
     return (*this);
 }
 
-int         Config::Option::getParseLevel(void)
+int                     FileParser::Option::getParseLevel(void)
 {
     return (m_parse_level);
 }
@@ -26,89 +35,111 @@ int         Config::Option::getParseLevel(void)
  * Must be provided at least once for the config file since
  * all options are wrapped inside of it.
  */
-Config::OptionHttp::OptionHttp(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionHttp::OptionHttp(const Config::OptionHttp &cpy) : Config::Option(cpy) { }
-
-Config::OptionHttp::~OptionHttp() { }
-
-Config::OptionHttp&     Config::OptionHttp::operator = (const Config::OptionHttp &rhs)
+FileParser::OptionHttp::OptionHttp(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionHttp::OptionHttp(const OptionHttp &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionHttp::~OptionHttp(void)
+{
+
+}
+
+FileParser::OptionHttp&     FileParser::OptionHttp::operator = (const FileParser::OptionHttp &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
-void            Config::OptionHttp::parse(void *obj, tokens_t& tokens)
+void                        FileParser::OptionHttp::parse(void *obj, tokens_t& tokens)
 {
-    Config  *config;
-
+    (void)obj;
     (void)tokens;
-    config = (Config*)obj;
-    if (config->m_has_http_set)
-        throw std::invalid_argument("Only one http block is allowed");
-    config->m_has_http_set = true;
 }
 
 /*
 *                  ( OptionClientMaxBodySize )
  * Can change the value of Option::m_client_max_body_size
  */
-Config::OptionClientMaxBodySize::OptionClientMaxBodySize(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionClientMaxBodySize::OptionClientMaxBodySize(const OptionClientMaxBodySize &cpy) : Config::Option(cpy) { }
-
-Config::OptionClientMaxBodySize::~OptionClientMaxBodySize() { }
-
-Config::OptionClientMaxBodySize&    Config::OptionClientMaxBodySize::operator = (const Config::OptionClientMaxBodySize &rhs)
+FileParser::OptionClientMaxBodySize::OptionClientMaxBodySize(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionClientMaxBodySize::OptionClientMaxBodySize(const OptionClientMaxBodySize &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionClientMaxBodySize::~OptionClientMaxBodySize(void)
+{
+
+}
+
+FileParser::OptionClientMaxBodySize&    FileParser::OptionClientMaxBodySize::operator = (const OptionClientMaxBodySize &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void        Config::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
+void        FileParser::OptionClientMaxBodySize::parse(void *obj, tokens_t &tokens)
 {
-    Server *server;
-    int     size;
+    ServerConfig    *server;
+    int             size;
 
     (void)obj;
     if (tokens.size() < 2)
-        throw std::invalid_argument("failed to parse client_max_body_size: Not enough arguments.");
+        throw MappingFailure("failed to parse client_max_body_size: Not enough arguments.");
     tokens.pop_front();
-    server = (Server *)obj;
+    server = (ServerConfig *)obj;
     size = ft::stringToInt(tokens.front());
     if (size == FAIL_CONVERSION)
-        throw std::invalid_argument("Failed to parse client_max_body_size: Invalid size.");
+        throw MappingFailure("Failed to parse client_max_body_size: Invalid size.");
     server->setClientMaxBodySize(size);
 }
 
-Config::OptionErrorPage::OptionErrorPage(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionErrorPage::OptionErrorPage(const Config::OptionErrorPage &cpy) : Config::Option(cpy) { }
-
-Config::OptionErrorPage::~OptionErrorPage() { }
-
-Config::OptionErrorPage&     Config::OptionErrorPage::operator = (const Config::OptionErrorPage &rhs)
+FileParser::OptionErrorPage::OptionErrorPage(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionErrorPage::OptionErrorPage(const OptionErrorPage &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionErrorPage::~OptionErrorPage(void)
+{
+
+}
+
+FileParser::OptionErrorPage&     FileParser::OptionErrorPage::operator = (const OptionErrorPage &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
 /* expects a Config* object and two arguments */
-void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
+void            FileParser::OptionErrorPage::parse(void *obj, tokens_t &tokens)
 {
-    Server          *server;
+    ServerConfig    *server;
     std::string     file_contents;
     std::ifstream   file_stream;
     int             status_code;
 
-    server = (Server *)obj;
+    server = (ServerConfig *)obj;
     tokens.pop_front();
     if (tokens.size() < 2)
-        throw std::invalid_argument("Failed to parse error_page: Not enough arguments.");
+        throw MappingFailure("Failed to parse error_page: Not enough arguments.");
     status_code = ft::stringToInt(tokens.front());
     if (status_code == FAIL_CONVERSION)
-        throw std::invalid_argument("Failed to parse error_page: Invalid status_code.");
+        throw MappingFailure("Failed to parse error_page: Invalid status_code.");
     tokens.pop_front();
     file_contents = ft::readFileContent(file_stream, tokens.front());
     if (!file_stream.good())
@@ -117,33 +148,51 @@ void            Config::OptionErrorPage::parse(void *obj, tokens_t &tokens)
         server->setStatusBody(status_code, file_contents);
 }
 
-Config::OptionServer::OptionServer(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionServer::OptionServer(const Config::OptionServer &cpy) : Config::Option(cpy) { }
-
-Config::OptionServer::~OptionServer() { }
-
-Config::OptionServer&     Config::OptionServer::operator = (const Config::OptionServer &rhs)
+FileParser::OptionServer::OptionServer(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionServer::OptionServer(const OptionServer &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionServer::~OptionServer(void)
+{
+
+}
+
+FileParser::OptionServer&   FileParser::OptionServer::operator = (const OptionServer &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionServer::parse(void *obj, tokens_t &tokens)
+void                        FileParser::OptionServer::parse(void *obj, tokens_t &tokens)
 {
     (void)obj;
     (void)tokens;
 }
 
-Config::OptionListen::OptionListen(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionListen::OptionListen(const Config::OptionListen &cpy) : Config::Option(cpy) { }
-
-Config::OptionListen::~OptionListen() { }
-
-Config::OptionListen&     Config::OptionListen::operator = (const Config::OptionListen &rhs)
+FileParser::OptionListen::OptionListen(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionListen::OptionListen(const OptionListen &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionListen::~OptionListen(void)
+{
+
+}
+
+FileParser::OptionListen&     FileParser::OptionListen::operator = (const OptionListen &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
@@ -159,26 +208,25 @@ Config::OptionListen&     Config::OptionListen::operator = (const Config::Option
  * - <port>
  *
  */
-void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
+void                            FileParser::OptionListen::parse(void *obj, tokens_t &tokens)
 {
-    Server                  *server;
-    std::string             address;
-    std::stringstream       full_ip;
-    short                   sin_port;
+    ServerConfig        *server;
+    std::string         host;
+    uint16_t            port;
 
     if (tokens.size() < 2)
-        throw std::invalid_argument("Failed to parse listen directive: Not enough arguments");
+        throw MappingFailure("Failed to parse listen directive: Not enough arguments");
     tokens.pop_front();
-    server = (Server*)obj;
-    if (server->getSockFd() != SOCK_FD_EMPTY)
-        throw std::invalid_argument("You can only specify `listen` ones");
+    server = (ServerConfig*)obj;
+    if (server->getPort() != PORT_UNSET)
+        throw MappingFailure("You can only specify `listen` ones per server block");
     try
     {
-        _parseArg(tokens.front(), address, &sin_port);
-        full_ip << address << ":" << ft::intToString(sin_port);
-        server->initListener(full_ip.str());
+        _parseArg(tokens.front(), host, &port);
+        server->setHost(host);
+        server->setPort(port);
     }
-    catch (const std::invalid_argument& e)
+    catch (const MappingFailure& e)
     {
         /* Failed to parse arguments */
     }
@@ -188,10 +236,11 @@ void            Config::OptionListen::parse(void *obj, tokens_t &tokens)
     }
 }
 
-void            Config::OptionListen::_parseArg(const std::string &arg, std::string& address, short *sin_port)
+void                            FileParser::OptionListen::_parseArg(const std::string &arg, std::string& address, uint16_t *sin_port)
 {
     std::string             arg_cpy;
     std::stringstream       arg_ss;
+    std::ostringstream      error_ss;
     std::string::size_type  pos;
 
     arg_ss << arg;
@@ -222,79 +271,108 @@ void            Config::OptionListen::_parseArg(const std::string &arg, std::str
             }
             catch (const std::ios::failure& e)
             {
-                throw std::invalid_argument("Failed to convert port in arg: " + arg_cpy);
+                error_ss << "Failed to convert port in arg: " << arg_cpy;
+                throw MappingFailure(error_ss.str());
             }
             break ;
 
         default:
-            throw std::invalid_argument("Directive " + arg_cpy + " is invalid");
+            error_ss << "Directive " << arg_cpy << " is invalid";
+            throw MappingFailure(error_ss.str());
     }
 }
 
-Config::OptionServerName::OptionServerName(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionServerName::OptionServerName(const Config::OptionServerName &cpy) : Config::Option(cpy) { }
-
-Config::OptionServerName::~OptionServerName() { }
-
-Config::OptionServerName&     Config::OptionServerName::operator = (const Config::OptionServerName &rhs)
+FileParser::OptionServerName::OptionServerName(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionServerName::OptionServerName(const OptionServerName &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionServerName::~OptionServerName(void)
+{
+
+}
+
+FileParser::OptionServerName&       FileParser::OptionServerName::operator = (const OptionServerName &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionServerName::parse(void *obj, tokens_t &tokens)
+void                                FileParser::OptionServerName::parse(void *obj, tokens_t &tokens)
 {
-    Server  *server;
+    ServerConfig  *server;
 
     tokens.pop_front();
-    server = (Server*)obj;
-    server->getNames().clear();
+    server = (ServerConfig*)obj;
+    server->clearNames();
     while (!tokens.empty() && !(tokens.front() == "\n"))
     {
-        server->getNames().push_back(tokens.front());
+        server->addName(tokens.front());
         tokens.pop_front();
     }
     if (tokens.empty())
-        throw std::invalid_argument("Invalid config file");
+        throw MappingFailure("Invalid config file");
 }
 
-Config::OptionLocation::OptionLocation(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionLocation::OptionLocation(const Config::OptionLocation &cpy) : Config::Option(cpy) { }
-
-Config::OptionLocation::~OptionLocation() { }
-
-Config::OptionLocation&     Config::OptionLocation::operator = (const Config::OptionLocation &rhs)
+FileParser::OptionLocation::OptionLocation(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionLocation::OptionLocation(const OptionLocation &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionLocation::~OptionLocation(void)
+{
+
+}
+
+FileParser::OptionLocation&     FileParser::OptionLocation::operator = (const OptionLocation &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionLocation::parse(void *obj, tokens_t &tokens)
+void                            FileParser::OptionLocation::parse(void *obj, tokens_t &tokens)
 {
     Route   *route;
 
     if (tokens.size() < 2)
-        throw std::invalid_argument("failed to parse location directive: Not enough arguments");
+        throw MappingFailure("failed to parse location directive: Not enough arguments");
     tokens.pop_front();
     route = (Route *)obj;
     route->setBaseUrl(tokens.front());
 }
 
-Config::OptionAllowedMethods::OptionAllowedMethods(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionAllowedMethods::OptionAllowedMethods(const Config::OptionAllowedMethods &cpy) : Config::Option(cpy) { }
-
-Config::OptionAllowedMethods::~OptionAllowedMethods() { }
-
-Config::OptionAllowedMethods&     Config::OptionAllowedMethods::operator = (const Config::OptionAllowedMethods &rhs)
+FileParser::OptionAllowedMethods::OptionAllowedMethods(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionAllowedMethods::OptionAllowedMethods(const OptionAllowedMethods &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionAllowedMethods::~OptionAllowedMethods(void)
+{
+
+}
+
+FileParser::OptionAllowedMethods&       FileParser::OptionAllowedMethods::operator = (const OptionAllowedMethods &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
+void                                    FileParser::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
 {
     Route                           *route;
     int                             count;
@@ -308,29 +386,38 @@ void            Config::OptionAllowedMethods::parse(void *obj, tokens_t &tokens)
     while (!tokens.empty() && !(tokens.front() == "\n" || count >= 3)) // TODO testcase
     {
         if (std::find(methods->begin(), methods->end(), tokens.front()) == methods->end())
-            throw std::invalid_argument("Failed to parse allowed_methods");
+            throw MappingFailure("Failed to parse allowed_methods");
         route->getAcceptedMethods().push_back(tokens.front());
         tokens.pop_front();
         count++;
     }
     if (tokens.empty())
-        throw std::invalid_argument("Invalid config file");
+        throw MappingFailure("Invalid config file");
 }
 
-Config::OptionRoot::OptionRoot(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionRoot::OptionRoot(const Config::OptionRoot &cpy) : Config::Option(cpy) { }
-
-Config::OptionRoot::~OptionRoot() { }
-
-Config::OptionRoot&     Config::OptionRoot::operator = (const Config::OptionRoot &rhs)
+FileParser::OptionRoot::OptionRoot(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionRoot::OptionRoot(const OptionRoot &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionRoot::~OptionRoot(void)
+{
+
+}
+
+FileParser::OptionRoot&     FileParser::OptionRoot::operator = (const OptionRoot &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
-void            Config::OptionRoot::parse(void *obj, tokens_t &tokens)
+void                        FileParser::OptionRoot::parse(void *obj, tokens_t &tokens)
 {
     Route   *route;
 
@@ -339,43 +426,61 @@ void            Config::OptionRoot::parse(void *obj, tokens_t &tokens)
     route->setFileSearchPath(tokens.front());
 }
 
-Config::OptionAutoIndex::OptionAutoIndex(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionAutoIndex::OptionAutoIndex(const Config::OptionAutoIndex &cpy) : Config::Option(cpy) { }
-
-Config::OptionAutoIndex::~OptionAutoIndex() { }
-
-Config::OptionAutoIndex&     Config::OptionAutoIndex::operator = (const Config::OptionAutoIndex &rhs)
+FileParser::OptionAutoIndex::OptionAutoIndex(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionAutoIndex::OptionAutoIndex(const OptionAutoIndex &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionAutoIndex::~OptionAutoIndex(void)
+{
+
+}
+
+FileParser::OptionAutoIndex&     FileParser::OptionAutoIndex::operator = (const OptionAutoIndex &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
 /* should sign the start of an http block. TODO there can only be one http block in the Config */
-void            Config::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
+void                            FileParser::OptionAutoIndex::parse(void *obj, tokens_t &tokens)
 {
     Route   *route;
 
     tokens.pop_front();
     route = (Route *)obj;
     if (!(tokens.front() == "on" || tokens.front() == "off"))
-        throw std::invalid_argument("Failed to parse autoindex directive: Invalid argument.");
-    route->setAutoIndex((tokens.front() == "on") ? true : false);
+        throw MappingFailure("Failed to parse autoindex directive: Invalid argument.");
+    route->setAutoIndex(tokens.front() == "on");
 }
 
-Config::OptionIndex::OptionIndex(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionIndex::OptionIndex(const Config::OptionIndex &cpy) : Config::Option(cpy) { }
-
-Config::OptionIndex::~OptionIndex() { }
-
-Config::OptionIndex&     Config::OptionIndex::operator = (const Config::OptionIndex &rhs)
+FileParser::OptionIndex::OptionIndex(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionIndex::OptionIndex(const OptionIndex &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionIndex::~OptionIndex(void)
+{
+
+}
+
+FileParser::OptionIndex&    FileParser::OptionIndex::operator = (const OptionIndex &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionIndex::parse(void *obj, tokens_t &tokens)
+void                        FileParser::OptionIndex::parse(void *obj, tokens_t &tokens)
 {
     Route   *route;
 
@@ -388,22 +493,31 @@ void            Config::OptionIndex::parse(void *obj, tokens_t &tokens)
         tokens.pop_front();
     }
     if (tokens.empty())
-        throw std::invalid_argument("Invalid config file");
+        throw MappingFailure("Invalid config file");
 }
 
-Config::OptionCgiExtension::OptionCgiExtension(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionCgiExtension::OptionCgiExtension(const Config::OptionCgiExtension &cpy) : Config::Option(cpy) { }
-
-Config::OptionCgiExtension::~OptionCgiExtension() { }
-
-Config::OptionCgiExtension&     Config::OptionCgiExtension::operator = (const Config::OptionCgiExtension &rhs)
+FileParser::OptionCgiExtension::OptionCgiExtension(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionCgiExtension::OptionCgiExtension(const OptionCgiExtension &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionCgiExtension::~OptionCgiExtension(void)
+{
+
+}
+
+FileParser::OptionCgiExtension&     FileParser::OptionCgiExtension::operator = (const OptionCgiExtension &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionCgiExtension::parse(void *obj, tokens_t &tokens)
+void            FileParser::OptionCgiExtension::parse(void *obj, tokens_t &tokens)
 {
     Route   *route;
 
@@ -415,43 +529,73 @@ void            Config::OptionCgiExtension::parse(void *obj, tokens_t &tokens)
         tokens.pop_front();
     }
     if (tokens.empty())
-        throw std::invalid_argument("Invalid config file");
+        throw MappingFailure("Invalid config file");
 }
 
-Config::OptionUploadPath::OptionUploadPath(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionUploadPath::OptionUploadPath(const Config::OptionUploadPath &cpy) : Config::Option(cpy) { }
-
-Config::OptionUploadPath::~OptionUploadPath() { }
-
-Config::OptionUploadPath&     Config::OptionUploadPath::operator = (const Config::OptionUploadPath &rhs)
+FileParser::OptionUploadPath::OptionUploadPath(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionUploadPath::OptionUploadPath(const OptionUploadPath &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionUploadPath::~OptionUploadPath(void) { }
+
+FileParser::OptionUploadPath&     FileParser::OptionUploadPath::operator = (const OptionUploadPath &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionUploadPath::parse(void *obj, tokens_t &tokens)
+void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
 {
-    Route   *route;
+    Route               *route;
+    DIR                 *upload_dir;
+    std::ostringstream  error_ss;
 
     tokens.pop_front();
     route = (Route *)obj;
+    upload_dir = opendir(tokens.front().c_str());   // TODO must be an absolute path using `realpath`
+    if (upload_dir)
+        closedir(upload_dir);
+    else if (errno == ENOENT)
+    {
+        error_ss << "Directory " << tokens.front() << " does not exist.";
+        throw MappingFailure(error_ss.str());
+    }
+    else
+    {
+        error_ss << "Invalid directory " << tokens.front() << ": " << strerror(errno) << '\n';
+        throw MappingFailure(error_ss.str());
+    }
     route->setUploadPath(tokens.front());
 }
 
-Config::OptionReturn::OptionReturn(int parse_level) : Config::Option(parse_level) { }
-
-Config::OptionReturn::OptionReturn(const Config::OptionReturn &cpy) : Config::Option(cpy) { }
-
-Config::OptionReturn::~OptionReturn() { }
-
-Config::OptionReturn&     Config::OptionReturn::operator = (const Config::OptionReturn &rhs)
+FileParser::OptionReturn::OptionReturn(int parse_level) : Option(parse_level)
 {
-    Config::Option::operator = (rhs);
+
+}
+
+FileParser::OptionReturn::OptionReturn(const OptionReturn &cpy) : Option(cpy)
+{
+
+}
+
+FileParser::OptionReturn::~OptionReturn(void)
+{
+
+}
+
+FileParser::OptionReturn&     FileParser::OptionReturn::operator = (const OptionReturn &rhs)
+{
+    Option::operator = (rhs);
     return (*this);
 }
 
-void            Config::OptionReturn::parse(void *obj, tokens_t &tokens)
+void            FileParser::OptionReturn::parse(void *obj, tokens_t &tokens)
 {
     Route           *route;
     int             status_code;
@@ -459,10 +603,10 @@ void            Config::OptionReturn::parse(void *obj, tokens_t &tokens)
     tokens.pop_front();
     route = (Route *)obj;
     if (tokens.size() < 2)
-        throw std::invalid_argument("Failed to parse return: Not enough arguments.");
+        throw MappingFailure("Failed to parse return: Not enough arguments.");
     status_code = ft::stringToInt(tokens.front());
     if (status_code == FAIL_CONVERSION)
-        throw std::invalid_argument("Failed to parse return: Invalid status_code.");
+        throw MappingFailure("Failed to parse return: Invalid status_code.");
     tokens.pop_front();
     route->setRedirect(status_code, tokens.front());
 }

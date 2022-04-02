@@ -1,11 +1,14 @@
-#ifndef CONFIGUTIL_HPP
+#pragma once
 
-# define CONFIGUTIL_HPP
+#define DFL_CONFIG_PATH         "conf"
+#define DFL_ERROR_PAGES_PATH    DFL_CONFIG_PATH "/error_pages"
 
-# define DFL_ERROR_PAGES_PATH "conf/error_pages"
+#include <Webserv.hpp>
+#include <Utils.hpp>
 
-# include <Common.hpp>
-# include <Utils.hpp>
+#include <vector>
+#include <sstream>
+#include <fstream>
 
 class ConfigUtil
 {
@@ -15,13 +18,13 @@ public:
     typedef std::map<int, status_code_body_t>   status_code_map_t;
 
 private:
-    status_code_map_t   m_status_codes;
-    methods_t           m_methods;
+    status_code_map_t           m_status_codes;
+    methods_t                   m_methods;
 
-    bool                m_is_signalled;
-    pthread_mutex_t     m_signal_lock;
+    int                         m_signal;
+    pthread_mutex_t             m_signal_lock;
 
-    static ConfigUtil   *m_handle;
+    static ConfigUtil           *m_handle;
 
 public:
     ~ConfigUtil();
@@ -31,19 +34,17 @@ private:
     ConfigUtil(const ConfigUtil& cpy);
 
 public:
-    static ConfigUtil&                      getHandle(void);
+    static ConfigUtil&          getHandle(void);
 
-    const methods_t&                        getDefaultMethods(void);
-    const status_code_map_t&                getStatusCodeMap(void);
+    const methods_t&            getDefaultMethods(void);
+    const status_code_map_t&    getStatusCodeMap(void);
 
-    void                                    setSignalled(void);
-    bool                                    isSignalled(void);
+    void                        setSignalled(int sig);
+    bool                        isSignalled(void);
 
 private:
-    void                                    _setDefaultStatusCodes(void);
-    void                                    _setDefaultMethods(void);
-    void                                    _loadDefaultErrorFiles(void);
+    void                        _setDefaultStatusCodes(void);
+    void                        _setDefaultMethods(void);
+    void                        _loadDefaultErrorFiles(void);
 
 };
-
-#endif

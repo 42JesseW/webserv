@@ -1,52 +1,53 @@
-NAME    = webserv
-CFLAGS  = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
+NAME        = webserv
 
-ifndef TEST
-	SRC =   srcs/main.cpp\
-	        srcs/Config.cpp\
-	        srcs/Option.cpp\
-	        srcs/Utils.cpp\
-	        srcs/Route.cpp\
-	        srcs/Server.cpp\
-            srcs/Socket.cpp\
-            srcs/Client.cpp\
-            srcs/ConfigUtil.cpp\
-            srcs/request/HandleRequest.cpp\
-            srcs/request/ErrorHandling.cpp\
-            srcs/request/Request.cpp\
-			srcs/request/Decoder.cpp\
-            srcs/response/Response.cpp\
+SOURCE_DIR  = srcs
+HEADER_DIR  = includes
+TEST_DIR    = tests
+CMAKE_DIR   = cmake-build
 
-    CFLAGS  += -std=c++98
-else
-    SRC =   tests/unittests/main.cpp\
-	        tests/unittests/test_request.cpp\
-            srcs/request/Request.cpp\
-	        srcs/request/HandleRequest.cpp\
-	        srcs/request/ErrorHandling.cpp\
-			srcs/request/Decoder.cpp
+CFLAGS      = -Wall -Werror -Wextra -pedantic -g -fsanitize=address -std=c++98
+CLINKS      = -lpthread -lcurl
 
-    CFLAGS  += -std=c++11
-    NAME    = tester
-endif
+SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
+              $(SOURCE_DIR)/Socket.cpp \
+              $(SOURCE_DIR)/ClientSocket.cpp \
+              $(SOURCE_DIR)/ServerSocket.cpp \
+              $(SOURCE_DIR)/FileParser.cpp \
+              $(SOURCE_DIR)/Option.cpp \
+              $(SOURCE_DIR)/PortConfig.cpp \
+              $(SOURCE_DIR)/ServerConfig.cpp \
+              $(SOURCE_DIR)/Route.cpp \
+              $(SOURCE_DIR)/Connection.cpp \
+              $(SOURCE_DIR)/Signals.cpp \
+              $(SOURCE_DIR)/Utils.cpp \
+              $(SOURCE_DIR)/request/HandleRequest.cpp \
+              $(SOURCE_DIR)/request/ErrorHandling.cpp \
+              $(SOURCE_DIR)/request/Request.cpp \
+              $(SOURCE_DIR)/request/Decoder.cpp \
+              $(SOURCE_DIR)/response/Response.cpp \
+			  $(SOURCE_DIR)/main.cpp
 
-OBJS = $(SRC:.cpp=.o)
+OBJECTS     = $(SRC:.cpp=.o)
+HEADERS     = $(addprefix -I, $(HEADER_DIR))
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CXX) $(CFLAGS) -o $(NAME) $(OBJS)
+$(NAME): $(OBJECTS)
+	$(CXX) $(CLINKS) $(CFLAGS) -o $(NAME) $(OBJECTS)
 
 %.o: %.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ -I includes
-
-test: $(OBJS)
-	$(MAKE) TEST=1
+	$(CXX) $(CFLAGS) -c $< -o $@ $(HEADERS)
 
 clean:
-	rm -f $(OBJS) $(TEST_OBJS)
+	@rm -f $(OBJECTS)
 
 fclean: 	clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re: fclean all
+
+# TODO add this to the github actions flow
+test:
+	@mkdir -p $(CMAKE_DIR)
+	@cd $(CMAKE_DIR) && cmake ../ && cmake --build .
+	@cd $(CMAKE_DIR)/tests && ./tests
