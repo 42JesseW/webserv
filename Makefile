@@ -19,6 +19,7 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/Route.cpp \
               $(SOURCE_DIR)/Connection.cpp \
               $(SOURCE_DIR)/Signals.cpp \
+              $(SOURCE_DIR)/CGI.cpp \
               $(SOURCE_DIR)/Utils.cpp \
               $(SOURCE_DIR)/request/HandleRequest.cpp \
               $(SOURCE_DIR)/request/ErrorHandling.cpp \
