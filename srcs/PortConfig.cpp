@@ -15,7 +15,13 @@ PortConfig::PortConfig(const PortConfig &cpy)
 
 PortConfig::~PortConfig(void)
 {
+    clients_t::iterator client_it;
 
+    delete m_sock;
+    for (server_t::size_type idx = 0 ; idx < m_server_blocks.size() ; ++idx)
+        delete m_server_blocks[idx];
+    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
+        delete client_it->second;
 }
 
 PortConfig&                 PortConfig::operator = (const PortConfig &rhs)
