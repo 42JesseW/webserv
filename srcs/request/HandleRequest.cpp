@@ -33,7 +33,7 @@ void Request::divideRequest(void)
 		m_request.erase(0, 2);
 		m_body = m_request;
 	}
-	if (getHeaders().find("Transfer-Encoding")->second == "chunked")    // TODO might error if header does not exist??
+	if(getHeaders().find("Content-Encoding")->second == "chunked")
 	{
 		decodeRequest();
 	}
