@@ -1,25 +1,6 @@
-#include <Config.hpp>
-#include <Server.hpp>
-
-#include <iostream>
-
-/*
- * If a signal occurs then the signal handler sets
- * the m_is_signalled flag in the Config singleton
- * instance. Both .setSignalled and .isSignalled are
- * protected by a mutex and can be used to interact
- * with this flag. The threads use .isSignalled to
- * check the flag.
- */
-void            signal_handler(int sig)
-{
-    ConfigUtil  *util;
-
-    (void)sig;
-    util = &ConfigUtil::getHandle();
-    util->setSignalled();
-    std::cout << "[INFO] Server signal " << sig << " received " << '\n';
-}
+#include <Webserv.hpp>
+#include <Signals.hpp>
+#include <FileParser.hpp>
 
 /* Seems like "\e" is GNU only and "\033" is the standard sequence. */
 #define B "\033[0;38;2;42;111;240m"
@@ -35,56 +16,65 @@ static char ascii_wave[] = "\n"
    T " ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     " B "           -''                 ~~--..__.\n" R
    B ".-..____.-..____.-..____.-.._____.-..____.-..________.-..____.-.._..-'\n" R;
 
-
-void    catch_signals()
+static void write_usage_stderr(void)
 {
-    signal(SIGINT, &signal_handler);
-    signal(SIGQUIT, &signal_handler);
-    signal(SIGHUP, &signal_handler);
+    fprintf(stderr, "usage: %s [config_file]\n", PROG_NAME);
+    std::exit(EXIT_FAILURE);
 }
 
 int     main(int argc, char *argv[])
 {
-    Config      *config;
-    Server      *server;
-    int         exit_code;
-    pthread_t   *thread_ids;
+    FileParser::config_vec_t    config_ports;
+    FileParser                  parser(argv[0]);
+    PortConfig                  *port;
+    pthread_t                   *thread_ids;
+    int                         exit_code;
 
-    catch_signals();
+    if (argc > 2)
+        write_usage_stderr();
     thread_ids = NULL;
+    register_signals();
     exit_code = EXIT_SUCCESS;
-    config = &Config::getHandle();
-    if (argc > 1)
-        config->setFilePath(argv[1]);
+    fprintf(stdout, "%s\n[INFO] Starting %s\n", ascii_wave, PROG_NAME);
+    if (argc == 2)
+        parser.setFilePath(argv[1]);
     try
     {
-        std::cout << ascii_wave << '\n';
-        config->loadFile();
-        thread_ids = new pthread_t[config->getServers().size()];
-        for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
+        parser.loadFile();
+        parser.mapTokens(config_ports);
+        thread_ids = new pthread_t[config_ports.size()];
+        for (FileParser::config_vec_t::size_type idx = 0; idx < config_ports.size(); ++idx)
         {
-            server = &config->getServers().at(idx);
-            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Server::threadedPoll, server) == SYS_ERROR)
+            port = config_ports[idx];
+            /* returns non-zero value on error */
+            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)PortConfig::pollPort, port))
             {
                 /* error handling */
                 break ;
             }
         }
-        for (std::vector<Server>::size_type idx = 0; idx < config->getServers().size(); ++idx)
+        for (FileParser::config_vec_t::size_type idx = 0; idx < config_ports.size(); ++idx)
         {
-            pthread_join(thread_ids[idx], NULL);
-            std::cout << "[INFO] Joined thread " << idx << '\n';
+            if (pthread_join(thread_ids[idx], NULL))
+            {
+                /* error handling */
+                break ;
+            }
         }
     }
-    catch (const std::invalid_argument& e)
+    catch (const FileParser::InvalidFile& file_err)
     {
-        std::cerr << "[ERROR] Invalid configuration: " << e.what() << '\n';
+        fprintf(stderr, "[ERROR] Invalid file\n");
         exit_code = EXIT_FAILURE;
     }
-    catch (const std::exception& e)
+    catch (const FileParser::MappingFailure& map_err)
     {
-        std::cerr << "[ERROR] Failed to start program: " << argv[0] << ": " << e.what() << '\n';
+        fprintf(stderr, "[ERROR] Failed to parse file: %s\n", map_err.info().c_str());
         exit_code = EXIT_FAILURE;
+    }
+    catch (const std::bad_alloc& alloc_err)
+    {
+        /* some error handling */
     }
     delete [] thread_ids;
     return (exit_code);

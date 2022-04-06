@@ -2,7 +2,7 @@
 
 ConfigUtil  *ConfigUtil::m_handle = NULL;
 
-ConfigUtil::ConfigUtil(void) : m_is_signalled(false)
+ConfigUtil::ConfigUtil(void) : m_signal(0)
 {
     /*
      * use DFL_ERROR_PAGES_PATH from project directory to find .html files
@@ -133,24 +133,26 @@ void                                    ConfigUtil::_loadDefaultErrorFiles(void)
     std::string                 file_contents;
     std::ifstream               file_stream;
 
-    for (status_code_map_t::iterator it = m_status_codes.begin(); it != m_status_codes.end(); ++it)
+    status_code_map_t::iterator it = m_status_codes.begin();
+    for ( status_code_map_t::value_type code ;  it != m_status_codes.end() ; ++it )
     {
+
         /* will translate to <location_of_executable>/conf/error_pages/<status_code>.html */
-        file_name_ss << "../../" << DFL_ERROR_PAGES_PATH << "/" << it->first << ".html";
+        file_name_ss << "../../" << DFL_ERROR_PAGES_PATH << "/" << code.first << ".html";
         file_name = file_name_ss.str();
         file_name_ss.str( std::string() );
 
         file_contents = ft::readFileContent(file_stream, file_name);
         if (!file_stream.good() || file_contents.empty())
             continue ;
-        m_status_codes[it->first] = std::make_pair(it->second.first, file_contents);
+        m_status_codes[code.first] = std::make_pair(code.second.first, file_contents);
     }
 }
 
-void                                    ConfigUtil::setSignalled(void)
+void                                    ConfigUtil::setSignalled(int sig)
 {
     pthread_mutex_lock( &m_signal_lock );
-    m_is_signalled = true;
+    m_signal = sig;
     pthread_mutex_unlock( &m_signal_lock );
 }
 
@@ -159,7 +161,7 @@ bool                                    ConfigUtil::isSignalled(void)
     bool    ret;
 
     pthread_mutex_lock( &m_signal_lock );
-    ret = m_is_signalled;
+    ret = (m_signal != 0);
     pthread_mutex_unlock( &m_signal_lock );
     return (ret);
 }

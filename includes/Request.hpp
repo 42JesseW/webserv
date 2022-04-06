@@ -1,72 +1,78 @@
-#ifndef REQUEST_HPP
-# define REQUEST_HPP
+#pragma once
 
-# include <Common.hpp>
+#include <Webserv.hpp>
+#include <StatusCodes.hpp>
 
-# define BUFF_SIZE 10
-# define CR '\r'
-# define LF '\n'
-# define ALLOWED_VERSION "HTTP/1.1"
-# define HTTP_STATUS_OK 200
+#define BUFF_SIZE 2048
+#define DFL_TARGET      "/"
+#define DFL_FILENAME    "/"
 
 class Request
 {
-	protected:
-		std::string								m_target;
-		std::string								m_filename;
-		std::string								m_query;
-		std::map<std::string, std::string>		m_headers;
-		std::string								m_body;
-		bool									m_done;
-		std::string								m_cgi_path;
+public:
+    typedef std::map<std::string, std::string>  headers_t;
 
-	private:
-		int										m_status;
-		std::string 							m_method;
-		std::string								m_version;
-		std::string								m_request;
-		int										m_port;
+private:
+    std::string		m_target;
+    std::string		m_filename;
+    std::string		m_query;
+    headers_t 		m_headers;
+    std::string		m_body;
+    std::string		m_cgi_path;
 
-		void									setHost();
+    int				m_status;
+    std::string 	m_method;
+    std::string		m_version;
+    int				m_port;
 
-	public:
-		Request();
-		Request(const Request &Copy);
-		~Request();
+    bool		    m_done;
+    std::string     m_request;
 
-		Request& operator = (const Request &Copy);
+public:
+    Request();
+    Request(const Request &Copy);
+    ~Request();
 
-		void									handleRequest(int client_socket);
-		void									divideRequest();
-		void 									parseAndSetStartLine();
-		void 									parseAndSetHeaders();
-		void									parseQuery(std::string url);
-		void									parseFilenamesAndCGI();
-		
-		void									setRequest(std::string new_request); // For testing only
-		void									setStatus(int status);
-		void									setDone(bool status);
+    Request& operator = (const Request &Copy);
 
-		int										&getStatus();
-		int										&getPort();
-		std::string								&getTarget();
-		std::string								&getQuery();
-		std::string								&getMethod();
-		std::string								&getVersion();
-		std::string								&getFilename();
-		std::string								&getBody();
-		std::string								&getCGIPath();
-		std::map<std::string, std::string>		&getHeaders();
-		bool									&isDone();
+    /*
+     * Call this function when you're done appending raw
+     * data to the Request instance using .appendRequestData.
+     *
+     * It will initialise all the other fields in the request object.
+     */
+    void            parse(void);
+    void            appendRequestData(const char *data);
 
-		void									decodeRequest();
-		
-		void									errorChecking();
-		void									checkStatusLine();
-		void									checkHeaders();
+    void			handleRequest(int client_socket);
+    void			divideRequest();
+    void 			parseAndSetStartLine();
+    void 			parseAndSetHeaders();
+    void			parseQuery(std::string url);
+    void			parseFilenamesAndCGI();
 
-		void									resetRequest();
-		void									printRequest();
+    void			setStatus(int status);
+    void			setDone(bool status);
+    void			setHost(void);
+
+    int				&getStatus();
+    int				&getPort();
+    std::string		&getTarget();
+    std::string		&getQuery();
+    std::string		&getMethod();
+    std::string		&getVersion();
+    std::string		&getFilename();
+    std::string		&getBody();
+    std::string     &getCGIPath();
+    headers_t 		&getHeaders();
+    bool			&isDone();
+
+    void			decodeRequest();
+
+    void			errorChecking();
+    void			checkStatusLine();
+    void			checkHeaders();
+
+    void			resetRequest();
+    void			printRequest();
 };
-
-#endif

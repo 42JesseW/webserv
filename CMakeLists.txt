@@ -1,12 +1,18 @@
-project(webserv)
+cmake_minimum_required(VERSION 3.14)
 
-cmake_minimum_required(VERSION 3.10)
+project(webserv LANGUAGES CXX VERSION 0.1)
+
+set(SOURCE_DIR srcs)
 set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra")
 
-include_directories(includes)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/**/*.cpp)
 
-file(GLOB_RECURSE SOURCES srcs/*.cpp srcs/**/*.cpp)
+add_executable(surf ${SOURCES})
 
-add_executable(webserv ${SOURCES})
+target_link_libraries(surf pthread)
+
+target_include_directories(surf PUBLIC includes)
 
 add_subdirectory(tests)

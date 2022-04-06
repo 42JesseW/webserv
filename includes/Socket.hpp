@@ -1,43 +1,52 @@
-#ifndef SOCKET_HPP
+#pragma once
 
-# define SOCKET_HPP
+#include <Webserv.hpp>
 
-# define SOCK_TCP_T         0
-# define SOCK_FD_EMPTY      (-1)
-# define SOCK_ERROR         (-1)
-# define SOCK_SUCCESS       1
+#define A_INFO          struct addrinfo
+#define SA_IN           struct sockaddr_in
+#define SA              struct sockaddr
+#define SOCKET_UNSET    (-2)
+#define DFL_BACKLOG     10
 
-# define DFL_BACKLOG        128
-# define DFL_SERVER_HOST    "*" /* translates to INADDR_ANY 0.0.0.0 */
-
-# define SA     struct sockaddr
-# define SA_IN  struct sockaddr_in
-
-# include <Common.hpp>
-
+/*
+ * Simple wrapper around a unix socket. Should support
+ * both Client and Server type sockets.
+ */
 class Socket
 {
 private:
-    int             m_sock_fd;
-    SA_IN           m_sock_addr;
-
-    std::string     m_address;
-    unsigned short  m_port;
+    int         m_fd;
+    SA_IN       m_address;
 
 public:
     Socket();
-    Socket(const Socket &sock);
-    ~Socket();
+    Socket(const Socket& cpy);
 
-    Socket& operator = (const Socket& sock);
+protected:
+    Socket(int fd, SA_IN& address);
 
-    void        setAddress(const std::string& address);
-    void        setPort(unsigned short port);
-    void        setFD(int fd);
+public:
+    virtual ~Socket();
 
-    int         init(void);
-    int&        getFd(void);
+    Socket&         operator = (const Socket& sock);
+
+    int&            getFd(void);
+    in_addr_t&      getAddress(void);
+    uint16_t        getPort(void) const;
+
+protected:
+    void            setFd(int fd);
+    SA_IN&          getAddr(void);
+
+public:
+    /* close the socket */
+    void            close(void);
+
+protected:
+    static void     _cpy_addr_in(const SA_IN *from, SA_IN *to);
+
+public:
+    /* exceptions */
+    class InitFail : public std::exception { };
 
 };
-
-#endif

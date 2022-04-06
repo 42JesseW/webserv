@@ -1,4 +1,5 @@
 #include <Request.hpp>
+#include <Socket.hpp>
 
 void Request::handleRequest(int client_socket)
 {
@@ -23,7 +24,7 @@ void Request::handleRequest(int client_socket)
 	std::memset(buffer, 0, BUFF_SIZE);
 }
 
-void Request::divideRequest()
+void Request::divideRequest(void)
 {
 	parseAndSetStartLine();
 	parseAndSetHeaders();
@@ -32,14 +33,14 @@ void Request::divideRequest()
 		m_request.erase(0, 2);
 		m_body = m_request;
 	}
-	if(getHeaders().find("Transfer-Encoding")->second == "chunked")
+	if (getHeaders().find("Transfer-Encoding")->second == "chunked")    // TODO might error if header does not exist??
 	{
 		decodeRequest();
 	}
 	m_request.clear();
 }
 
-void Request::parseFilenamesAndCGI()
+void Request::parseFilenamesAndCGI(void)
 {
 	if (std::count(m_target.begin(), m_target.end(), '.') > 2)
 	{
@@ -90,7 +91,7 @@ void Request::parseQuery(std::string url)
 	}
 }
 
-void Request::parseAndSetStartLine()
+void Request::parseAndSetStartLine(void)
 {
 	m_method = m_request.substr(0, m_request.find(' '));
 	m_request.erase(0, m_request.find(' ') + 1);
@@ -105,7 +106,7 @@ void Request::parseAndSetStartLine()
 	parseFilenamesAndCGI();
 }
 
-void Request::setHost()
+void Request::setHost(void)
 {
 	if (m_headers.find("Host") == m_headers.end())
 	{
@@ -122,7 +123,7 @@ void Request::setHost()
 	}
 }
 
-void Request::parseAndSetHeaders()
+void Request::parseAndSetHeaders(void)
 {
 	std::string token;
 	std::string key;
@@ -140,7 +141,7 @@ void Request::parseAndSetHeaders()
 	setHost();
 }
 
-void Request::printRequest()
+void Request::printRequest(void)
 {
 	std::cout << "------------------ START LINE ------------------" << std::endl;
 	std::cout << "Status: " << m_status << std::endl;
