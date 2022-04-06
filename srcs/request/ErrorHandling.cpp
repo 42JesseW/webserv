@@ -21,7 +21,7 @@ void    Request::checkStatusLine()
     {
         setStatus(HTTP_STATUS_METHOD_NOT_ALLOWED);
     }
-    else if (m_version != ALLOWED_VERSION)
+    else if (m_version != HTTP_VERSION)
     {
         setStatus(HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED);
     }
