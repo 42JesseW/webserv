@@ -6,7 +6,7 @@
 # define DFL_UPLOAD_PATH        "/"
 # define DFL_INDEX_FILE         "index.html"
 
-# include <Common.hpp>
+# include <Webserv.hpp>
 
 struct s_redirect
 {

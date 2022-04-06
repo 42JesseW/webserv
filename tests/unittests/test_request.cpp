@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <unittests.hpp>
 #include <Request.hpp>
 
 Request *new_request = new Request;
@@ -363,3 +363,4 @@ TEST_CASE("Empty chunked post request")
         REQUIRE(new_request->getBody().empty());
 	}
 }
+
