@@ -32,7 +32,7 @@ char            *ClientSocket::recv(void)
     char    *buff;
     ssize_t bytes_read;
 
-    buff = new char[RECV_SIZE];
+    buff = new char[RECV_SIZE + 1];
     if (( bytes_read = ::recv(getFd(), buff, RECV_SIZE, 0) ) == SYS_ERROR) {
         fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
         return (NULL);

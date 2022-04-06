@@ -4,6 +4,7 @@
 #include <Config.hpp>
 
 #include <deque>
+#include <stack>
 #include <exception>
 
 #include <dirent.h>
@@ -41,7 +42,7 @@ public:
 
     public:
         explicit MappingFailure(const std::string& info);
-        ~MappingFailure(void) _NOEXCEPT;
+        ~MappingFailure(void) throw();
 
     public:
         const std::string&  info(void) const;
