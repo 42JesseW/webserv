@@ -62,11 +62,18 @@ void            Connection::readSocket(void)
     if (!m_sock)
         throw NoSocketFail();
     request_data = m_sock->recv();
+    if (!request_data)
+    {
+        /* must be handled from outside */
+        m_request.setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return ;
+    }
 
     std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
     std::cout << request_data;
 
     m_request.appendRequestData(request_data);
+    delete request_data;
 }
 
 void            Connection::parseRequest(void)

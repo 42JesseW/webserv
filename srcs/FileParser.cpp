@@ -39,7 +39,7 @@ FileParser::MappingFailure::MappingFailure(const std::string& info) : std::excep
 
 }
 
-FileParser::MappingFailure::~MappingFailure() _NOEXCEPT
+FileParser::MappingFailure::~MappingFailure() throw()
 {
 
 }

@@ -109,7 +109,7 @@ void                CGI::init(SimpleRequest& request)
     m_environ["CONTENT_LENGTH"] = _getMapValueWithDefault(
             request.getHeaders(),
             std::string("Content-Length"),
-            std::to_string(request.getBody().size())
+            ft::intToString(request.getBody().size())
     );
 
     m_envp = _environToEnvp();                                          // TODO testcase
