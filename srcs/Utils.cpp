@@ -38,7 +38,7 @@ namespace ft
 
         try
         {
-            file_stream.open(file_name);
+            file_stream.open(file_name.c_str());
             file_content_stream << file_stream.rdbuf();
             file_contents = file_content_stream.str();
         }

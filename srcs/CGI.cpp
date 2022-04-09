@@ -2,9 +2,9 @@
 
 CGI::CGI() :
     m_program_path(DFL_CGI_DIR "/" DFL_CGI_PROG),
-    m_fork_pid(UNSET_PID),
     m_argv(NULL),
-    m_envp(NULL)
+    m_envp(NULL),
+    m_fork_pid(UNSET_PID)
 {
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
@@ -88,7 +88,7 @@ int&                CGI::getPipeReadFd(void)
 void                CGI::init(SimpleRequest& request)
 {
     /* set environment variables for the CGI request */
-    m_environ["SERVER_SOFTWARE"] = PROG_VERSION;
+    m_environ["SERVER_SOFTWARE"] = PROG_NAME;
     m_environ["SERVER_NAME"] = ""; // TODO Use Server.m_names[0] or request.headers.host
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
 
@@ -109,7 +109,7 @@ void                CGI::init(SimpleRequest& request)
     m_environ["CONTENT_LENGTH"] = _getMapValueWithDefault(
             request.getHeaders(),
             std::string("Content-Length"),
-            std::to_string(request.getBody().size())
+            ft::intToString(request.getBody().size())
     );
 
     m_envp = _environToEnvp();                                          // TODO testcase
@@ -237,7 +237,7 @@ char                **CGI::_environToEnvp(void)
 
 char                **CGI::_argsToArgv(void)
 {
-    int     idx;
+    size_t  idx;
     char    **argv;
 
     argv = new(std::nothrow) char*[m_args.size() + 1];
@@ -268,7 +268,7 @@ SimpleRequest::SimpleRequest()
 
 SimpleRequest::SimpleRequest(const SimpleRequest &cpy)
 {
-
+    *this = cpy;
 }
 
 SimpleRequest::~SimpleRequest()

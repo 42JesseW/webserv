@@ -1,5 +1,5 @@
 #include <Route.hpp>
-#include <Config.hpp>
+#include <ConfigUtil.hpp>
 
 Route::Route() :
     m_redirect(NULL),

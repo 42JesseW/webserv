@@ -1,126 +1,96 @@
 #include <Socket.hpp>
-#include <Server.hpp>
 
-Socket::Socket() :
-    m_sock_fd(SOCK_FD_EMPTY),
-    m_address(DFL_SERVER_HOST),
-    m_port(DFL_SERVER_PORT)
+Socket::Socket(void) : m_fd(SOCKET_UNSET)
 {
-    std::memset(&m_sock_addr, 0, sizeof(m_sock_addr));
+    std::memset(&m_address, 0, sizeof(SA_IN));
 }
 
-/* destroy current socket and copy all the data */
-Socket::Socket(const Socket &sock)
+/*
+ * USE WITH CAUTION
+ * there can only be one Socket object pointing to an internal socket
+ */
+Socket::Socket(const Socket &cpy) : m_fd(cpy.m_fd)
 {
-    m_sock_fd = sock.m_sock_fd;
-    m_address = sock.m_address;
-    m_port = sock.m_port;
-    std::memcpy(m_sock_addr.sin_zero, sock.m_sock_addr.sin_zero, 8);
-    m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
-    m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
-    m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
-#ifdef __APPLE__
-    m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
-#endif
+    std::memset(&m_address, 0, sizeof(SA_IN));
+    _cpy_addr_in(&cpy.m_address, &m_address);
+}
+
+/*
+ * This constructor is used for creating
+ * sockets for clients that connect. Used
+ * only by ClientSocket type sockets.
+ */
+Socket::Socket(int fd, SA_IN& address) : m_fd(fd)
+{
+    std::memset(&m_address, 0, sizeof(SA_IN));
+    _cpy_addr_in(&address, &m_address);
 }
 
 Socket::~Socket()
 {
-    if (m_sock_fd != SOCK_FD_EMPTY)
-    {
-        close(m_sock_fd);
+    if (m_fd != SOCKET_UNSET) {
+        std::cout << "[DEBUG] Close socket " << m_fd << '\n';
+        ::close(m_fd);
     }
 }
 
-Socket&     Socket::operator = (const Socket &sock)
+/*
+ * USE WITH CAUTION
+ * there can only be one Socket object pointing to an internal socket
+ */
+Socket&         Socket::operator = (const Socket &sock)
 {
-    if (this != &sock && m_sock_fd != sock.m_sock_fd)
+    if (this != &sock && m_fd != sock.m_fd)
     {
-        close(m_sock_fd);
-        m_sock_fd = sock.m_sock_fd;
-        std::memcpy(m_sock_addr.sin_zero, sock.m_sock_addr.sin_zero, 8);
-        m_sock_addr.sin_addr = sock.m_sock_addr.sin_addr;
-        m_sock_addr.sin_family = sock.m_sock_addr.sin_family;
-        m_sock_addr.sin_port = sock.m_sock_addr.sin_port;
-#ifdef __APPLE__
-        m_sock_addr.sin_len = sock.m_sock_addr.sin_len;
-#endif
-        m_address = sock.m_address;
-        m_port = sock.m_port;
+        ::close(m_fd);
+        std::memset(&m_address, 0, sizeof(SA_IN));
+        _cpy_addr_in(&sock.m_address, &m_address);
     }
     return (*this);
 }
 
-/* overwrite default address */
-void    Socket::setAddress(const std::string &address)
+int&            Socket::getFd(void)
 {
-    m_address = address;
+    return (m_fd);
 }
 
-/* overwrite default port */
-void    Socket::setPort(unsigned short port)
+uint16_t        Socket::getPort(void) const
 {
-    m_port = port;
+    return (ntohs(m_address.sin_port));
 }
 
-/*
-** Initialise socket for listening on specified port.
-** Use PF_INET instead of AF_INET when calling socket():
-** https://beej.us/guide/bgnet/html/#system-calls-or-bust
-*/
-
-int        Socket::init()
+in_addr_t&      Socket::getAddress(void)
 {
-    int yes;
-
-    m_sock_fd = socket(PF_INET, SOCK_STREAM, SOCK_TCP_T);
-    if (m_sock_fd == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to create socket.");
-    }
-
-    std::cout << "Socket::init[" << m_sock_fd << "] -> " << m_address << ":" << m_port << std::endl;
-    std::memset(&m_sock_addr, 0, sizeof(m_sock_addr));
-    m_sock_addr.sin_family      = AF_INET;          /* IPv4 */
-    m_sock_addr.sin_port        = htons(m_port);
-    m_sock_addr.sin_addr.s_addr = INADDR_ANY;       /* listen for anything 0.0.0.0 */
-    if (m_address != DFL_SERVER_HOST)
-        m_sock_addr.sin_addr.s_addr = inet_addr(m_address.c_str());
-
-    /* bind address to currently nameless socket */
-    if (m_sock_addr.sin_addr.s_addr == INADDR_NONE ||
-        bind(m_sock_fd, (SA *)&m_sock_addr, (socklen_t)sizeof(m_sock_addr)) == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to bind to address.");
-    }
-
-    /* loose the 'address currently in use' error because the kernel hasn't properly cleaned everything up */
-    yes = 1;
-    if (setsockopt(m_sock_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to set sock options.");
-    }
-
-    /* set the socket to be non blocking so recv() and send() functions don't block */
-    if (fcntl(m_sock_fd, F_SETFL, O_NONBLOCK) == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to set NONBLOCKING.");
-    }
-
-    /* set the socket for listening with a max connection backlog of DFL_BACKLOG */
-    if (listen(m_sock_fd, DFL_BACKLOG) == SOCK_ERROR)
-    {
-        /* some error handling */
-        throw std::runtime_error(std::string(__func__) + ": Failed to listen on socket.");
-    }
-    return (SOCK_SUCCESS);
+    return (m_address.sin_addr.s_addr);
 }
 
-int&        Socket::getFd()
+void            Socket::setFd(int fd)
 {
-    return (m_sock_fd);
+    m_fd = fd;
+}
+
+SA_IN&          Socket::getAddr(void)
+{
+    return (m_address);
+}
+
+void            Socket::close(void)
+{
+    if (m_fd != SOCKET_UNSET)
+    {
+        ::close(m_fd);
+        m_fd = SOCKET_UNSET;
+        std::memset(&m_address, 0, sizeof(SA_IN));
+    }
+}
+
+void                Socket::_cpy_addr_in(const SA_IN *from, SA_IN *to)
+{
+    std::memcpy(to->sin_zero, from->sin_zero, 8);
+    to->sin_addr = from->sin_addr;
+    to->sin_family = from->sin_family;
+    to->sin_port = from->sin_port;
+#ifdef __APPLE__
+    to->sin_len = from->sin_len;
+#endif
 }
