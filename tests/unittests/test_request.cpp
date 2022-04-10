@@ -1,4 +1,7 @@
 #include <unittests.hpp>
+
+#define private public
+
 #include <Request.hpp>
 
 Request *new_request = new Request;
@@ -117,6 +120,29 @@ static std::string empty_chunked_post_request =
 	"Content-Encoding: chunked\r\n\r\n";
 
 // Basic requests that would succeed
+
+class TestBasicRequest : public ::testing::Test
+{
+public:
+    Request req;
+
+protected:
+    void SetUp() override
+    {
+        req.m_request = basic_get_request;
+        req.divideRequest();
+        req.errorChecking();
+    }
+};
+
+TEST_F(TestBasicRequest, StartLine)
+{
+    EXPECT_TRUE(new_request->getMethod() == "GET");
+    EXPECT_TRUE(new_request->getTarget() == "/");
+    EXPECT_TRUE(new_request->getQuery() == "parameter1=waarde1&parameter2=waarde2&parameter3=waarde3");
+    EXPECT_TRUE(new_request->getVersion() == HTTP_VERSION);
+    EXPECT_TRUE(new_request->getPort() == 80);
+}
 
 TEST_CASE("Basic get request")
 {

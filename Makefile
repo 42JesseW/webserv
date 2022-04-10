@@ -5,7 +5,7 @@ HEADER_DIR  = includes
 TEST_DIR    = tests
 CMAKE_DIR   = cmake-build
 
-CFLAGS      = -Wall -Werror -Wextra -pedantic -g -fsanitize=address -std=c++98
+CFLAGS      = -Wall -Werror -Wextra -pedantic -g -fsanitize=address -std=c++11
 CLINKS      = -lpthread -lcurl
 
 SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
@@ -15,6 +15,7 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/FileParser.cpp \
               $(SOURCE_DIR)/Option.cpp \
               $(SOURCE_DIR)/PortConfig.cpp \
+              $(SOURCE_DIR)/Poller.cpp \
               $(SOURCE_DIR)/ServerConfig.cpp \
               $(SOURCE_DIR)/Route.cpp \
               $(SOURCE_DIR)/Connection.cpp \

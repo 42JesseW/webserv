@@ -1,3 +1,4 @@
+#include <Poller.hpp>
 #include <Webserv.hpp>
 #include <Signals.hpp>
 #include <FileParser.hpp>
@@ -16,26 +17,32 @@ static char ascii_wave[] = "\n"
    T " ╚══╝╚══╝ ╚══════╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     " B "           -''                 ~~--..__.\n" R
    B ".-..____.-..____.-..____.-.._____.-..____.-..________.-..____.-.._..-'\n" R;
 
-static void write_usage_stderr(void)
+static void write_usage_stderr_and_exit(void)
 {
     fprintf(stderr, "usage: %s [config_file]\n", PROG_NAME);
     std::exit(EXIT_FAILURE);
+}
+
+static void init_program_environment(pthread_t **thread_ids, int& exit_code)
+{
+    register_signals();
+
+    *thread_ids = NULL;
+    exit_code = EXIT_SUCCESS;
+    fprintf(stdout, "%s\n[INFO] Starting %s\n", ascii_wave, PROG_NAME);
 }
 
 int     main(int argc, char *argv[])
 {
     FileParser::config_vec_t    config_ports;
     FileParser                  parser(argv[0]);
-    PortConfig                  *port;
+    Poller                      *poller;
     pthread_t                   *thread_ids;
     int                         exit_code;
 
     if (argc > 2)
-        write_usage_stderr();
-    thread_ids = NULL;
-    register_signals();
-    exit_code = EXIT_SUCCESS;
-    fprintf(stdout, "%s\n[INFO] Starting %s\n", ascii_wave, PROG_NAME);
+        write_usage_stderr_and_exit();
+    init_program_environment(&thread_ids, exit_code);
     if (argc == 2)
         parser.setFilePath(argv[1]);
     try
@@ -45,9 +52,9 @@ int     main(int argc, char *argv[])
         thread_ids = new pthread_t[config_ports.size()];
         for (FileParser::config_vec_t::size_type idx = 0; idx < config_ports.size(); ++idx)
         {
-            port = config_ports[idx];
+            poller = new Poller(config_ports[idx]);
             /* returns non-zero value on error */
-            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)PortConfig::pollPort, port))
+            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::_pollPort, poller))
             {
                 /* error handling */
                 break ;
