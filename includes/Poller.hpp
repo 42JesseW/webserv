@@ -5,6 +5,7 @@
 #include <stack>
 
 #include <sys/poll.h>
+#include <csignal>
 
 #define POLL_TIMEOUT_MS     500
 #define POLLIN_SLEEP_MS     2000
