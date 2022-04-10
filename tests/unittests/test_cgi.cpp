@@ -27,13 +27,31 @@ TEST(TestRequest, SimpleParse)
     request.parse(basic_post.c_str());
 }
 
-TEST(TestCGI, SimpleInit)
+class TestCGIFixture : public ::testing::Test
+{
+public:
+    std::string program_path;
+
+protected:
+    std::string getProgramPath(const char *script_name)
+    {
+        std::string relative_path;
+
+        relative_path += "../../";
+        relative_path += DFL_CGI_DIR;
+        relative_path += "/";
+        relative_path += script_name;
+        return (relative_path);
+    }
+};
+
+TEST_F(TestCGIFixture, SimpleInit)
 {
     CGI             simple_cgi;
     SimpleRequest   request;
 
     request.parse(basic_post.c_str());
-    simple_cgi.setProgramPath("../../tests/unittests/cgi-bin/sleep.py");
+    simple_cgi.setProgramPath(getProgramPath("sleep.py"));
     simple_cgi.init(request);
     EXPECT_EQ(simple_cgi.m_environ["CONTENT_TYPE"], request.m_headers["Content-Type"]);
     EXPECT_EQ(simple_cgi.m_environ["CONTENT_LENGTH"], request.m_headers["Content-Length"]);
@@ -45,24 +63,19 @@ TEST(TestCGI, SimpleInit)
  * - Invalid script
  */
 
-TEST(TestCGI, SimpleExecWithSleep)
+TEST_F(TestCGIFixture, SimpleExecWithSleep)
 {
     CGI             simple_cgi;
     SimpleRequest   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
-    char            cwd[PATH_MAX];
-    std::string     full_program_path;
     const std::string   out = ""
       "Content-type:text/html\r\n\r\n\n"
       "<h1>Feeling sleepy...</h1>\n";
 
-    getcwd(cwd, PATH_MAX);
-    full_program_path += cwd;
-    full_program_path += "/../../tests/unittests/cgi-bin/sleep.py";
     request.parse(basic_post.c_str());
-    simple_cgi.setProgramPath(full_program_path);
+    simple_cgi.setProgramPath(getProgramPath("sleep.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
 
@@ -85,15 +98,13 @@ TEST(TestCGI, SimpleExecWithSleep)
     }
 }
 
-TEST(TestCGI, SimpleExecHelloWorld)
+TEST_F(TestCGIFixture, SimpleExecHelloWorld)
 {
     CGI             simple_cgi;
     SimpleRequest   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
-    char            cwd[PATH_MAX];
-    std::string     full_program_path;
     const std::string   out = ""
       "Content-type:text/html\r\n\r\n\n"
       "<html>\n"
@@ -105,11 +116,8 @@ TEST(TestCGI, SimpleExecHelloWorld)
       "</body>\n"
       "</html>\n";
 
-    getcwd(cwd, PATH_MAX);
-    full_program_path += cwd;
-    full_program_path += "/../../tests/unittests/cgi-bin/hello_world.py";
     request.parse(basic_post.c_str());
-    simple_cgi.setProgramPath(full_program_path);
+    simple_cgi.setProgramPath(getProgramPath("hello_world.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
 
@@ -132,25 +140,20 @@ TEST(TestCGI, SimpleExecHelloWorld)
     }
 }
 
-TEST(TestCGI, SimpleExecFormInput)
+TEST_F(TestCGIFixture, SimpleExecFormInput)
 {
     CGI             simple_cgi;
     SimpleRequest   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
-    char            cwd[PATH_MAX];
-    std::string     full_program_path;
     const std::string   out = ""
       "Content-Type:text/html\r\n\r\n\n"
       "<h1>Addition Results</h1>\n"
       "<output>10 + 20 = 30</output>\n";
 
-    getcwd(cwd, PATH_MAX);
-    full_program_path += cwd;
-    full_program_path += "/../../tests/unittests/cgi-bin/form_input.py";
     request.parse(basic_post.c_str());
-    simple_cgi.setProgramPath(full_program_path);
+    simple_cgi.setProgramPath(getProgramPath("form_input.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
 
