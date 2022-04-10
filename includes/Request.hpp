@@ -72,6 +72,7 @@ public:
     void			errorChecking();
     void			checkStatusLine();
     void			checkHeaders();
+    void            checkFileType();
 
     void			resetRequest();
     void			printRequest();
