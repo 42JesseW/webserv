@@ -8,6 +8,7 @@ void    Request::errorChecking()
     {
         checkStatusLine();
         checkHeaders();
+        checkFileType();
     }
 }
 
@@ -36,5 +37,18 @@ void    Request::checkHeaders()
     else if (m_headers.find("Expect") != m_headers.end() && m_headers["Expect"] != "100-continue")
     {
         setStatus(HTTP_STATUS_EXPECTATION_FAILED);
+    }
+}
+
+void    Request::checkFileType()
+{
+    if (m_headers.find("Content-Type") != m_headers.end())
+    {
+        std::string type;
+        type = m_headers.find("Content-Type")->second.substr(0, type.find('/'));
+        if (type == "video" || type == "multipart")
+        {
+            setStatus(HTTP_STATUS_TEAPOT);
+        }
     }
 }

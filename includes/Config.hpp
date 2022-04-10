@@ -72,9 +72,7 @@ public:
 
 private:
     ServerSocket                *m_sock;
-    clients_t                   m_clients;
     server_t                    m_server_blocks;
-    pollfd_t                    m_pfds;
 
     std::string                 m_host;
     uint16_t                    m_port;
@@ -92,15 +90,8 @@ public:
     void                        initSocket(void);
     ServerSocket                *getSocket(void);
 
-    void                        addClient(int& fd, Connection* conn);
-    void                        addPollFd(struct pollfd& pfd);
-
-    pollfd_t&                   getPollFds(void);
     uint16_t                    getPort(void);
     server_t&                   getServers(void);
-    clients_t&                  getClients(void);
-
-    static void                 *pollPort(void *port_config);
 
     /*
      * Function that matches a Request object to a Route and sets
