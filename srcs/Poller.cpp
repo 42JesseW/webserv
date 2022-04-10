@@ -34,7 +34,7 @@ Poller&         Poller::operator = (const Poller &rhs)
     return (*this);
 }
 
-void            *Poller::_pollPort(void *instance)
+void            *Poller::pollPort(void *instance)
 {
     ConfigUtil      *util;
     Poller          *poller;
@@ -43,60 +43,40 @@ void            *Poller::_pollPort(void *instance)
     size_t          active_connections;
 
     util = &ConfigUtil::getHandle();
-    poller = static_cast<Poller*>(instance);
-    port_config = poller->m_port_config;
-    port_config->initSocket();
-
-    struct pollfd listener;
-    listener.fd = port_config->getSocket()->getFd();
-    listener.events = POLLIN;
-    listener.revents = 0;
-    poller->m_pfds.push_back(listener);
-
+    poller = Poller::_initPoller(&port_config, instance);
     for ( ; ; )
     {
         poller->m_new_connection = std::make_pair(0, (Connection*)NULL);
 
         active_connections = poller->m_pfds.size();
         fds_with_events = poll(&poller->m_pfds.at(0), active_connections, POLL_TIMEOUT_MS);
-        if (fds_with_events == SYS_ERROR)
-        {
-            /* some error handling */
-
+        if (fds_with_events == SYS_ERROR) {
+            util->setSignalled(SIGINT);
         }
-        if (util->isSignalled())
-        {
-            /* webserver has been signalled */
+        if (util->isSignalled()) {
             break ;
         }
-        if (!fds_with_events)
+        if (!fds_with_events) {
             continue ;
-
+        }
         for (size_t idx = 0; idx < active_connections; ++idx)
         {
-            /* if no events continue to next fd */
             if (!poller->m_pfds[idx].revents)
                 continue ;
 
-            /* if no more events then we can already break */
             if (!fds_with_events)
                 break ;
 
             fds_with_events--;
-            if (poller->m_pfds[idx].revents & (POLLHUP))
-            {
-                /* handle close connection from client */
-
+            if (poller->m_pfds[idx].revents & (POLLHUP)) {
+                poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
             }
             else if (poller->m_pfds[idx].revents & (POLLIN))
             {
-                /* if POLLIN on listener socket */
-                if (poller->m_pfds[idx].fd == port_config->getSocket()->getFd())
-                {
+                if (poller->m_pfds[idx].fd == port_config->getSocket()->getFd()) {
                     poller->_getNewConnection();
                 }
-                else
-                {
+                else {
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
                 }
                 usleep(POLLIN_SLEEP_MS);
@@ -110,11 +90,35 @@ void            *Poller::_pollPort(void *instance)
                 }
             }
         }
-
         poller->_updatePollFds();
     }
     delete poller;
     return (NULL);
+}
+
+/*
+ * Initialise the poller:
+ * - convert (void*) to Poller*
+ * - set and init port_config
+ * - return new Poller instance
+ */
+Poller            *Poller::_initPoller(PortConfig **port_config, void *instance)
+{
+    Poller          *poller;
+    PortConfig      *pc;
+    struct pollfd   listener;
+
+    poller = static_cast<Poller*>(instance);
+    pc = poller->m_port_config;
+    pc->initSocket();
+
+    listener.fd = pc->getSocket()->getFd();
+    listener.events = POLLIN;
+    listener.revents = 0;
+    poller->m_pfds.push_back(listener);
+
+    *port_config = pc;
+    return (poller);
 }
 
 /*
@@ -167,7 +171,7 @@ void            Poller::_parseAndRespond(int &socket_fd)
     Route                           *matched_route;
 
     /* POLLOUT on client socket */
-    it              = m_port_config->getClients().find(socket_fd);
+    it              = m_clients.find(socket_fd);
     connection      = it->second;
     connection->parseRequest();
 
@@ -200,97 +204,7 @@ void            Poller::_readConnectionData(int &socket_fd)
     clients_t::iterator it;
     Connection          *connection;
 
-    it = m_port_config->getClients().find(socket_fd);
+    it = m_clients.find(socket_fd);
     connection = it->second;
     connection->readSocket();
-}
-
-void            *Poller::pollPort(void *instance)
-{
-    ConfigUtil      *util;
-    PortConfig      *port;
-    Poller          *poller;
-    int             fds_with_events;
-    size_t          active_connections;
-
-    int             client_fd;
-    SA_IN           client_addr;
-    ClientSocket    *client_socket;
-    Connection      *client_connection;
-
-    PortConfig::clients_t::iterator     client_it;
-    pollfd_t::iterator                  pfd_it;
-
-    util = &ConfigUtil::getHandle();
-    poller = static_cast<Poller*>(instance);
-    port = poller->m_port_config;
-    port->initSocket();
-    for ( ; ; )
-    {
-        active_connections = 1 + port->getClients().size();
-        fds_with_events = poll(&port->getPollFds().at(0), active_connections, POLL_TIMEOUT_MS);
-        if (fds_with_events == SYS_ERROR)
-        {
-            /* some error handling */
-
-        }
-        if (util->isSignalled())
-        {
-            /* webserver has been signalled */
-            break ;
-        }
-        if (!fds_with_events)
-            continue ;
-
-        /* look for fds with events */
-        pfd_it = port->getPollFds().begin();
-        for (size_t idx = 0; idx < active_connections ; ++idx, ++pfd_it )
-        {
-            if (!pfd_it->revents)
-                continue ;
-            /* TODO check for errors first */
-
-            if (pfd_it->revents & (POLLIN))
-            {
-                /* if POLLIN on listener socket */
-                if (pfd_it->fd == port->getSocket()->getFd())
-                {
-                    client_fd = port->getSocket()->accept(client_addr);
-                    client_socket       = new ClientSocket(client_fd, client_addr);
-                    client_connection   = new Connection(client_socket);
-                    port->addClient(client_fd, client_connection);
-                }
-                else
-                {
-                    client_it           = port->getClients().find(pfd_it->fd);
-                    client_connection   = client_it->second;
-                    client_connection->readSocket();
-                }
-                usleep(POLLIN_SLEEP_MS);
-            }
-            else
-            {
-                if (pfd_it->revents & (POLLOUT))
-                {
-                    ConfigUtil::status_code_map_t   *error_files;
-                    Route                           *route;
-
-                    /* POLLOUT on client socket */
-                    client_it           = port->getClients().find(pfd_it->fd);
-                    client_connection   = client_it->second;
-                    client_connection->parseRequest();
-
-                    route               = port->getMatchingRoute(client_connection->getRequest(), &error_files);
-                    client_connection->setRoute(route);
-                    client_connection->sendResponse(error_files);
-
-                    delete client_connection;
-                    port->getClients().erase(client_it);
-                    port->getPollFds().erase(pfd_it);
-                }
-            }
-        }
-    }
-    delete poller;
-    return (NULL);
 }

@@ -54,7 +54,7 @@ int     main(int argc, char *argv[])
         {
             poller = new Poller(config_ports[idx]);
             /* returns non-zero value on error */
-            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::_pollPort, poller))
+            if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::pollPort, poller))
             {
                 /* error handling */
                 break ;

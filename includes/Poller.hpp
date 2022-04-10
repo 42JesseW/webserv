@@ -16,12 +16,10 @@ public:
     typedef std::map<int, Connection*>      clients_t;
 
 private:
-    pollfd_t        m_pfds;
-    clients_t       m_clients;
-    PortConfig      *m_port_config;
+    pollfd_t                    m_pfds;
+    clients_t                   m_clients;
+    PortConfig                  *m_port_config;
 
-    // TODO add clients / stack_with_removed_clients / new Connection
-    // new connection check if null or not
     std::stack<int>             m_dropped_fds;
     std::pair<int, Connection*> m_new_connection;
 
@@ -36,13 +34,14 @@ public:
     Poller&     operator = (const Poller& rhs);
 
     static void *pollPort(void *instance);
-    static void *_pollPort(void *instance);
 
 private:
-    void        _getNewConnection(void);
-    void        _readConnectionData(int& socket_fd);
-    void        _parseAndRespond(int& socket_fd);
+    static Poller      *_initPoller(PortConfig **port_config, void *instance);
 
-    void        _updatePollFds(void);
+    void                _getNewConnection(void);
+    void                _readConnectionData(int& socket_fd);
+    void                _parseAndRespond(int& socket_fd);
+
+    void                _updatePollFds(void);
 
 };
