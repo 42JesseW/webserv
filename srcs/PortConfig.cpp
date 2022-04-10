@@ -36,12 +36,7 @@ PortConfig&                 PortConfig::operator = (const PortConfig &rhs)
 
 void                        PortConfig::initSocket(void)
 {
-    struct pollfd   listener;
-
     m_sock->init(m_host, m_port);
-    listener.fd = m_sock->getFd();
-    listener.events = POLLIN;
-    listener.revents = 0;
 }
 
 ServerSocket                *PortConfig::getSocket(void)

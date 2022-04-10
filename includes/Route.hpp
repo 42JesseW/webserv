@@ -1,12 +1,10 @@
-#ifndef ROUTE_HPP
+#pragma once
 
-# define ROUTE_HPP
+#define DFL_FILE_SEARCH_PATH   "/html"
+#define DFL_UPLOAD_PATH        "/"
+#define DFL_INDEX_FILE         "index.html"
 
-# define DFL_FILE_SEARCH_PATH   "/"
-# define DFL_UPLOAD_PATH        "/"
-# define DFL_INDEX_FILE         "index.html"
-
-# include <Webserv.hpp>
+#include <Webserv.hpp>
 
 struct s_redirect
 {
@@ -51,5 +49,3 @@ public:
     void                        setRedirect(int status_code, const std::string& url);
 
 };
-
-#endif

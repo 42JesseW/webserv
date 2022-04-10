@@ -381,6 +381,7 @@ TEST(FileParserFilesValues, ParseValidSingle)
     brackets_file << basic_conf;
     brackets_file.close();
 
+    parser.setFilePath(file_name);
     ASSERT_NO_THROW(parser.loadFile());
     ASSERT_EQ(parser.m_config_data, basic_conf);
     ASSERT_NO_THROW(parser.mapTokens(port_configs));
@@ -407,7 +408,7 @@ TEST(FileParserFilesValues, ParseValidSingle)
                     EXPECT_TRUE(std::find(cmp_methods.begin(), cmp_methods.end(), method) != cmp_methods.end());
                 }
                 EXPECT_STREQ(route->m_base_url.c_str(), "/");
-                EXPECT_STREQ(route->m_file_search_path.c_str(), "/data/w3");
+                EXPECT_STREQ(route->m_file_search_path.c_str(), "/html/data/w3");
                 EXPECT_EQ(route->m_has_autoindex, true);
                 EXPECT_EQ(route->m_index_files.size(), 2);
                 for (auto& file : route->m_index_files)

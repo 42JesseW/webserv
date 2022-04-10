@@ -216,19 +216,19 @@ TEST_F(TestBasicRequest, AdvancedGetRequest)
 TEST_F(TestBasicRequest, ChunkedPostRequest)
 {
     setRequestData(chunked_post_request);
-    EXPECT_TRUE(req.getBody() == "Wikipedia in \r\n\r\nchunks.");
+    EXPECT_EQ(req.getBody(), "Wikipedia in \r\n\r\nchunks.");
 }
 
 TEST_F(TestBasicRequest, ChunkedPostRequest2)
 {
     setRequestData(chunked_post_request2);
-    EXPECT_TRUE(req.getBody() == "Bring this chunked to me please and thank you");
+    EXPECT_EQ(req.getBody(), "Bring this chunked to me please and thank you");
 }
 
 TEST_F(TestBasicRequest, ChunkedPostRequest3)
 {
     setRequestData(chunked_post_request3);
-    EXPECT_TRUE(req.getBody() == "this is a very long test request i don't know what to say to be honest.");
+    EXPECT_EQ(req.getBody(), "this is a very long test request i don't know what to say to be honest.");
 }
 
 TEST_F(TestBasicRequest, EmptyChunkedPostRequest)
