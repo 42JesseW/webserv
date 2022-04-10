@@ -115,6 +115,6 @@ int         ServerSocket::accept(SA_IN& addr)
         /* some error handling */
         std::exit(EXIT_FAILURE);
     }
-    std::cout << "[DEBUG] Creating client socket " << sock_fd << '\n';
+    std::cout << "[DEBUG] Creating server socket " << sock_fd << '\n';
     return (sock_fd);
 }
