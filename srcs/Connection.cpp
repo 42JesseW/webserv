@@ -73,7 +73,7 @@ void            Connection::readSocket(void)
     std::cout << request_data;
 
     m_request.appendRequestData(request_data);
-    delete request_data;
+    delete [] request_data;
 }
 
 void            Connection::parseRequest(void)

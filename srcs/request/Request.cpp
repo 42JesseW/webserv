@@ -51,6 +51,8 @@ Request & Request::operator = (const Request &copy)
 
 void        Request::parse(void)
 {
+    headers_t::iterator it;
+
     parseAndSetStartLine();
     parseAndSetHeaders();
     if (!m_request.empty())
@@ -58,7 +60,8 @@ void        Request::parse(void)
         m_request.erase(0, 2);
         m_body = m_request;
     }
-    if (getHeaders().find("Transfer-Encoding")->second == "chunked")    // TODO might error if header does not exist??
+    it = getHeaders().find("Transfer-Encoding");
+    if (it != getHeaders().end() && it->second == "chunked")    // TODO might error if header does not exist??
     {
         decodeRequest();
     }
