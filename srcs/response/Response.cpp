@@ -212,9 +212,10 @@ int 					Response::_readFileIntoString(const std::string &path)
 {
     std::string new_path;
 
-    new_path = "html/" + path;
+    new_path = m_request.m_filesearch + path;
+    if (new_path.at(0) == '/')
+        new_path.erase(0, 1);
     std::ifstream input_file(new_path.c_str());
-
     if (!input_file.is_open())
         return (0);
 
@@ -232,7 +233,7 @@ void					Response::buildBody(void)
         std::vector<std::string>::iterator	iter;
 
         path_vector = m_route.getIndexFiles();
-        path = m_route.getBaseUrl();
+        path = m_route.getFileSearchPath();
         if (path.at(path.length() - 1) == '/')
         {
             for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)

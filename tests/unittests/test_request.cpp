@@ -11,6 +11,14 @@ static std::string  basic_get_request =
         "Host: localhost\r\n"
         "Accept-Language: en-us\r\n"
         "Accept-Encoding: gzip, deflate\r\n\r\n";
+
+static std::string  basic_get_request2 =
+        "GET /upload HTTP/1.1\r\n"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+        "Host: localhost\r\n"
+        "Accept-Language: en-us\r\n"
+        "Accept-Encoding: gzip, deflate\r\n\r\n";
+
 static std::string  basic_post_request =
         "POST /index.html HTTP/1.1\r\n"
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
@@ -140,6 +148,15 @@ TEST_F(TestBasicRequest, GetRequest)
     EXPECT_TRUE(req.getHeaders() == TestMap);
     EXPECT_TRUE(req.getBody().empty());
 }
+
+TEST_F(TestBasicRequest, GetRequest)
+{
+    setRequestData(basic_get_request2);
+    EXPECT_TRUE(req.getMethod() == "GET");
+    EXPECT_TRUE(req.getTarget() == "/upload");
+    EXPECT_TRUE(req.getFilename() == "");
+}
+
 
 TEST_F(TestBasicRequest, PostRequest)
 {

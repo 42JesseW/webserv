@@ -87,6 +87,7 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     Response   *response;
 
     checkRoute();
+
     response = new Response(m_request, *m_route);
     response->buildResponse(*error_files);
 
@@ -144,7 +145,7 @@ void Connection::checkRedirects(void)
 
 void Connection::checkFileSearchPath(void)
 {
-
+    m_request.setFilesearchPath(m_route->getFileSearchPath());
     if (m_request.getStatus() == HTTP_STATUS_OK)
     {
         if (m_request.getFilename() == "/")
@@ -184,7 +185,7 @@ void Connection::searchDefaultIndexPages(void)
 
     for(it = m_route->getIndexFiles().begin(); it != m_route->getIndexFiles().end(); it++)
     {
-        filepath.append(m_route->getFileSearchPath() + "/" + *it);
+        filepath.append(m_request.m_filesearch + *it);
         filepath.erase(0,1);
         if (open(filepath.c_str(), O_RDONLY) != -1)
         {

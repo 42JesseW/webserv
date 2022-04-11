@@ -26,6 +26,8 @@ void Request::handleRequest(int client_socket)
 
 void Request::divideRequest(void)
 {
+	headers_t::iterator it;
+
 	parseAndSetStartLine();
 	parseAndSetHeaders();
 	if (!m_request.empty())
@@ -33,7 +35,8 @@ void Request::divideRequest(void)
 		m_request.erase(0, 2);
 		m_body = m_request;
 	}
-	if(getHeaders().find("Content-Encoding")->second == "chunked")
+	it = getHeaders().find("Content-Encoding");
+	if (it != getHeaders().end() && it->second == "chunked")
 	{
 		decodeRequest();
 	}

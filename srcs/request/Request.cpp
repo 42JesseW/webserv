@@ -23,6 +23,7 @@ Request::Request(const Request &copy)
     m_body = copy.m_body;
     m_done = copy.m_done;
     m_filename = copy.m_filename;
+    m_filesearch = copy.m_filesearch;
 }
 
 Request::~Request(void)
@@ -45,6 +46,7 @@ Request & Request::operator = (const Request &copy)
         m_body = copy.m_body;
         m_done = copy.m_done;
         m_filename = copy.m_filename;
+        m_filesearch = copy.m_filesearch;
     }
     return (*this);
 }
@@ -61,7 +63,7 @@ void        Request::parse(void)
         m_body = m_request;
     }
     it = getHeaders().find("Transfer-Encoding");
-    if (it != getHeaders().end() && it->second == "chunked")    // TODO might error if header does not exist??
+    if (it != getHeaders().end() && it->second == "chunked")
     {
         decodeRequest();
     }
@@ -71,6 +73,15 @@ void        Request::parse(void)
 void        Request::appendRequestData(const char *data)
 {
     m_request += data;
+}
+
+void Request::setFilesearchPath(std::string path)
+{
+    m_filesearch = path;
+    if (m_filesearch.at(m_filesearch.length() - 1) != '/')
+    {
+        m_filesearch.append("/");
+    }
 }
 
 void Request::setStatus(int status)

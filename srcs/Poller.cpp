@@ -174,7 +174,7 @@ void            Poller::_parseAndRespond(int &socket_fd)
     it              = m_clients.find(socket_fd);
     connection      = it->second;
     connection->parseRequest();
-
+    
     matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
     connection->setRoute(matched_route);
     connection->sendResponse(error_files);
