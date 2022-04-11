@@ -64,7 +64,7 @@ void Request::parseFilenamesAndCGI(void)
 			m_target = "/";
 		}
     }
-    else
+    else if (std::count(m_target.begin(), m_target.end(), '.') == 1)
     {
 		m_filename = m_target.substr(m_target.find_last_of('/'));
 		m_target.erase(m_target.find_last_of('/'));

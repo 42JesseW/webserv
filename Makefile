@@ -29,8 +29,8 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/response/Response.cpp \
 			  $(SOURCE_DIR)/main.cpp
 
-OBJECTS		= $(patsubst %.cpp,%.o, $(SRC))
-DEPENDS		= $(patsubst %.cpp,%.d, $(SRC))
+OBJECTS		= $(patsubst %.cpp, %.o, $(SRC))
+DEPENDS		= $(patsubst %.cpp, %.d, $(SRC))
 HEADERS     = $(addprefix -I, $(HEADER_DIR))
 
 all: $(NAME)
@@ -44,7 +44,7 @@ $(NAME): $(OBJECTS)
 	$(CXX) $(CFLAGS) -MMD -MP -c $< -o $@ $(HEADERS)
 
 clean:
-	@rm -f $(OBJECTS)
+	@rm -f $(OBJECTS) $(DEPENDS)
 
 fclean: clean
 	@rm -f $(NAME)
