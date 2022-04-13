@@ -180,9 +180,9 @@ void            Poller::_parseAndRespond(int &socket_fd)
         matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
         connection->setRoute(matched_route);
     }
-    if (connection->getRequest().getMethod() == 'POST')
+    if (connection->getRequest().getMethod() == "POST")
     // post handler;
-    if (connection->getRequest().getMethod() == 'DELETE')
+    if (connection->getRequest().getMethod() == "DELETE")
     // delete handler;
     connection->sendResponse(error_files);
 }
