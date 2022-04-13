@@ -94,7 +94,11 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
         return ;
 
     checkRoute();
-    response = new Response(m_request, *m_route);
+
+    if (m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED) 
+        response = new Response(m_request);
+    else
+        response = new Response(m_request, *m_route);
     response->buildResponse(*error_files);
 
     m_sock->send(response->getResponse().c_str());
@@ -151,7 +155,8 @@ void Connection::checkRedirects(void)
 
 void Connection::checkFileSearchPath(void)
 {
-    m_request.setFilesearchPath(m_route->getFileSearchPath());
+    if (m_route)
+        m_request.setFilesearchPath(m_route->getFileSearchPath());
     if (m_request.getStatus() == HTTP_STATUS_OK)
     {
         if (m_request.getFilename() == "/")
