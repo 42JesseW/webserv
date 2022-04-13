@@ -149,19 +149,3 @@ std::string	&Request::getBody(void)
     return (m_body);
 }
 
-void	Request::resetRequest(void)
-{
-    m_target = DFL_TARGET;
-    m_filename = DFL_FILENAME;
-    m_filename.clear();
-    m_query.clear();
-    m_headers.clear();
-    m_body.clear();
-    m_done = false;
-    m_cgi_path.clear();
-    m_status = HTTP_STATUS_OK;
-    m_method.clear();
-    m_version.clear();
-    m_request.clear();
-    m_port = 80;
-}

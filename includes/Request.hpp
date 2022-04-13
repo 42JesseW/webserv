@@ -76,6 +76,5 @@ public:
     void			checkHeaders();
     void            checkFileType();
 
-    void			resetRequest();
     void			printRequest();
 };
