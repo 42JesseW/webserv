@@ -70,9 +70,9 @@ void        Request::parse(void)
     m_request.clear();
 }
 
-void        Request::appendRequestData(const char *data)
+void        Request::appendRequestData(const char *data, ssize_t bytes_read)
 {
-    m_request += data;
+    m_request.append(data, bytes_read);
 }
 
 void Request::setFilesearchPath(std::string path)

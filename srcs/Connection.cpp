@@ -58,10 +58,11 @@ Request&       Connection::getRequest(void)
 void            Connection::readSocket(void)
 {
     char    *request_data;
+    ssize_t bytes_read = 0;;
 
     if (!m_sock)
         throw NoSocketFail();
-    request_data = m_sock->recv();
+    request_data = m_sock->recv(&bytes_read);
     if (!request_data)
     {
         /* must be handled from outside */
@@ -72,7 +73,7 @@ void            Connection::readSocket(void)
     std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
     // std::cout << request_data;
 
-    m_request.appendRequestData(request_data);
+    m_request.appendRequestData(request_data, bytes_read);
     delete [] request_data;
 }
 

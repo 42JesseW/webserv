@@ -45,7 +45,7 @@ public:
      * It will initialise all the other fields in the request object.
      */
     void            parse(void);
-    void            appendRequestData(const char *data);
+    void            appendRequestData(const char *data, ssize_t bytes_read);
 
     void 			parseAndSetStartLine();
     void 			parseAndSetHeaders();
