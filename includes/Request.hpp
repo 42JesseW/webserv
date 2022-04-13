@@ -47,8 +47,6 @@ public:
     void            parse(void);
     void            appendRequestData(const char *data);
 
-    void			handleRequest(int client_socket);
-    void			divideRequest();
     void 			parseAndSetStartLine();
     void 			parseAndSetHeaders();
     void			parseQuery(std::string url);

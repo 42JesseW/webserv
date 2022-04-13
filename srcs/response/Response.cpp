@@ -226,7 +226,7 @@ int 					Response::_readFileIntoString(const std::string &path)
 
 void					Response::buildBody(void)
 {
-    if (m_request.getMethod() == "GET" && m_status_code == 200)
+    if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_OK)
     {
         std::string							path;
         std::vector<std::string>			path_vector;
@@ -246,7 +246,7 @@ void					Response::buildBody(void)
                 _readFileIntoString("page_not_found.html");
         }
     }
-    if (m_request.getMethod() == "GET" && m_status_code == 404)
+    if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_NOT_FOUND)
         _readFileIntoString("page_not_found.html");
 }
 

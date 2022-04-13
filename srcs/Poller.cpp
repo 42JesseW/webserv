@@ -165,7 +165,7 @@ void            Poller::_updatePollFds(void)
 
 void            Poller::_parseAndRespond(int &socket_fd)
 {
-    ConfigUtil::status_code_map_t   *error_files;
+    ConfigUtil::status_code_map_t   *error_files = NULL;
     clients_t::iterator             it;
     Connection                      *connection;
     Route                           *matched_route;
@@ -174,9 +174,12 @@ void            Poller::_parseAndRespond(int &socket_fd)
     it              = m_clients.find(socket_fd);
     connection      = it->second;
     connection->parseRequest();
-    
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-    connection->setRoute(matched_route);
+
+    if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
+    {
+        matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+        connection->setRoute(matched_route);
+    }
     connection->sendResponse(error_files);
 }
 

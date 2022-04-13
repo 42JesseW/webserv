@@ -70,7 +70,7 @@ void            Connection::readSocket(void)
     }
 
     std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
-    std::cout << request_data;
+    // std::cout << request_data;
 
     m_request.appendRequestData(request_data);
     delete [] request_data;
@@ -79,15 +79,20 @@ void            Connection::readSocket(void)
 void            Connection::parseRequest(void)
 {
     std::cout << "[DEBUG] Building request object\n" << '\n';
-    m_request.parse();
+    if (!m_request.m_request.empty())
+        m_request.parse();
+    else
+        m_request.setStatus(HTTP_STATUS_NO_CONTENT);
 }
 
 void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_files)
 {
     Response   *response;
 
-    checkRoute();
+    if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
+        return ;
 
+    checkRoute();
     response = new Response(m_request, *m_route);
     response->buildResponse(*error_files);
 
