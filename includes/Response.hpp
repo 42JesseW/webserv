@@ -44,7 +44,7 @@ public:
     Response& operator = (const Response &copy);
 
     // Getters
-    Request const &									    getRequest(void) const;
+    Request const &									        getRequest(void) const;
     Route const &											getRoute(void) const;
     int const &												getStatusCode(void) const;
     std::string const &										getStartLine(void) const;
