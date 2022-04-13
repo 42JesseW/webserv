@@ -130,7 +130,7 @@ string_pair_t			Response::_buildDate(void)
 string_pair_t			Response::_buildLocation(void)
 {
     // we need the route.m_redirect->url member
-    return (std::make_pair("Location", ""));
+    return (std::make_pair("Location", m_route.getRedir()->url));
 }
 
 string_pair_t			Response::_buildRetryAfter(void)
