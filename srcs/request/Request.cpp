@@ -62,7 +62,7 @@ void        Request::parse(void)
         m_request.erase(0, 2);
         m_body = m_request;
     }
-    it = getHeaders().find("Transfer-Encoding");
+    it = getHeaders().find("Content-Encoding");
     if (it != getHeaders().end() && it->second == "chunked")
     {
         decodeRequest();

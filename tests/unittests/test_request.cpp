@@ -153,12 +153,12 @@ TEST_F(TestBasicRequest, GetRequest)
     EXPECT_TRUE(req.getBody().empty());
 }
 
-TEST_F(TestBasicRequest, GetRequest)
+TEST_F(TestBasicRequest, GetRequest2)
 {
     setRequestData(basic_get_request2);
     EXPECT_TRUE(req.getMethod() == "GET");
     EXPECT_TRUE(req.getTarget() == "/upload");
-    EXPECT_TRUE(req.getFilename() == "");
+    EXPECT_TRUE(req.getFilename() == "/");
 }
 
 
