@@ -5,6 +5,11 @@ Response::Response()
 
 }
 
+Response::Response(Request &re) : m_request(re)
+{
+	m_status_code = m_request.getStatus();
+}
+
 Response::Response(Request &re, Route &ro) : m_request(re), m_route(ro)
 {
 	m_status_code = m_request.getStatus();
@@ -150,7 +155,7 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 				+ (CR LF);
 }
 
-string_pair_t			Response::_buildDate()
+status_code_body_t			Response::_buildDate()
 {
 	std::time_t		rawtime;
 	struct std::tm	*ptm;
@@ -162,7 +167,7 @@ string_pair_t			Response::_buildDate()
 	return (std::make_pair("Date", std::string(buf)));
 }
 
-string_pair_t			Response::_buildLocation()
+status_code_body_t			Response::_buildLocation()
 {
 	std::string	redirection_url;
 	REDIR		*redirect;
@@ -172,12 +177,12 @@ string_pair_t			Response::_buildLocation()
 	return (std::make_pair("Location", redirection_url));
 }
 
-string_pair_t			Response::_buildRetryAfter()
+status_code_body_t			Response::_buildRetryAfter()
 {
 	return (std::make_pair("Retry-After", RETRY_AFTER_SEC));
 }
 
-string_pair_t			Response::_buildAllow()
+status_code_body_t			Response::_buildAllow()
 {
 	std::string							allowed_methods;
 	std::vector<std::string>			accepted_methods;
@@ -190,22 +195,22 @@ string_pair_t			Response::_buildAllow()
 	return (std::make_pair("Allow", allowed_methods));
 }
 
-string_pair_t			Response::_buildServer()
+status_code_body_t			Response::_buildServer()
 {
 	return (std::make_pair("Server", "Websurf/1.0.0 (Unix)"));
 }
 
-string_pair_t			Response::_buildConnection()
+status_code_body_t			Response::_buildConnection()
 {
     return (std::make_pair("Connection", "close"));
 }
 
-string_pair_t			Response::_buildTransferEncoding()
+status_code_body_t			Response::_buildTransferEncoding()
 {
 	return (std::make_pair("Transfer-Encoding", "chunked"));
 }
 
-string_pair_t			Response::_buildContentLength()
+status_code_body_t			Response::_buildContentLength()
 {
 	int			string_size;
 	std::string	str_string_size;
@@ -216,7 +221,7 @@ string_pair_t			Response::_buildContentLength()
 }
 
 // check if there is a case we have different Content-Type
-string_pair_t			Response::_buildContentType()
+status_code_body_t			Response::_buildContentType()
 {
 	std::string	content_type;
 
@@ -231,11 +236,14 @@ void					Response::buildHeaders()
 	int	chunked = 0;
 
 	m_headers_map.insert(_buildDate());
-	if (m_status_code == 201 || (m_status_code >= 300 && m_status_code < 400))
+	if (m_status_code == HTTP_STATUS_CREATED ||
+		(m_status_code >= HTTP_STATUS_MULTIPLE_CHOICES && m_status_code < HTTP_STATUS_BAD_REQUEST))
 		m_headers_map.insert(_buildLocation());
-	if (m_status_code == 503 || m_status_code == 429 || (m_status_code >= 300 && m_status_code < 400))
+	if (m_status_code == HTTP_STATUS_SERVICE_UNAVAILABLE ||
+		(m_status_code >= HTTP_STATUS_MULTIPLE_CHOICES && m_status_code < HTTP_STATUS_BAD_REQUEST))
 		m_headers_map.insert(_buildRetryAfter());
-	if (m_status_code == 405)
+	// test 
+	if (m_status_code == HTTP_STATUS_METHOD_NOT_ALLOWED)
 		m_headers_map.insert(_buildAllow());
 	m_headers_map.insert(_buildServer());
 	m_headers_map.insert(_buildConnection());
@@ -252,13 +260,18 @@ void					Response::buildHeaders()
 	m_headers_str += "\n";
 }
 
-int 					Response::_readFileIntoString(const std::string &path)
+int 					Response::_readFileIntoString(const std::string &path, int error_file)
 {
 	std::string new_path;
 
-	new_path = m_request.m_filesearch + path;
-	if (new_path.at(0) == '/')
-		new_path.erase(0, 1);
+	if (error_file == HTML_FILE_FLAG)
+	{
+		new_path = m_request.m_filesearch + path;
+		if (new_path.at(0) == '/')
+			new_path.erase(0, 1);
+	}
+	else
+		new_path = path;
 		
 	std::ifstream input_file(new_path.c_str());
 	if (!input_file.is_open())
@@ -268,11 +281,10 @@ int 					Response::_readFileIntoString(const std::string &path)
 	return (1);
 }
 
-void					Response::buildBody()
+void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 {
-	std::cout << "METHOD IS : " << m_request.getMethod() << std::endl;
-	std::cout << "STATUS CODE IS : " << m_status_code << std::endl;
-	if (m_request.getMethod() == "GET" && m_status_code == 200)
+	(void)m_error_files;
+	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_OK)
 	{
 		std::string							path;
 		std::vector<std::string>			path_vector;
@@ -280,31 +292,37 @@ void					Response::buildBody()
 
 		path_vector = m_route.getIndexFiles();
 		path = m_route.getFileSearchPath();
-		std::cout << "path is " << path << std::endl;
 		if (path.at(path.length() - 1) == '/')
 		{
 			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
 			{
-				if (_readFileIntoString(path_vector.at(iter - path_vector.begin())))
+				if (_readFileIntoString(path_vector.at(iter - path_vector.begin()), HTML_FILE_FLAG))
 					break;	
 			}
+			// not necessary?
 			if (iter == path_vector.end())
-			// to change to what the config file brings
-				_readFileIntoString("page_not_found.html");
+			{
+				path = ft::intToString(m_status_code) + ".html";
+				_readFileIntoString(path, ERROR_FILE_FLAG);
+			}
 		}
 	}
-	if (m_request.getMethod() == "GET" && m_status_code == 404)
-		_readFileIntoString("page_not_found.html");
+	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_NOT_FOUND)
+	{
+		std::string	path;
+
+		path = DFL_ERROR_PAGES_PATH + ft::intToString(m_status_code) + ".html";
+		_readFileIntoString(path, ERROR_FILE_FLAG);
+	}
 }
 
 void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
-	std::cout << "STATUS CODE IS : " << m_status_code << std::endl;
 	buildStartLine(m_error_files);
-	buildBody();
+	buildBody(m_error_files);
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
-	std::cout << "RESPONSE IS : " << std::endl;
+    std::cout << "[DEBUG] Created response " << std::endl;
 	std::cout << m_response << std::endl;
 }
 

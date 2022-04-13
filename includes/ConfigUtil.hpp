@@ -1,7 +1,7 @@
 #pragma once
 
 #define DFL_CONFIG_PATH         "conf"
-#define DFL_ERROR_PAGES_PATH    DFL_CONFIG_PATH "/error_pages"
+#define DFL_ERROR_PAGES_PATH    DFL_CONFIG_PATH "/error_pages/"
 
 #include <Webserv.hpp>
 #include <Utils.hpp>
