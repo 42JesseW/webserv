@@ -284,6 +284,7 @@ int 					Response::_readFileIntoString(const std::string &path, int error_file)
 void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 {
 	(void)m_error_files;
+
 	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_OK)
 	{
 		std::string							path;
@@ -324,6 +325,7 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
 	std::cout << m_response << std::endl;
+
 }
 
 // void					Response::resetResponse()

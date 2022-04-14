@@ -180,20 +180,22 @@ void            Poller::_parseAndRespond(int &socket_fd)
     if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
     {
         matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-        connection->setRoute(matched_route);
 
-        if (connection->getRequest().getMethod() == "POST" \
-        && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
+        if (matched_route != NULL)
         {
-            std::cout << "PPOSTSSS ENTER" << std::endl;
-            // connection->getRequest().setStatus(HTTP_STATUS_CREATED);
+            connection->setRoute(matched_route);
+            if (connection->getRequest().getMethod() == "POST" \
+            && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
+            {
+                connection->getRequest().setStatus(HTTP_STATUS_CREATED);
+            }
+            else if (connection->getRequest().getMethod() == "DELETE" \
+            && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
+            {
+                connection->getRequest().setStatus(HTTP_STATUS_OK);
+            }
         }
-        else if (connection->getRequest().getMethod() == "DELETE" \
-        && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
-        {
-            std::cout << "DELETEEEEE ENTER" << std::endl;
-            // connection->getRequest().setStatus(HTTP_STATUS_OK);
-        }
+        
     }
     connection->sendResponse(error_files);
 }
