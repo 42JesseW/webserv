@@ -2,6 +2,7 @@
 #define HANDLER_HPP
 
 #include <Request.hpp>
+#include <stdio.h>
 
 class Handler
 {
