@@ -16,18 +16,18 @@ void Request::parseFilenamesAndCGI(void)
 		m_cgi_path = tmp;
 		if (std::count(m_target.begin(), m_target.end(), '/') > 1)
 		{
-			m_filename = m_target.substr(m_target.find_last_of('/'));
+			m_filename = m_target.substr(m_target.find_last_of('/') + 1);
 			m_target.erase(m_target.find_last_of('/'));
 		}
 		else
 		{
-			m_filename = m_target.substr(m_target.find('/'));
+			m_filename = m_target.substr(m_target.find('/') + 1);
 			m_target = "/";
 		}
     }
     else if (std::count(m_target.begin(), m_target.end(), '.') == 1)
     {
-		m_filename = m_target.substr(m_target.find_last_of('/'));
+		m_filename = m_target.substr(m_target.find_last_of('/') + 1);
 		m_target.erase(m_target.find_last_of('/'));
 		if (m_target.empty())
 		{
