@@ -195,7 +195,6 @@ void            Poller::_parseAndRespond(int &socket_fd)
                 connection->getRequest().setStatus(HTTP_STATUS_OK);
             }
         }
-        
     }
     connection->sendResponse(error_files);
 }

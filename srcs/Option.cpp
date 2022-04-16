@@ -423,7 +423,10 @@ void                        FileParser::OptionRoot::parse(void *obj, tokens_t &t
 
     tokens.pop_front();
     route = (Route *)obj;
-    route->setFileSearchPath(DFL_FILE_SEARCH_PATH + tokens.front());
+    if (tokens.front() == "/")
+        route->setFileSearchPath(DFL_FILE_SEARCH_PATH);
+    else
+        route->setFileSearchPath(DFL_FILE_SEARCH_PATH + tokens.front());
 }
 
 FileParser::OptionAutoIndex::OptionAutoIndex(int parse_level) : Option(parse_level)

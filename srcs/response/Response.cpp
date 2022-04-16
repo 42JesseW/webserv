@@ -298,7 +298,7 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
 			{
 				if (_readFileIntoString(path_vector.at(iter - path_vector.begin()), HTML_FILE_FLAG))
-					break;	
+					break;
 			}
 			// not necessary?
 			if (iter == path_vector.end())
@@ -324,7 +324,7 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
-	std::cout << m_response << std::endl;
+	// std::cout << m_response << std::endl;
 
 }
 

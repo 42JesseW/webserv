@@ -5,7 +5,6 @@
 
 #define BUFF_SIZE 2048
 #define DFL_TARGET      "/"
-#define DFL_FILENAME    "/"
 
 class Request
 {
