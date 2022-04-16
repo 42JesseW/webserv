@@ -22,6 +22,9 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/Signals.cpp \
               $(SOURCE_DIR)/CGI.cpp \
               $(SOURCE_DIR)/Utils.cpp \
+              $(SOURCE_DIR)/handler/Handler.cpp\
+              $(SOURCE_DIR)/handler/DeleteHandler.cpp\
+              $(SOURCE_DIR)/handler/PostHandler.cpp\
               $(SOURCE_DIR)/request/HandleRequest.cpp \
               $(SOURCE_DIR)/request/ErrorHandling.cpp \
               $(SOURCE_DIR)/request/Request.cpp \

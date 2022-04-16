@@ -1,4 +1,5 @@
 #include <Poller.hpp>
+#include <Handler.hpp>
 
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
@@ -169,6 +170,7 @@ void            Poller::_parseAndRespond(int &socket_fd)
     clients_t::iterator             it;
     Connection                      *connection;
     Route                           *matched_route;
+    Handler                         method_handler;
 
     /* POLLOUT on client socket */
     it              = m_clients.find(socket_fd);
@@ -178,12 +180,23 @@ void            Poller::_parseAndRespond(int &socket_fd)
     if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
     {
         matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-        connection->setRoute(matched_route);
+
+        if (matched_route != NULL)
+        {
+            connection->setRoute(matched_route);
+            if (connection->getRequest().getMethod() == "POST" \
+            && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
+            {
+                connection->getRequest().setStatus(HTTP_STATUS_CREATED);
+            }
+            else if (connection->getRequest().getMethod() == "DELETE" \
+            && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
+            {
+                connection->getRequest().setStatus(HTTP_STATUS_OK);
+            }
+        }
+        
     }
-    if (connection->getRequest().getMethod() == "POST")
-    // post handler;
-    if (connection->getRequest().getMethod() == "DELETE")
-    // delete handler;
     connection->sendResponse(error_files);
 }
 
