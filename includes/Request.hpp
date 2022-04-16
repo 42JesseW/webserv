@@ -26,7 +26,10 @@ private:
     int				m_port;
 
     bool		    m_done;
+
+public:
     std::string     m_request;
+    std::string     m_filesearch;
 
 public:
     Request();
@@ -42,10 +45,8 @@ public:
      * It will initialise all the other fields in the request object.
      */
     void            parse(void);
-    void            appendRequestData(const char *data);
+    void            appendRequestData(const char *data, ssize_t bytes_read);
 
-    void			handleRequest(int client_socket);
-    void			divideRequest();
     void 			parseAndSetStartLine();
     void 			parseAndSetHeaders();
     void			parseQuery(std::string url);
@@ -54,6 +55,7 @@ public:
     void			setStatus(int status);
     void			setDone(bool status);
     void			setHost(void);
+    void            setFilesearchPath(std::string path);
 
     int				&getStatus();
     int				&getPort();
@@ -74,6 +76,5 @@ public:
     void			checkHeaders();
     void            checkFileType();
 
-    void			resetRequest();
     void			printRequest();
 };

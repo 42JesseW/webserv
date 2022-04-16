@@ -1,45 +1,6 @@
 #include <Request.hpp>
 #include <Socket.hpp>
 
-void Request::handleRequest(int client_socket)
-{
-	char    buffer[BUFF_SIZE];
-	int     bytes_read = 0;
-
-	bytes_read = recv(client_socket, buffer, BUFF_SIZE, MSG_DONTWAIT);
-	if (bytes_read == -1)
-	{
-		setStatus(HTTP_STATUS_BAD_REQUEST);
-	}
-	else
-	{
-		m_request.append(buffer, bytes_read);
-		if (bytes_read < BUFF_SIZE && !m_request.empty())
-		{
-			divideRequest();
-			errorChecking();
-			setDone(true);
-		}
-	}
-	std::memset(buffer, 0, BUFF_SIZE);
-}
-
-void Request::divideRequest(void)
-{
-	parseAndSetStartLine();
-	parseAndSetHeaders();
-	if (!m_request.empty())
-	{
-		m_request.erase(0, 2);
-		m_body = m_request;
-	}
-	if(getHeaders().find("Content-Encoding")->second == "chunked")
-	{
-		decodeRequest();
-	}
-	m_request.clear();
-}
-
 void Request::parseFilenamesAndCGI(void)
 {
 	if (std::count(m_target.begin(), m_target.end(), '.') > 2)
@@ -64,7 +25,7 @@ void Request::parseFilenamesAndCGI(void)
 			m_target = "/";
 		}
     }
-    else
+    else if (std::count(m_target.begin(), m_target.end(), '.') == 1)
     {
 		m_filename = m_target.substr(m_target.find_last_of('/'));
 		m_target.erase(m_target.find_last_of('/'));

@@ -27,18 +27,17 @@ ClientSocket&   ClientSocket::operator = (const ClientSocket &sock)
  * is heap allocated and must be freed by the
  * caller of the function.
  */
-char            *ClientSocket::recv(void)
+char            *ClientSocket::recv(ssize_t *bytes_read)
 {
     char    *buff;
-    ssize_t bytes_read;
 
     buff = new char[RECV_SIZE + 1];
-    if (( bytes_read = ::recv(getFd(), buff, RECV_SIZE, 0) ) == SYS_ERROR) {
+    if (( *bytes_read = ::recv(getFd(), buff, RECV_SIZE, 0) ) == SYS_ERROR) {
         fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
         return (NULL);
     }
-    buff[bytes_read] = '\0';
-    std::cout << "[DEBUG] Read " << bytes_read << " amount of bytes from socket " << getFd() << '\n';
+    buff[*bytes_read] = '\0';
+    std::cout << "[DEBUG] Read " << *bytes_read << " amount of bytes from socket " << getFd() << '\n';
     return (buff);
 }
 

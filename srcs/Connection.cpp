@@ -58,10 +58,11 @@ Request&       Connection::getRequest(void)
 void            Connection::readSocket(void)
 {
     char    *request_data;
+    ssize_t bytes_read = 0;;
 
     if (!m_sock)
         throw NoSocketFail();
-    request_data = m_sock->recv();
+    request_data = m_sock->recv(&bytes_read);
     if (!request_data)
     {
         /* must be handled from outside */
@@ -70,24 +71,34 @@ void            Connection::readSocket(void)
     }
 
     std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
-    std::cout << request_data;
+    // std::cout << request_data;
 
-    m_request.appendRequestData(request_data);
+    m_request.appendRequestData(request_data, bytes_read);
     delete [] request_data;
 }
 
 void            Connection::parseRequest(void)
 {
     std::cout << "[DEBUG] Building request object\n" << '\n';
-    m_request.parse();
+    if (!m_request.m_request.empty())
+        m_request.parse();
+    else
+        m_request.setStatus(HTTP_STATUS_NO_CONTENT);
 }
 
 void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_files)
 {
     Response   *response;
 
+    if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
+        return ;
+
     checkRoute();
-    response = new Response(m_request, *m_route);
+
+    if (m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED) 
+        response = new Response(m_request);
+    else
+        response = new Response(m_request, *m_route);
     response->buildResponse(*error_files);
 
     m_sock->send(response->getResponse().c_str());
@@ -144,7 +155,8 @@ void Connection::checkRedirects(void)
 
 void Connection::checkFileSearchPath(void)
 {
-
+    if (m_route)
+        m_request.setFilesearchPath(m_route->getFileSearchPath());
     if (m_request.getStatus() == HTTP_STATUS_OK)
     {
         if (m_request.getFilename() == "/")
@@ -184,7 +196,7 @@ void Connection::searchDefaultIndexPages(void)
 
     for(it = m_route->getIndexFiles().begin(); it != m_route->getIndexFiles().end(); it++)
     {
-        filepath.append(m_route->getFileSearchPath() + "/" + *it);
+        filepath.append(m_request.m_filesearch + *it);
         filepath.erase(0,1);
         if (open(filepath.c_str(), O_RDONLY) != -1)
         {

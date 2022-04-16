@@ -63,8 +63,7 @@ Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_c
     server_config = _getMatchingServerBlock(request, error_files);
     if (request.getStatus() == HTTP_STATUS_OK)
     {
-        it = server_config->getRoutes().begin();
-        for ( ; it != server_config->getRoutes().end() ; it++)
+        for (it = server_config->getRoutes().begin() ; it != server_config->getRoutes().end() ; it++)
         {
             route = (*it);
             if (route->getBaseUrl() == request.getTarget())

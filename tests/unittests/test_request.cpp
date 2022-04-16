@@ -11,6 +11,14 @@ static std::string  basic_get_request =
         "Host: localhost\r\n"
         "Accept-Language: en-us\r\n"
         "Accept-Encoding: gzip, deflate\r\n\r\n";
+
+static std::string  basic_get_request2 =
+        "GET /upload HTTP/1.1\r\n"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+        "Host: localhost\r\n"
+        "Accept-Language: en-us\r\n"
+        "Accept-Encoding: gzip, deflate\r\n\r\n";
+
 static std::string  basic_post_request =
         "POST /index.html HTTP/1.1\r\n"
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
@@ -20,6 +28,7 @@ static std::string  basic_post_request =
         "Accept-Language: en-us\r\n"
         "Accept-Encoding: gzip, deflate\r\n\r\n"
         "<html><h1>Goodbye World</h1></html>";
+
 static std::string  basic_delete_request =
         "DELETE /index.html HTTP/1.1\r\n"
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
@@ -66,6 +75,7 @@ static std::string chunked_post_request =
         "in \r\n\r\n"
         "chunks.\r\n"
         "0\r\n\r\n";
+
 static std::string chunked_post_request2 =
         "POST /test.html HTTP/1.1\r\n"
         "Host: localhost:8082\r\n"
@@ -90,6 +100,7 @@ static std::string chunked_post_request2 =
         "you\r\n"
         "0\r\n"
         "\r\n";
+
 static std::string chunked_post_request3 =
         "POST /test.html HTTP/1.1\r\n"
         "Host: localhost:8082\r\n"
@@ -101,12 +112,13 @@ static std::string chunked_post_request3 =
         "26\r\n"
         "i don't know what to say to be honest.\r\n"
         "0\r\n\r\n";
+
 static std::string empty_chunked_post_request =
         "POST /test.html HTTP/1.1\r\n"
         "Host: localhost:8082\r\n"
         "Content-Encoding: chunked\r\n\r\n";
-// Basic requests that would succeed
 
+// Basic requests that would succeed
 class TestBasicRequest : public ::testing::Test
 {
 public:
@@ -140,6 +152,15 @@ TEST_F(TestBasicRequest, GetRequest)
     EXPECT_TRUE(req.getHeaders() == TestMap);
     EXPECT_TRUE(req.getBody().empty());
 }
+
+TEST_F(TestBasicRequest, GetRequest2)
+{
+    setRequestData(basic_get_request2);
+    EXPECT_TRUE(req.getMethod() == "GET");
+    EXPECT_TRUE(req.getTarget() == "/upload");
+    EXPECT_TRUE(req.getFilename() == "/");
+}
+
 
 TEST_F(TestBasicRequest, PostRequest)
 {
@@ -186,19 +207,19 @@ TEST_F(TestBasicRequest, DeleteRequest)
 TEST_F(TestBasicRequest, WrongGetRequest)
 {
     setRequestData(basic_get_request_wrong);
-    EXPECT_TRUE(req.getStatus() == 505);
+    EXPECT_TRUE(req.getStatus() == HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED);
 }
 
 TEST_F(TestBasicRequest, WrongPostRequest)
 {
     setRequestData(basic_post_request_wrong);
-    EXPECT_TRUE(req.getStatus() == 400);
+    EXPECT_TRUE(req.getStatus() == HTTP_STATUS_BAD_REQUEST);
 }
 
 TEST_F(TestBasicRequest, WrongDeleteRequest)
 {
     setRequestData(basic_delete_request_wrong);
-    EXPECT_TRUE(req.getStatus() == 405);
+    EXPECT_TRUE(req.getStatus() == HTTP_STATUS_METHOD_NOT_ALLOWED);
 }
 
 TEST_F(TestBasicRequest, AdvancedGetRequest)
