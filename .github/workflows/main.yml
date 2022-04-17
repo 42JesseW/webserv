@@ -24,6 +24,7 @@ jobs:
           make fclean
           make webserv
           make re
+          make tester
 
   build-linux:
 
@@ -38,3 +39,4 @@ jobs:
           make fclean
           make webserv
           make re
+          make tester
