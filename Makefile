@@ -12,13 +12,13 @@ CFLAGS      = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
 CLINKS      = -lpthread
 
 CURL_VERSION		= 7.82.0
-CURL_DOWNLOAD		= https://curl.se/download/curl-7.82.0.tar.gz
+CURL_DOWNLOAD		= https://curl.se/download/curl-$(CURL_VERSION).tar.gz
 
 OPENSSL_VERSION		= 3.0.2
-OPENSSL_DOWNLOAD	= https://www.openssl.org/source/openssl-3.0.2.tar.gz
+OPENSSL_DOWNLOAD	= https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 GTEST_VERSION		= 1.11.0
-GTEST_DOWNLOAD		= https://github.com/google/googletest/archive/refs/tags/release-1.11.0.tar.gz
+GTEST_DOWNLOAD		= https://github.com/google/googletest/archive/refs/tags/release-$(GTEST_VERSION).tar.gz
 
 TST_HEADER_DIR		= $(HEADER_DIR) tests/unittests
 TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/openssl/includes
@@ -91,10 +91,14 @@ fclean: clean
 
 uninstall: fclean
 	@if [ -d $(LIB_BASE)/googletest ]; then cd $(LIB_BASE)/googletest && cmake --build . --target clean; fi
-	@rm -rf $(LIB_BASE)/curl
-	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) clean
-	@rm -rf $(LIB_BASE)/openssl
-	@make -C $(LIB_BASE)/curl-$(CURL_VERSION) clean
+	@if [ -d $(LIB_BASE)/curl ]; then \
+  		rm -rf $(LIB_BASE)/curl; \
+		make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) clean; \
+	fi
+	@if [ -d $(LIB_BASE)/openssl ]; then \
+		rm -rf $(LIB_BASE)/openssl; \
+		make -C $(LIB_BASE)/curl-$(CURL_VERSION) clean; \
+	fi
 
 re: fclean all
 
@@ -102,8 +106,9 @@ $(LIB_BASE)/googletest/lib/libgtest.a:
 	# download and unpack googletest if not retreived yet
 	@if [ ! -d $(LIB_BASE)/googletest ]; then \
   		curl -L $(GTEST_DOWNLOAD) --output $(LIB_BASE)/googletest-release-$(GTEST_VERSION).tar.gz; \
-  		cd $(LIB_BASE) && tar -xzf googletest-release-$(GTEST_VERSION).tar.gz; \
-  		mv $(LIB_BASE)/googletest-release-$(GTEST_VERSION) $(LIB_BASE)/googletest; \
+  		cd $(LIB_BASE); \
+  		tar -xzf googletest-release-$(GTEST_VERSION).tar.gz; \
+  		mv googletest-release-$(GTEST_VERSION) googletest; \
   	fi
 	@cd $(LIB_BASE)/googletest && cmake .
 	@cd $(LIB_BASE)/googletest && cmake --build .
@@ -111,7 +116,7 @@ $(LIB_BASE)/googletest/lib/libgtest.a:
 $(LIB_BASE)/curl/lib/libcurl.a:
 	# download and unpack curl if not retrieved yet
 	@if [ ! -d $(LIB_BASE)/curl-$(CURL_VERSION) ]; then \
-  		curl -L $(CURL_DOWNLOAD) --output $(LIB_BASE)/curl-$(CURL_VERSION).tar.gz; \
+  		curl --insecure -L $(CURL_DOWNLOAD) --output $(LIB_BASE)/curl-$(CURL_VERSION).tar.gz; \
   		cd $(LIB_BASE) && tar -xzf curl-$(CURL_VERSION).tar.gz; \
   	fi
 	@mkdir -p $(LIB_BASE)/curl
@@ -125,7 +130,7 @@ $(LIB_BASE)/curl/lib/libcurl.a:
 $(LIB_BASE)/openssl/lib/libssl.a:
 	# download and unpack openssl if not retrieved yet
 	@if [ ! -d $(LIB_BASE)/openssl-$(OPENSSL_VERSION) ]; then \
-  		curl -L $(OPENSSL_DOWNLOAD) --output $(LIB_BASE)/openssl-$(OPENSSL_VERSION).tar.gz; \
+  		curl --insecure -L $(OPENSSL_DOWNLOAD) --output $(LIB_BASE)/openssl-$(OPENSSL_VERSION).tar.gz; \
   		cd $(LIB_BASE) && tar -xzf openssl-$(OPENSSL_VERSION).tar.gz; \
   	fi
 	@mkdir -p $(LIB_BASE)/openssl
