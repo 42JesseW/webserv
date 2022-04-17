@@ -9,4 +9,6 @@ a.out
 .pytest_cache/
 .vscode/
 webserv
+tester
 __pycache__/
+*.tar.gz
