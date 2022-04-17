@@ -21,8 +21,8 @@ GTEST_VERSION		= 1.11.0
 GTEST_DOWNLOAD		= https://github.com/google/googletest/archive/refs/tags/release-$(GTEST_VERSION).tar.gz
 
 TST_HEADER_DIR		= $(HEADER_DIR) tests/unittests
-TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/openssl/includes
-TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/curl/includes
+TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/openssl/include
+TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/curl/include
 TST_HEADER_DIR		+= $(PWD)/$(LIB_BASE)/googletest/googletest/include
 
 LIB_DIR		= $(PWD)/$(LIB_BASE)/openssl/lib
