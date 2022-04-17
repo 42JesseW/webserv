@@ -25,6 +25,7 @@ jobs:
           make webserv
           make re
           make tester
+          make uninstall
 
   build-linux:
 
@@ -40,3 +41,4 @@ jobs:
           make webserv
           make re
           make tester
+          make uninstall
