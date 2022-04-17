@@ -37,7 +37,9 @@ protected:
     {
         std::string relative_path;
 
+#ifdef TESTRUN
         relative_path += "../../";
+#endif
         relative_path += DFL_CGI_DIR;
         relative_path += "/";
         relative_path += script_name;
