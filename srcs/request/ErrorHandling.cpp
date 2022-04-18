@@ -5,11 +5,11 @@ void    Request::errorChecking()
     std::string query;
 
     if (getStatus() == HTTP_STATUS_OK)
-    {
         checkStatusLine();
+    if (getStatus() == HTTP_STATUS_OK)
         checkHeaders();
+    if (getStatus() == HTTP_STATUS_OK)
         checkFileType();
-    }
 }
 
 void    Request::checkStatusLine()
@@ -37,6 +37,10 @@ void    Request::checkHeaders()
     else if (m_headers.find("Expect") != m_headers.end() && m_headers["Expect"] != "100-continue")
     {
         setStatus(HTTP_STATUS_EXPECTATION_FAILED);
+    }
+    if (m_headers.find("Content-Type") != m_headers.end() && m_headers["Content-Type"].find("multipart") != std::string::npos)
+    {
+        setStatus(HTTP_STATUS_TEAPOT);
     }
 }
 

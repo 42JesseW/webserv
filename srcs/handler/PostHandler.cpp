@@ -12,10 +12,10 @@ bool Handler::post_handler(Request &request, std::string uploadPath)
     else
     {
         std::string extension = request.getHeaders().find("Content-Type")->second;
-        extension = extension.substr(extension.find('/'));
+        extension = extension.substr(extension.find('/') + 1);
         filename = "test." + extension;
     }
-    newFile.open(filename, std::ofstream::out | std::ofstream::binary);
+    newFile.open(uploadPath + filename, std::ofstream::out | std::ofstream::binary);
     if (!newFile.is_open())
         return (false);
     newFile << request.getBody();

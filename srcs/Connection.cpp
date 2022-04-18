@@ -70,7 +70,7 @@ void            Connection::readSocket(void)
         return ;
     }
 
-    std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
+    // std::cout << "[DEBUG] Read data from socket " << m_sock->getFd() << ":\n";
     // std::cout << request_data;
 
     m_request.appendRequestData(request_data, bytes_read);
@@ -93,13 +93,15 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
-    checkRoute();
-
-    
     if (m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED) 
+    {
         response = new Response(m_request);
+    }
     else
+    {
+        checkRoute();
         response = new Response(m_request, *m_route);
+    }
     response->buildResponse(*error_files);
 
     m_sock->send(response->getResponse().c_str());

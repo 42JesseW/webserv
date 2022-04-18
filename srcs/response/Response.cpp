@@ -145,7 +145,6 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 		std::cout << "Error: status code" <<std::endl;
 		std::exit(EXIT_FAILURE);
 	}
-
 	white_space = " ";
 	m_start_line = HTTP_VERSION
 				+ white_space
@@ -320,6 +319,7 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildStartLine(m_error_files);
 	buildBody(m_error_files);
 	buildHeaders();
+
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
 	// std::cout << m_response << std::endl;

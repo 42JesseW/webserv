@@ -66,6 +66,7 @@ void        Request::parse(void)
     {
         decodeRequest();
     }
+    errorChecking();
     m_request.clear();
 }
 

@@ -37,7 +37,7 @@ char            *ClientSocket::recv(ssize_t *bytes_read)
         return (NULL);
     }
     buff[*bytes_read] = '\0';
-    std::cout << "[DEBUG] Read " << *bytes_read << " amount of bytes from socket " << getFd() << '\n';
+    // std::cout << "[DEBUG] Read " << *bytes_read << " amount of bytes from socket " << getFd() << '\n';
     return (buff);
 }
 
