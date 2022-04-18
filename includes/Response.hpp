@@ -23,6 +23,8 @@ typedef std::map<int, status_code_body_t>   status_code_map_t;
 
 class Response
 {
+	public:
+		class ResponseFailure : std::exception { };
 	private:
 		Request 								m_request;
 		Route									m_route;
@@ -42,7 +44,6 @@ class Response
 
 		Response& operator = (const Response &copy);
 
-		// Getters
 		Request const &											getRequest() const;
 		Route const &											getRoute() const;
 		int const &												getStatusCode() const;					

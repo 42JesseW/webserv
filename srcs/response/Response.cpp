@@ -272,7 +272,7 @@ int 					Response::_readFileIntoString(const std::string &path, int error_file)
 	}
 	else
 		new_path = path;
-		
+
 	std::ifstream input_file(new_path.c_str());
 	if (!input_file.is_open())
 		return (0);
@@ -291,23 +291,21 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 		std::vector<std::string>			path_vector;
 		std::vector<std::string>::iterator	iter;
 
-		path_vector = m_route.getIndexFiles();
-		path = m_route.getFileSearchPath();
-		if (path.at(path.length() - 1) == '/')
+		if (m_request.getFilename() == "/")
 		{
+			path_vector = m_route.getIndexFiles();
+			path = m_route.getFileSearchPath();
 			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
 			{
 				if (_readFileIntoString(path_vector.at(iter - path_vector.begin()), HTML_FILE_FLAG))
 					break;	
 			}
-			// not necessary?
-			if (iter == path_vector.end())
-			{
-				path = ft::intToString(m_status_code) + ".html";
-				_readFileIntoString(path, ERROR_FILE_FLAG);
-			}
 		}
+		else
+			_readFileIntoString(m_request.getFilename(), HTML_FILE_FLAG);
+		
 	}
+
 	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_NOT_FOUND)
 	{
 		std::string	path;
