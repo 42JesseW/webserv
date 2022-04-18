@@ -59,6 +59,8 @@ void Request::parseAndSetStartLine(void)
 	m_request.erase(0, m_request.find(' ') + 1);
 	m_request.erase(0, m_request.find_first_not_of(' '));
 	std::string url = m_request.substr(0, m_request.find(' '));
+	if (url.at(url.length() - 1) == '/')
+		url.erase(url.length() - 1);
 	m_request.erase(0, m_request.find(' ') + 1);
 	m_request.erase(0, m_request.find_first_not_of(' '));
 	m_version = m_request.substr(0, m_request.find(CR));

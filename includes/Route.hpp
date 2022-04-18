@@ -1,7 +1,7 @@
 #pragma once
 
-#define DFL_FILE_SEARCH_PATH   "/html"
-#define DFL_UPLOAD_PATH        "/"
+#define DFL_FILE_SEARCH_PATH   "html/"
+#define DFL_UPLOAD_PATH        "html/"
 #define DFL_INDEX_FILE         "index.html"
 
 #include <Webserv.hpp>

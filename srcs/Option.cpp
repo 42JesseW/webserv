@@ -423,7 +423,18 @@ void                        FileParser::OptionRoot::parse(void *obj, tokens_t &t
 
     tokens.pop_front();
     route = (Route *)obj;
-    route->setFileSearchPath(DFL_FILE_SEARCH_PATH + tokens.front());
+    if (tokens.front() == "/")
+    {
+        route->setFileSearchPath(DFL_FILE_SEARCH_PATH);
+    }
+    else
+    {
+        if (tokens.front().at(0) == '/')
+            tokens.front().erase(0, 1);
+        else if (tokens.front().at(0) == '.' && tokens.front().at(1) == '/')
+            tokens.front().erase(0, 2);
+        route->setFileSearchPath(DFL_FILE_SEARCH_PATH + tokens.front());
+    }
 }
 
 FileParser::OptionAutoIndex::OptionAutoIndex(int parse_level) : Option(parse_level)
@@ -554,11 +565,24 @@ void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
 {
     Route               *route;
     DIR                 *upload_dir;
+    std::string         upload_path;
     std::ostringstream  error_ss;
 
     tokens.pop_front();
     route = (Route *)obj;
-    upload_dir = opendir(tokens.front().c_str());   // TODO must be an absolute path using `realpath`
+    if (tokens.front() == "/")
+    {
+        upload_path = DFL_UPLOAD_PATH;
+    }
+    else
+    {
+        if (tokens.front().at(0) == '/')
+        tokens.front().erase(0, 1);
+        else if (tokens.front().at(0) == '.' && tokens.front().at(1) == '/')
+            tokens.front().erase(0, 2);
+        upload_path = DFL_UPLOAD_PATH + tokens.front();
+    }
+    upload_dir = opendir(upload_path.c_str());   // TODO must be an absolute path using `realpath`
     if (upload_dir)
         closedir(upload_dir);
     else if (errno == ENOENT)
@@ -571,7 +595,7 @@ void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
         error_ss << "Invalid directory " << tokens.front() << ": " << strerror(errno) << '\n';
         throw MappingFailure(error_ss.str());
     }
-    route->setUploadPath(tokens.front());
+    route->setUploadPath(upload_path);
 }
 
 FileParser::OptionReturn::OptionReturn(int parse_level) : Option(parse_level)

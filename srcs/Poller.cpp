@@ -177,25 +177,21 @@ void            Poller::_parseAndRespond(int &socket_fd)
     connection      = it->second;
     connection->parseRequest();
 
-    if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
-    {
-        matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
 
-        if (matched_route != NULL)
+    if (matched_route != NULL && connection->getRequest().getStatus() == HTTP_STATUS_OK)
+    {
+        connection->setRoute(matched_route);
+        if (connection->getRequest().getMethod() == "POST" \
+        && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
         {
-            connection->setRoute(matched_route);
-            if (connection->getRequest().getMethod() == "POST" \
-            && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
-            {
-                connection->getRequest().setStatus(HTTP_STATUS_CREATED);
-            }
-            else if (connection->getRequest().getMethod() == "DELETE" \
-            && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
-            {
-                connection->getRequest().setStatus(HTTP_STATUS_OK);
-            }
+            connection->getRequest().setStatus(HTTP_STATUS_CREATED);
         }
-        
+        else if (connection->getRequest().getMethod() == "DELETE" \
+        && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
+        {
+            connection->getRequest().setStatus(HTTP_STATUS_OK);
+        }
     }
     connection->sendResponse(error_files);
 }

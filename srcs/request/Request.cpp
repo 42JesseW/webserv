@@ -2,7 +2,6 @@
 
 Request::Request(void) :
     m_target(DFL_TARGET),
-    m_filename(DFL_FILENAME),
     m_status(HTTP_STATUS_OK),
     m_port(80),
     m_done(false)
@@ -67,6 +66,7 @@ void        Request::parse(void)
     {
         decodeRequest();
     }
+    errorChecking();
     m_request.clear();
 }
 
@@ -78,10 +78,6 @@ void        Request::appendRequestData(const char *data, ssize_t bytes_read)
 void Request::setFilesearchPath(std::string path)
 {
     m_filesearch = path;
-    if (m_filesearch.at(m_filesearch.length() - 1) != '/')
-    {
-        m_filesearch.append("/");
-    }
 }
 
 void Request::setStatus(int status)
