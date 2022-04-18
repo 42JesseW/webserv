@@ -267,8 +267,6 @@ int 					Response::_readFileIntoString(const std::string &path, int error_file)
 	if (error_file == HTML_FILE_FLAG)
 	{
 		new_path = m_request.m_filesearch + path;
-		if (new_path.at(0) == '/')
-			new_path.erase(0, 1);
 	}
 	else
 		new_path = path;
