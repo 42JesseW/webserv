@@ -19,6 +19,7 @@
 #define DFL_SERVER_HOST "*"     /* translates to INADDR_ANY 0.0.0.0 */
 
 #include <exception>
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -29,6 +30,7 @@
 
 #include <cstring>
 #include <cerrno>
+#include <cstdlib>
 
 #include <unistd.h>
 #include <pthread.h>

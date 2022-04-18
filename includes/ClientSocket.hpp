@@ -26,7 +26,7 @@ public:
 
     ClientSocket&   operator = (const ClientSocket& sock);
 
-    char            *recv(void);
+    char            *recv(ssize_t *bytes_read);
     void            send(const char *response);
 
 public:

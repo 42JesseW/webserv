@@ -4,6 +4,9 @@ cmake-build-debug/
 a.out
 .DS_Store
 *.o
+*.d
 .venv/
+.pytest_cache/
 .vscode/
 webserv
+__pycache__/

@@ -103,6 +103,7 @@ TEST(SocketConnection, AcceptRecvSend) {
     std::string     url;
     std::string     response;
     std::string     curl_response;
+    ssize_t         bytes_read;
 
     port = 8080;
     a.init("*", port);
@@ -112,7 +113,7 @@ TEST(SocketConnection, AcceptRecvSend) {
     ASSERT_TRUE(fd != SYS_ERROR);
     ClientSocket    b(fd, addr);
 
-    request_data = b.recv();
+    request_data = b.recv(&bytes_read);
     (void)request_data;
     response += "HTTP/1.1 200 OK\r\n";
     response += "Date: Wed, 21 Oct 2015 07:28:00 GMT\r\n";
