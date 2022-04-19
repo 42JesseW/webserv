@@ -290,7 +290,7 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 		std::vector<std::string>			path_vector;
 		std::vector<std::string>::iterator	iter;
 
-		if (m_request.getFilename() == "/")
+		if (m_request.getFilename().empty())
 		{
 			path_vector = m_route.getIndexFiles();
 			path = m_route.getFileSearchPath();
