@@ -4,7 +4,7 @@ Request::Request(void) :
     m_target(DFL_TARGET),
     m_status(HTTP_STATUS_OK),
     m_port(80),
-    m_done(false)
+    m_cgi(false)
 {
 
 }
@@ -20,7 +20,7 @@ Request::Request(const Request &copy)
     m_headers = copy.m_headers;
     m_port = copy.m_port;
     m_body = copy.m_body;
-    m_done = copy.m_done;
+    m_cgi = copy.m_cgi;
     m_filename = copy.m_filename;
     m_filesearch = copy.m_filesearch;
 }
@@ -43,7 +43,7 @@ Request & Request::operator = (const Request &copy)
         m_headers = copy.m_headers;
         m_port = copy.m_port;
         m_body = copy.m_body;
-        m_done = copy.m_done;
+        m_cgi = copy.m_cgi;
         m_filename = copy.m_filename;
         m_filesearch = copy.m_filesearch;
     }
@@ -52,21 +52,11 @@ Request & Request::operator = (const Request &copy)
 
 void        Request::parse(void)
 {
-    headers_t::iterator it;
-
     parseAndSetStartLine();
     parseAndSetHeaders();
-    if (!m_request.empty())
-    {
-        m_request.erase(0, 2);
-        m_body = m_request;
-    }
-    it = getHeaders().find("Content-Encoding");
-    if (it != getHeaders().end() && it->second == "chunked")
-    {
-        decodeRequest();
-    }
+    checkIfChunkedRequest();
     errorChecking();
+    checkIfCGI();
     m_request.clear();
 }
 
@@ -85,9 +75,9 @@ void Request::setStatus(int status)
     m_status = status;
 }
 
-void Request::setDone(bool status)
+void Request::setCGI(bool status)
 {
-    m_done = status;
+    m_cgi = status;
 }
 
 int	&Request::getStatus(void)
@@ -130,9 +120,9 @@ int	&Request::getPort(void)
     return (m_port);
 }
 
-bool &Request::isDone(void)
+bool &Request::isCGI(void)
 {
-    return (m_done);
+    return (m_cgi);
 }
 
 std::map<std::string, std::string>	&Request::getHeaders(void)

@@ -17,42 +17,7 @@
 #include <unistd.h>
 
 #include <iostream>
-
-class SimpleRequest
-{
-private:
-    typedef std::map<std::string, std::string>  headers_t;
-
-private:
-    std::string     m_method;
-
-    /* example: http://example.com/cgi-bin/printenv.pl/foo/bar?var1=value1&var2=with%20percent%20encoding */
-    std::string     m_uri;      // cgi-bin/printenv.pl
-    std::string     m_path;     // /foo/bar <-- TODO
-    std::string     m_query;    // var1=value1&var2=with%20percent%20encoding
-
-    std::string     m_http_version;
-    headers_t       m_headers;
-    std::string     m_body;
-
-public:
-    SimpleRequest();
-    SimpleRequest(const SimpleRequest& cpy);
-    ~SimpleRequest();
-
-    SimpleRequest   &operator=(const SimpleRequest& rhs);
-
-    void            parse(const char *request);
-
-    std::string&    getMethod(void);
-    std::string&    getUri(void);
-    std::string&    getPath(void);
-    std::string&    getQuery(void);
-    std::string&    getHttpVersion(void);
-    headers_t&      getHeaders(void);
-    std::string&    getBody(void);
-
-};
+#include <Request.hpp>
 
 /*
  * Encapsulates all operations and data related to
@@ -119,7 +84,7 @@ public:
     /*
      * initialize the CGI structure using the Request object
      */
-    void            init(SimpleRequest& request);
+    void            init(Request& request);
 
     /*
      * Last step in using the CGI object:

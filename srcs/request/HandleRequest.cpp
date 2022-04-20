@@ -103,6 +103,31 @@ void Request::parseAndSetHeaders(void)
 		m_request.erase(0, m_request.find(LF) + 1);
 	}
 	setHost();
+	if (!m_request.empty())
+    {
+        m_request.erase(0, 2);
+        m_body = m_request;
+    }
+}
+
+void Request::checkIfCGI(void)
+{
+	if (getTarget() == "/cgi-bin" || !getQuery().empty())
+	{
+		std::cout << "[DEBUG] Set CGI to true" << std::endl;
+		m_cgi = true;
+	}
+}
+
+void Request::checkIfChunkedRequest(void)
+{
+	headers_t::iterator it;
+
+	it = getHeaders().find("Content-Encoding");
+    if (it != getHeaders().end() && it->second == "chunked")
+    {
+        decodeRequest();
+    }
 }
 
 void Request::printRequest(void)

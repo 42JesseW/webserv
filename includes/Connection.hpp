@@ -3,6 +3,7 @@
 #include <Webserv.hpp>
 #include <Request.hpp>
 #include <Response.hpp>
+#include <CGI.hpp>
 #include <ClientSocket.hpp>
 
 /*
@@ -19,6 +20,7 @@ private:
     ClientSocket    *m_sock;
     Request         m_request;
     Route           *m_route;
+    CGI             m_cgi;
 
 public:
     Connection(void);
