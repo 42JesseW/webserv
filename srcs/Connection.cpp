@@ -3,7 +3,6 @@
 // TODO these constructors and destructors SUCK
 Connection::Connection(void) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
 {
-
 }
 
 Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
@@ -19,9 +18,10 @@ Connection::Connection(ClientSocket *sock) : m_sock(sock)
 Connection::~Connection(void)
 {
     if (m_sock)
+    {
         std::cout << "[DEBUG] Closing client connection" << '\n';
-    delete m_sock;
-    delete m_cgi;
+        delete m_sock;
+    }
 }
 
 Connection&     Connection::operator = (const Connection &conn)
@@ -36,6 +36,7 @@ Connection&     Connection::operator = (const Connection &conn)
         if (conn.m_route)
             m_route = new Route(*conn.m_route);
         m_request = conn.m_request;
+        m_cgi = conn.m_cgi;
     }
     return (*this);
 }
@@ -251,6 +252,7 @@ bool Connection::searchCGIExtensions(void)
 
 void Connection::initCGI(void)
 {
+    std::cout << "[DEBUG] Init the CGI\n" << std::endl;
     m_cgi = new CGI;
     m_cgi->init(m_request);
 }

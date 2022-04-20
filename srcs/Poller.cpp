@@ -62,7 +62,6 @@ void            *Poller::pollPort(void *instance)
         }
         for (size_t idx = 0; idx < active_connections; ++idx)
         {
-            std::cout << "THE FD: " << poller->m_pfds[idx].fd << std::endl;
             if (!poller->m_pfds[idx].revents)
                 continue ;
 
@@ -78,10 +77,11 @@ void            *Poller::pollPort(void *instance)
                 if (poller->m_pfds[idx].fd == port_config->getSocket()->getFd()) {
                     poller->_getNewConnection();
                 }
-                else if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
-                {
-                    std::cout << "THE CGI IS DONEEEEE" << std::endl;
-                }
+                // else if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
+                // {
+                //     std::cout << "THE CGI IS DONEEEEE, SENDING BACK THE RESPONSE" << std::endl;
+                //     poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                // }
                 else {
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
                 }
@@ -92,20 +92,21 @@ void            *Poller::pollPort(void *instance)
                 if (poller->m_pfds[idx].revents & (POLLOUT))
                 {
                     poller->_parse(poller->m_pfds[idx].fd);
-                    if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
-                    {
-                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
-                    }
-                    else
-                    {
-                        poller->_respond(poller->m_pfds[idx].fd);
-                    }
+                    // if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
+                    // {
+                    //     poller->_initAndExecCGI(poller->m_pfds[idx].fd);
+                    // }
+                    // else
+                    // {
+                        
+                    // }
+                    poller->_respond(poller->m_pfds[idx].fd);
                     poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
                 }
             }
         }
-        poller->_deletePollFds();
         poller->_addPollFds();
+        poller->_deletePollFds();
     }
     delete poller;
     return (NULL);
@@ -145,26 +146,27 @@ void            Poller::_addPollFds(void)
 {
     struct pollfd       client;
     clients_t::iterator client_it;
-    Connection          *connection = NULL;
+    // Connection          *connection = NULL;
 
     if (m_new_connection.second)
     {
+        std::cout << "[DEBUG] Added new connection to poller" << std::endl;
         client.fd = m_new_connection.first;
         client.events = (POLLIN | POLLOUT);
         client.revents = 0;
         m_pfds.push_back(client);
         m_clients.insert(m_new_connection);
     }
-    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
-    {
-        connection = client_it->second;
-        if (connection->getCGI() != NULL && connection->m_cgi_added == false)
-        {
-            // m_pfds.push_back(connection->getCGI()->getPollFdStruct());
-            connection->m_cgi_added = true;
-            std::cout << "[DEBUG] Added the CGI to pollfds" << std::endl;
-        }
-    }
+    // for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
+    // {
+    //     connection = client_it->second;
+    //     if (connection->getCGI() != NULL && connection->m_cgi_added == false)
+    //     {
+    //         // m_pfds.push_back(connection->getCGI()->getPollFdStruct());
+    //         connection->m_cgi_added = true;
+    //         std::cout << "[DEBUG] Added the CGI to pollfds" << std::endl;
+    //     }
+    // }
 }
 
 void            Poller::_deletePollFds(void)
@@ -204,7 +206,8 @@ void            Poller::_parse(int &socket_fd)
     connection = it->second;
 
     connection = m_clients.find(socket_fd)->second;
-    connection->parseRequest();
+    if (connection->getRequest().getHeaders().empty())
+        connection->parseRequest();
 }
 
 void            Poller::_respond(int &socket_fd)
@@ -232,7 +235,7 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
 
     it = m_clients.find(socket_fd);
     connection = it->second;
-    if (connection != NULL && connection->getRequest().isCGI())
+    if (connection != NULL && connection->getRequest().isCGI() && !connection->getCGI())
     {
         return (true);
     }
@@ -246,6 +249,7 @@ void            Poller::_initAndExecCGI(int socket_fd)
 
     it = m_clients.find(socket_fd);
     connection = it->second;
+    std::cout << "FIRST ITME CGI" << std::endl;
     connection->initCGI();
     connection->getCGI()->exec();
 }

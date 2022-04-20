@@ -6,6 +6,7 @@ CGI::CGI() :
     m_envp(NULL),
     m_fork_pid(UNSET_PID)
 {
+    std::cout << "CGI CONSTRUCTOC" << std::endl;
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
 }
@@ -98,7 +99,6 @@ pollfd         CGI::getPollFdStruct(void)
  */
 void                CGI::init(Request& request)
 {
-    std::cout << "[DEBUG] Init the CGI" << std::endl;
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
     m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second; // TODO Use Server.m_names[0] or request.headers.host
