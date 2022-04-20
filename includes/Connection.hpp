@@ -43,6 +43,7 @@ public:
 
     Request&        getRequest(void);
     CGI             *getCGI(void);
+    ClientSocket    *getSock(void);
 
     void            readSocket(void);
     void            parseRequest(void);

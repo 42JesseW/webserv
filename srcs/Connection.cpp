@@ -10,17 +10,20 @@ Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL), m_c
     *this = cpy;
 }
 
-Connection::Connection(ClientSocket *sock) : m_sock(sock)
+Connection::Connection(ClientSocket *sock) : m_sock(sock), m_cgi(NULL), m_cgi_added(false)
 {
-
 }
 
 Connection::~Connection(void)
 {
+    std::cout << "[DEBUG] Closing client connection" << '\n';
     if (m_sock)
     {
-        std::cout << "[DEBUG] Closing client connection" << '\n';
         delete m_sock;
+    }
+    if (m_cgi)
+    {
+        delete m_cgi;
     }
 }
 
@@ -60,6 +63,11 @@ Request&       Connection::getRequest(void)
     return (m_request);
 }
 
+ClientSocket*   Connection::getSock(void)
+{
+    return (m_sock);
+}
+
 void            Connection::readSocket(void)
 {
     char    *request_data;
@@ -94,6 +102,8 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
 {
     Response   *response;
 
+    m_request.setStatus(HTTP_STATUS_NOT_FOUND);
+
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
@@ -108,7 +118,6 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
         response = new Response(m_request, *m_route);
     }
     response->buildResponse(*error_files);
-
     m_sock->send(response->getResponse().c_str());
     delete response;
 }

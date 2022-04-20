@@ -54,6 +54,7 @@ private:
     arg_t           m_args;
     char            **m_argv;
     char            **m_envp;
+    std::string     m_response;
 
     /*
      * m_pipe_out[0] must be added to the list of `pollfd`
@@ -82,6 +83,8 @@ public:
     pid_t&          getForkedPid(void);
     int&            getPipeReadFd(void);
     pollfd          getPollFdStruct(void);
+    std::string     getResponse(void);
+    void            appendResponse(char *response, ssize_t size);
 
     /*
      * initialize the CGI structure using the Request object

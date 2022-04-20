@@ -6,7 +6,6 @@ CGI::CGI() :
     m_envp(NULL),
     m_fork_pid(UNSET_PID)
 {
-    std::cout << "CGI CONSTRUCTOC" << std::endl;
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
 }
@@ -54,6 +53,11 @@ pid_t&              CGI::getForkedPid(void)
 int&                CGI::getPipeReadFd(void)
 {
     return (m_pipe_out[0]);
+}
+
+std::string         CGI::getResponse(void)
+{
+    return (m_response);
 }
 
 pollfd         CGI::getPollFdStruct(void)
@@ -268,4 +272,9 @@ char                **CGI::_argsToArgv(void)
     }
     argv[idx] = NULL;
     return (argv);
+}
+
+void       CGI::appendResponse(char *response, ssize_t size)
+{
+    m_response.append(response, size);
 }

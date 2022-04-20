@@ -46,6 +46,7 @@ private:
 
     void                _initAndExecCGI(int socket_fd);
     bool                _checkIfCGIConnection(int socket_fd);
+    bool                _checkIfCGIFd(int socket_fd);
 
     void                _addPollFds(void);
     void                _deletePollFds(void);
