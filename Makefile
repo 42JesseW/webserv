@@ -63,7 +63,7 @@ DFL_SRC		= $(SRC) $(SOURCE_DIR)/main.cpp
 
 OBJECTS		= $(patsubst %.cpp, %.o, $(SRC))
 DFL_OBJECTS	= $(patsubst %.cpp, %.o, $(DFL_SRC))
-DEPENDS		= $(patsubst %.cpp, %.d, $(SRC))
+DEPENDS		= $(patsubst %.cpp, %.d, $(DFL_SRC))
 HEADERS     = $(addprefix -I, $(HEADER_DIR))
 LIBS		= $(addprefix -L, $(LIB_DIR))
 
@@ -84,7 +84,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CXX) -std=c++11 -fsanitize=address -c $< -o $@ $(TST_HEADERS)
 
 clean:
-	@rm -f $(OBJECTS) $(TST_OBJECTS) $(DEPENDS)
+	@rm -f $(DFL_OBJECTS) $(TST_OBJECTS) $(DEPENDS)
 
 fclean: clean
 	@rm -f $(NAME) tester
