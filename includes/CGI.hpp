@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <Request.hpp>
+#include <poll.h>
 
 /*
  * Encapsulates all operations and data related to
@@ -80,6 +81,7 @@ public:
 
     pid_t&          getForkedPid(void);
     int&            getPipeReadFd(void);
+    pollfd          getPollFdStruct(void);
 
     /*
      * initialize the CGI structure using the Request object

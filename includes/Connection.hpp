@@ -5,6 +5,7 @@
 #include <Response.hpp>
 #include <CGI.hpp>
 #include <ClientSocket.hpp>
+#include <Handler.hpp>
 
 /*
  * Holds connection information while poll
@@ -20,9 +21,11 @@ private:
     ClientSocket    *m_sock;
     Request         m_request;
     Route           *m_route;
-    CGI             m_cgi;
+    CGI             *m_cgi;
 
 public:
+    bool            m_cgi_added;
+
     Connection(void);
 
 private:
@@ -39,10 +42,13 @@ public:
     void		    setRoute(Route *route);
 
     Request&        getRequest(void);
+    CGI             *getCGI(void);
 
     void            readSocket(void);
     void            parseRequest(void);
     void            sendResponse(ConfigUtil::status_code_map_t *error_files);
+
+    void            methodHandler(void);
 
     void            close(void);
 
@@ -54,6 +60,8 @@ public:
     void		    searchFile(void);
     void 		    searchDefaultIndexPages(void);
     bool		    searchCGIExtensions(void);
+
+    void            initCGI(void);
 
 public:
     class NoSocketFail : public std::exception { };

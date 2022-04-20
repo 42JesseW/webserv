@@ -41,8 +41,12 @@ private:
 
     void                _getNewConnection(void);
     void                _readConnectionData(int& socket_fd);
-    void                _parseAndRespond(int& socket_fd);
+    void                _parse(int& socket_fd);
+    void                _respond(int &socket_fd);
 
-    void                _updatePollFds(void);
+    void                _initAndExecCGI(int socket_fd);
+    bool                _checkIfCGIConnection(int socket_fd);
 
+    void                _addPollFds(void);
+    void                _deletePollFds(void);
 };

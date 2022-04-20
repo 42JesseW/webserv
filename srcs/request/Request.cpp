@@ -52,6 +52,7 @@ Request & Request::operator = (const Request &copy)
 
 void        Request::parse(void)
 {
+    std::cout << "[DEBUG] Building request object\n" << '\n';
     parseAndSetStartLine();
     parseAndSetHeaders();
     checkIfChunkedRequest();

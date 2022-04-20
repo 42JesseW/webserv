@@ -55,6 +55,17 @@ int&                CGI::getPipeReadFd(void)
     return (m_pipe_out[0]);
 }
 
+pollfd         CGI::getPollFdStruct(void)
+{
+    struct pollfd new_pollfd;
+
+    new_pollfd.fd = m_pipe_out[0];
+    new_pollfd.events = (POLLIN);
+    new_pollfd.revents = 0;
+    return (new_pollfd);
+}
+
+
 /*
  * https://en.wikipedia.org/wiki/Common_Gateway_Interface
  *
@@ -87,11 +98,11 @@ int&                CGI::getPipeReadFd(void)
  */
 void                CGI::init(Request& request)
 {
+    std::cout << "[DEBUG] Init the CGI" << std::endl;
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
-    m_environ["SERVER_NAME"] = ""; // TODO Use Server.m_names[0] or request.headers.host
+    m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second; // TODO Use Server.m_names[0] or request.headers.host
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
-
     m_environ["SERVER_PROTOCOL"] = request.getVersion();
     m_environ["SERVER_PORT"] = ""; // TODO Use server.m_socket.port
     m_environ["REQUEST_METHOD"] = request.getMethod();
@@ -111,7 +122,6 @@ void                CGI::init(Request& request)
             std::string("Content-Length"),
             ft::intToString(request.getBody().size())
     );
-
     m_envp = _environToEnvp();                                          // TODO testcase
     if (!m_envp)
         throw std::runtime_error("Failed to allocate for GGI::m_envp");
@@ -125,7 +135,6 @@ void                CGI::init(Request& request)
     if (pipe(m_pipe_in) == SYS_ERROR || pipe(m_pipe_out) == SYS_ERROR)  // TODO testcase
         throw std::runtime_error("Failed to create pipes for CGI object");
     fcntl(m_pipe_out[0], F_SETFL, O_NONBLOCK);
-
     m_request_body = request.getBody();
 }
 
