@@ -163,7 +163,7 @@ void            Poller::_addPollFds(void)
         {
             m_pfds.push_back(connection->getCGI()->getPollFdStruct());
             connection->m_cgi_added = true;
-            std::cout << "[DEBUG] Added CGI to poller" << std::endl;
+            std::cout << "[DEBUG] Added CGI to poller with fd " << connection->getCGI()->getPipeReadFd() << std::endl;
         }
     }
 }
@@ -182,6 +182,7 @@ void            Poller::_deletePollFds(void)
         {
             if (it->fd == dropped_client_fd)
             {
+                std::cout << "\n[DEBUG] Deleting FD " << dropped_client_fd << std::endl << std::endl;
                 m_pfds.erase(it);
                 break ;
             }
@@ -189,9 +190,11 @@ void            Poller::_deletePollFds(void)
 
         /* remove from client map */
         client_it = m_clients.find(dropped_client_fd);
-        delete client_it->second;
-        m_clients.erase(client_it);
-
+        if (client_it != m_clients.end())
+        {
+            delete client_it->second;
+            m_clients.erase(client_it);
+        }
         m_dropped_fds.pop();
     }
 }
@@ -303,9 +306,9 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
             }
             else
             {
+                std::cout << "[DEBUG] Read from CGI with fd " << socket_fd << std::endl; 
                 connection->getCGI()->appendResponse(buff, bytes_read);
-                // connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-                connection->getSock()->send(reponse);
+                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                 std::cout << "[DEBUG] Send response" << std::endl;
                 m_dropped_fds.push(client_it->first);
             }

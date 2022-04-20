@@ -1,4 +1,4 @@
-#!/Users/jevan-de/Documents/projects/webserv/webserv_github/.venv/bin/python
+#!.venv/bin/python
 
 import cgi
 import cgitb

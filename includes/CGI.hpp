@@ -6,7 +6,7 @@
 #define CGI_VERSION    "CGI/1.1"
 
 #define DFL_CGI_DIR    "cgi-bin"
-#define DFL_CGI_PROG   "php-cgi"
+#define DFL_CGI_PROG   "hello_world.py"
 
 #define UNSET_PID      (-1)
 #define UNSET_PIPE     0
