@@ -10,6 +10,13 @@
 
 #include <Connection.hpp>
 
+Route   *get_matching_route(void)
+{
+    Route   *route;
+
+    route = new Route();
+    return (route);
+}
 
 TEST(ConnectionConstruction, Default) {
     Connection  conn;
@@ -31,6 +38,7 @@ TEST(ConnectionChecking, SinglePOLLINAndPOLLOUT) {
 
     ConfigUtil      *util;
     Connection      *conn;
+    Route           *matching_route;
     ConfigUtil::status_code_map_t   error_files;
 
     util = &ConfigUtil::getHandle();
@@ -46,6 +54,9 @@ TEST(ConnectionChecking, SinglePOLLINAndPOLLOUT) {
 
     client_socket = new ClientSocket(client_fd, client_addr);
     conn = new Connection(client_socket);
+
+    matching_route = get_matching_route();
+    conn->setRoute(matching_route);
 
     pollfds->fd = client_fd;
     pollfds->events = (POLLIN | POLLOUT);
@@ -66,6 +77,7 @@ TEST(ConnectionChecking, SinglePOLLINAndPOLLOUT) {
     conn->sendResponse(&error_files);
     conn->close();
     delete conn;
+    delete matching_route;
     EXPECT_EQ(curl_future.get(), EXIT_SUCCESS);
 }
 
@@ -83,6 +95,7 @@ TEST(ConnectionChecking, MultiplePOLLINAndPOLLOUT) {
 
     ConfigUtil      *util;
     Connection      *conn;
+    Route           *matching_route;
     ConfigUtil::status_code_map_t   error_files;
 
     util = &ConfigUtil::getHandle();
@@ -98,6 +111,9 @@ TEST(ConnectionChecking, MultiplePOLLINAndPOLLOUT) {
 
     client_socket = new ClientSocket(client_fd, client_addr);
     conn = new Connection(client_socket);
+
+    matching_route = get_matching_route();
+    conn->setRoute(matching_route);
 
     pollfds->fd = client_fd;
     pollfds->events = (POLLIN | POLLOUT);
@@ -126,5 +142,6 @@ TEST(ConnectionChecking, MultiplePOLLINAndPOLLOUT) {
     conn->sendResponse(&error_files);
     conn->close();
     delete conn;
+    delete matching_route;
     EXPECT_EQ(curl_future.get(), EXIT_SUCCESS);
 }
