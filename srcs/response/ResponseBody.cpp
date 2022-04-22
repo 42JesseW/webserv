@@ -1,28 +1,22 @@
 #include <Response.hpp>
 
-std::string				Response::_buildFilePath()
+std::string				Response::_buildFilePath(const std::string &filename, int file_flag)
 {
 	std::string path;
 
+	if (file_flag == HTTP_STATUS_OK)
+		path = m_request.m_filesearch + filename;
+		// if (new_path.at(0) == '/')
+		// 	new_path.erase(0, 1);
+	else
+		path = DFL_ERROR_PAGES_PATH + filename + FILE_EXTENSION;
 
 	return (path);
 }
 
-int 					Response::_readFileIntoString(const std::string &path, int error_file)
+int 					Response::_readFileIntoString(const std::string &path)
 {
-	std::string new_path;
-
-	// IF NOT NECESSARY IF REFACTORED?
-	if (error_file == HTML_FILE_FLAG)
-	{
-		new_path = m_request.m_filesearch + path;
-		if (new_path.at(0) == '/')
-			new_path.erase(0, 1);
-	}
-	else
-		new_path = path;
-
-	std::ifstream input_file(new_path.c_str());
+	std::ifstream input_file(path.c_str());
 	if (!input_file.is_open())
 		return (0);
 
@@ -32,32 +26,34 @@ int 					Response::_readFileIntoString(const std::string &path, int error_file)
 
 void					Response::_buildBodyGet()
 {
+	std::string path;
+
 	if (m_status_code == HTTP_STATUS_OK)
 	{
-		std::string							path;
 		std::vector<std::string>			path_vector;
 		std::vector<std::string>::iterator	iter;
 
 		if (m_request.getFilename().empty())
 		{
 			path_vector = m_route.getIndexFiles();
-			path = m_route.getFileSearchPath();
 			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
 			{
-				if (_readFileIntoString(path_vector.at(iter - path_vector.begin()), HTML_FILE_FLAG))
+				path = _buildFilePath(path_vector.at(iter - path_vector.begin()), m_status_code);
+				if (_readFileIntoString(path))
 					break;	
 			}
 		}
 		else
-			_readFileIntoString(m_request.getFilename(), HTML_FILE_FLAG);	
+		{
+			path = _buildFilePath(m_request.getFilename(), m_status_code);
+			_readFileIntoString(path);	
+		}
 	}
 
 	if (m_status_code == HTTP_STATUS_NOT_FOUND)
 	{
-		std::string	path;
-
-		path = DFL_ERROR_PAGES_PATH + ft::intToString(m_status_code) + ".html";
-		_readFileIntoString(path, ERROR_FILE_FLAG);
+		path = _buildFilePath(ft::intToString(m_status_code), m_status_code);
+		_readFileIntoString(path);
 	}
 }
 
@@ -66,8 +62,8 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 	(void)m_error_files;
 	if (m_request.getMethod() == "GET")
 		_buildBodyGet();
-	else if (m_request.getMethod() == "POST")
-		_buildBodyPost();
-	else if (m_request.getMethod() == "DELETE")
-		_buildBodyDelete();
+	// else if (m_request.getMethod() == "POST")
+	// 	_buildBodyPost();
+	// else if (m_request.getMethod() == "DELETE")
+	// 	_buildBodyDelete();
 }

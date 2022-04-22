@@ -15,8 +15,7 @@
 # include <sstream>
 
 # define RETRY_AFTER_SEC	"120"
-# define HTML_FILE_FLAG		0
-# define ERROR_FILE_FLAG	1
+# define FILE_EXTENSION		".html"
 
 typedef std::pair<std::string, std::string> status_code_body_t;
 typedef std::map<int, status_code_body_t>   status_code_map_t;
@@ -72,8 +71,8 @@ class Response
 		void				_buildBodyGet();
 		void				_buildBodyPost();
 		void				_buildBodyDelete();
-		std::string			_buildFilePath();
-		int					_readFileIntoString(const std::string &path, int error_file);
+		std::string			_buildFilePath(const std::string &filename, int file_flag);
+		int					_readFileIntoString(const std::string &path);
 };
 
 #endif
