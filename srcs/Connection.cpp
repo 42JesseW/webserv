@@ -250,6 +250,7 @@ bool Connection::searchCGIExtensions(void)
         if (extension == *it)
         {
             m_request.setStatus(HTTP_STATUS_OK);
+            m_request.setCGI(true);
             return (true);
         }
     }

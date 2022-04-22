@@ -1,8 +1,8 @@
-#!/Users/jevan-de/Documents/projects/webserv/webserv_github/.venv/bin/python
+#!.venv/bin/python
 
-import time
-
-time.sleep(5)
-
-print("Content-type:text/html\r\n\r\n")
-print("<h1>Feeling sleepy...</h1>")
+print("Content-type: text/html\n\n");
+print("<html>\n");
+print("<body>\n");
+print("<h1>Sleep!</h1>\n");
+print("</body>\n");
+print("</html>\n");

@@ -105,14 +105,29 @@ void                CGI::init(Request& request)
 {
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
-    m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second; // TODO Use Server.m_names[0] or request.headers.host
+    if (request.getHeaders().find("Host") != request.getHeaders().end())
+    {
+        m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second;
+    }
+    else
+    {
+        m_environ["SERVER_NAME"] = "???"; // TODO How to get Server.m_names[0]?
+    }
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
     m_environ["SERVER_PROTOCOL"] = request.getVersion();
     m_environ["SERVER_PORT"] = ""; // TODO Use server.m_socket.port
     m_environ["REQUEST_METHOD"] = request.getMethod();
     m_environ["PATH_INFO"] = request.getCGIPath();
     m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
-    m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
+    if (request.getFilename().empty())
+    {
+        m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
+    }
+    else
+    {
+        m_environ["SCRIPT_NAME"] = request.getFilename();
+        setProgramPath(DFL_CGI_DIR + request.getFilename());
+    }
     m_environ["QUERY_STRING"] = request.getQuery();
     m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
     m_environ["REMOTE_ADDR"] = "";      // TODO use inet_ntoa()?

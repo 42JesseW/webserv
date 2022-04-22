@@ -5,7 +5,7 @@
 #define HTTP_VERSION   "HTTP/1.1"
 #define CGI_VERSION    "CGI/1.1"
 
-#define DFL_CGI_DIR    "cgi-bin"
+#define DFL_CGI_DIR    "cgi-bin/"
 #define DFL_CGI_PROG   "hello_world.py"
 
 #define UNSET_PID      (-1)
