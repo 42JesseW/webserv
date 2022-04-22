@@ -52,11 +52,7 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 	if (it != m_error_files.end())
 		reason_phrase = it->second.first;
 	else
-	{
-		// throw exception?
-		std::cout << "Error: status code" <<std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+		throw ResponseFailure();
 
 	white_space = " ";
 	m_start_line = HTTP_VERSION
