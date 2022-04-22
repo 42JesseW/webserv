@@ -145,6 +145,7 @@ void					Response::buildStartLine(ConfigUtil::status_code_map_t& m_error_files)
 		std::cout << "Error: status code" <<std::endl;
 		std::exit(EXIT_FAILURE);
 	}
+
 	white_space = " ";
 	m_start_line = HTTP_VERSION
 				+ white_space
@@ -168,12 +169,21 @@ status_code_body_t			Response::_buildDate()
 
 status_code_body_t			Response::_buildLocation()
 {
-	std::string	redirection_url;
-	REDIR		*redirect;
+	std::string	location_url;
 
-	redirect = m_route.getRedir();
-	redirection_url = "http://" + redirect->url;
-	return (std::make_pair("Location", redirection_url));
+	if (m_status_code = HTTP_STATUS_CREATED)
+	{
+		// find the place where the post payloads are saved
+
+	}
+	else
+	{
+		REDIR		*redirect;
+
+		redirect = m_route.getRedir();
+		location_url = "http://" + redirect->url;
+	}
+	return (std::make_pair("Location", location_url));
 }
 
 status_code_body_t			Response::_buildRetryAfter()
@@ -188,7 +198,7 @@ status_code_body_t			Response::_buildAllow()
 	std::vector<std::string>::iterator	iter;
 
 	accepted_methods = m_route.getAcceptedMethods();
-	for (iter = accepted_methods.begin(); iter < accepted_methods.end(); iter++)
+	for (iter == accepted_methods.begin(); iter < accepted_methods.end(); iter++)
 		allowed_methods.append(*iter + ", ");
 
 	return (std::make_pair("Allow", allowed_methods));
@@ -259,13 +269,24 @@ void					Response::buildHeaders()
 	m_headers_str += "\n";
 }
 
+std::string				Response::_buildFilePath()
+{
+	std::string path;
+
+
+	return (path);
+}
+
 int 					Response::_readFileIntoString(const std::string &path, int error_file)
 {
 	std::string new_path;
 
+	// IF NOT NECESSARY IF REFACTORED?
 	if (error_file == HTML_FILE_FLAG)
 	{
 		new_path = m_request.m_filesearch + path;
+		if (new_path.at(0) == '/')
+			new_path.erase(0, 1);
 	}
 	else
 		new_path = path;
@@ -278,11 +299,9 @@ int 					Response::_readFileIntoString(const std::string &path, int error_file)
 	return (1);
 }
 
-void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
+void					Response::_buildbodyGet()
 {
-	(void)m_error_files;
-
-	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_OK)
+	if (m_status_code == HTTP_STATUS_OK)
 	{
 		std::string							path;
 		std::vector<std::string>			path_vector;
@@ -295,15 +314,14 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
 			{
 				if (_readFileIntoString(path_vector.at(iter - path_vector.begin()), HTML_FILE_FLAG))
-					break;
+					break;	
 			}
 		}
 		else
-			_readFileIntoString(m_request.getFilename(), HTML_FILE_FLAG);
-		
+			_readFileIntoString(m_request.getFilename(), HTML_FILE_FLAG);	
 	}
 
-	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_NOT_FOUND)
+	if (m_status_code == HTTP_STATUS_NOT_FOUND)
 	{
 		std::string	path;
 
@@ -312,16 +330,25 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 	}
 }
 
+void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
+{
+	(void)m_error_files;
+	if (m_request.getMethod() == "GET")
+		_buildbodyGet();
+	else if (m_request.getMethod() == "POST")
+		_buildbodyPost();
+	else if (m_request.geMethod() == "DELETE")
+		_buildbodyDelete();
+}
+
 void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	buildStartLine(m_error_files);
 	buildBody(m_error_files);
 	buildHeaders();
-
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
-	// std::cout << m_response << std::endl;
-
+	std::cout << m_response << std::endl;
 }
 
 // void					Response::resetResponse()

@@ -69,6 +69,10 @@ class Response
 		status_code_body_t	_buildContentLength();
 		status_code_body_t	_buildContentType();
 		status_code_body_t	_buildTransferEncoding();
+		void				_buildBodyGet();
+		void				_buildBodyPost();
+		void				_buildBodyDelete();
+		std::string			_buildFilePath();
 		int					_readFileIntoString(const std::string &path, int error_file);
 };
 
