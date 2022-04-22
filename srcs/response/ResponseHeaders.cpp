@@ -18,8 +18,7 @@ status_code_body_t			Response::_buildLocation()
 
 	if (m_status_code == HTTP_STATUS_CREATED)
 	{
-		// find the place where the post payloads are saved
-
+		location_url = m_route.getUploadPath();
 	}
 	else
 	{
@@ -74,7 +73,6 @@ status_code_body_t			Response::_buildContentLength()
 	return (std::make_pair("Content-Length", str_string_size));
 }
 
-// check if there is a case we have different Content-Type
 status_code_body_t			Response::_buildContentType()
 {
 	std::string	content_type;
@@ -86,8 +84,6 @@ status_code_body_t			Response::_buildContentType()
 void					Response::buildHeaders()
 {
 	std::map<std::string, std::string>::iterator	it;
-	// to be removed
-	int	chunked = 0;
 
 	m_headers_map.insert(_buildDate());
 	if (m_status_code == HTTP_STATUS_CREATED ||
@@ -96,16 +92,11 @@ void					Response::buildHeaders()
 	if (m_status_code == HTTP_STATUS_SERVICE_UNAVAILABLE ||
 		(m_status_code >= HTTP_STATUS_MULTIPLE_CHOICES && m_status_code < HTTP_STATUS_BAD_REQUEST))
 		m_headers_map.insert(_buildRetryAfter());
-	// test 
 	if (m_status_code == HTTP_STATUS_METHOD_NOT_ALLOWED)
 		m_headers_map.insert(_buildAllow());
 	m_headers_map.insert(_buildServer());
 	m_headers_map.insert(_buildConnection());
-	// DO WE NEED THIS?
-	if (chunked)
-		m_headers_map.insert(_buildTransferEncoding());
-	else
-		m_headers_map.insert(_buildContentLength());
+	m_headers_map.insert(_buildContentLength());
 	m_headers_map.insert(_buildContentType());
 
 	for (it = m_headers_map.begin(); it != m_headers_map.end(); ++it)

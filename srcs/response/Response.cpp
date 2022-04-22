@@ -91,7 +91,7 @@ std::string const &								Response::getResponse() const
 void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	buildStartLine(m_error_files);
-	buildBody(m_error_files);
+	buildBody();
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
