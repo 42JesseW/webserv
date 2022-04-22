@@ -102,8 +102,6 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
 {
     Response   *response;
 
-    m_request.setStatus(HTTP_STATUS_NOT_FOUND);
-
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
@@ -261,7 +259,6 @@ bool Connection::searchCGIExtensions(void)
 
 void Connection::initCGI(void)
 {
-    std::cout << "[DEBUG] Init the CGI\n" << std::endl;
     m_cgi = new CGI;
     m_cgi->init(m_request);
 }

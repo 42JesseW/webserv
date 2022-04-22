@@ -114,7 +114,6 @@ void Request::checkIfCGI(void)
 {
 	if (getTarget() == "/cgi-bin" || !getQuery().empty())
 	{
-		std::cout << "[DEBUG] Set CGI to true" << std::endl;
 		m_cgi = true;
 	}
 }

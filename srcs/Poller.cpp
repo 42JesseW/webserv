@@ -163,7 +163,6 @@ void            Poller::_addPollFds(void)
         {
             m_pfds.push_back(connection->getCGI()->getPollFdStruct());
             connection->m_cgi_added = true;
-            std::cout << "[DEBUG] Added CGI to poller with fd " << connection->getCGI()->getPipeReadFd() << std::endl;
         }
     }
 }
@@ -182,7 +181,6 @@ void            Poller::_deletePollFds(void)
         {
             if (it->fd == dropped_client_fd)
             {
-                std::cout << "\n[DEBUG] Deleting FD " << dropped_client_fd << std::endl << std::endl;
                 m_pfds.erase(it);
                 break ;
             }
@@ -306,10 +304,8 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
             }
             else
             {
-                std::cout << "[DEBUG] Read from CGI with fd " << socket_fd << std::endl; 
                 connection->getCGI()->appendResponse(buff, bytes_read);
                 connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-                std::cout << "[DEBUG] Send response" << std::endl;
                 m_dropped_fds.push(client_it->first);
             }
             return (true);
