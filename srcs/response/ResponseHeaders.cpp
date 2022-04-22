@@ -42,7 +42,7 @@ status_code_body_t			Response::_buildAllow()
 	std::vector<std::string>::iterator	iter;
 
 	accepted_methods = m_route.getAcceptedMethods();
-	for (iter == accepted_methods.begin(); iter < accepted_methods.end(); iter++)
+	for (iter = accepted_methods.begin(); iter < accepted_methods.end(); iter++)
 		allowed_methods.append(*iter + ", ");
 
 	return (std::make_pair("Allow", allowed_methods));
