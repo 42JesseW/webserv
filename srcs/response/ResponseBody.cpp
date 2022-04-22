@@ -5,7 +5,14 @@ std::string	Response::_buildFilePath(const std::string &filename, int file_flag)
 	std::string path;
 
 	if (file_flag < HTTP_STATUS_BAD_REQUEST)
-		path = m_request.m_filesearch + filename;
+	{
+		if (m_request.getMethod() == "GET")
+			path = m_request.m_filesearch + filename;
+		else if (m_request.getMethod() == "POST")
+			path = DFL_PATH + filename;
+		else if (m_request.getMethod() == "DELETE")
+			path = DFL_PATH + filename;
+	}
 	else
 		path = DFL_ERROR_PAGES_PATH + filename + FILE_EXTENSION;
 

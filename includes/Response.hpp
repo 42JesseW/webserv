@@ -15,6 +15,7 @@
 # include <sstream>
 
 # define RETRY_AFTER_SEC	"120"
+# define DFL_PATH			"html/"
 # define FILE_EXTENSION		".html"
 # define POST_FILENAME		"post.html"
 # define DELETE_FILENAME	"delete.html"
