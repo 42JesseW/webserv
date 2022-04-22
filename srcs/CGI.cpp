@@ -1,7 +1,7 @@
 #include <CGI.hpp>
 
 CGI::CGI() :
-    m_program_path(DFL_CGI_DIR "/" DFL_CGI_PROG),
+    m_program_path(DFL_CGI_DIR DFL_CGI_PROG),
     m_argv(NULL),
     m_envp(NULL),
     m_fork_pid(UNSET_PID)

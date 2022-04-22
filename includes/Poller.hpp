@@ -39,6 +39,8 @@ public:
 private:
     static Poller      *_initPoller(PortConfig **port_config, void *instance);
 
+    Connection          *_searchCorrectConnection(int socket_fd);
+
     void                _getNewConnection(void);
     void                _readConnectionData(int& socket_fd);
     void                _parse(int& socket_fd);

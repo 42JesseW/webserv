@@ -1,8 +1,10 @@
 #!.venv/bin/python
 
-print("Content-type: text/html\n\n");
-print("<html>\n");
-print("<body>\n");
-print("<h1>Sleep!</h1>\n");
-print("</body>\n");
-print("</html>\n");
+print("Content-Type: text/html");
+print("Content-Length: 90\n");
+print("<html>");
+print("<body>");
+print("<h1>Sleep</h1>");
+print("</body>");
+print("</html>");
+

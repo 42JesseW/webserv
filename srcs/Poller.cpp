@@ -37,6 +37,18 @@ Poller&         Poller::operator = (const Poller &rhs)
     return (*this);
 }
 
+Connection          *Poller::_searchCorrectConnection(int socket_fd)
+{
+    clients_t::iterator it;
+
+    it = m_clients.find(socket_fd);
+    if (it != m_clients.end())
+    {
+        return (it->second);
+    }
+    return (NULL);
+}
+
 void            *Poller::pollPort(void *instance)
 {
     ConfigUtil      *util;
@@ -199,12 +211,9 @@ void            Poller::_deletePollFds(void)
 
 void            Poller::_parse(int &socket_fd)
 {
-    clients_t::iterator it;
     Connection          *connection;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
-
+    connection = _searchCorrectConnection(socket_fd);
     connection = m_clients.find(socket_fd)->second;
     if (connection->getRequest().getHeaders().empty())
         connection->parseRequest();
@@ -212,14 +221,11 @@ void            Poller::_parse(int &socket_fd)
 
 void            Poller::_respond(int &socket_fd)
 {
-    clients_t::iterator             it;
     Connection                      *connection;
     Route                           *matched_route;
     ConfigUtil::status_code_map_t   *error_files = NULL;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
-
+    connection = _searchCorrectConnection(socket_fd);
     matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
     if (matched_route != NULL && connection->getRequest().getStatus() == HTTP_STATUS_OK)
     {
@@ -230,11 +236,9 @@ void            Poller::_respond(int &socket_fd)
 
 bool            Poller::_checkIfCGIConnection(int socket_fd)
 {
-    clients_t::iterator it;
     Connection          *connection;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
+    connection = _searchCorrectConnection(socket_fd);
     if (connection->getRequest().isCGI())
     {
         return (true);
@@ -244,11 +248,9 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
 
 void            Poller::_initAndExecCGI(int socket_fd)
 {
-    clients_t::iterator it;
     Connection          *connection;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
+    connection = _searchCorrectConnection(socket_fd);
     if (!connection->getCGI())
     {
         connection->initCGI();
@@ -277,11 +279,9 @@ void            Poller::_getNewConnection(void)
 
 void            Poller::_readConnectionData(int &socket_fd)
 {
-    clients_t::iterator it;
     Connection          *connection;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
+    connection = _searchCorrectConnection(socket_fd);
     connection->readSocket();
 }
 
@@ -305,6 +305,7 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
             else
             {
                 connection->getCGI()->appendResponse(buff, bytes_read);
+                std::cout << connection->getCGI()->getResponse();
                 connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                 m_dropped_fds.push(client_it->first);
             }
