@@ -26,10 +26,6 @@ void Request::parseFilenamesAndCGI(void)
 		m_target = m_filename.substr(0, m_filename.find_last_of('/') + 1);
 		m_filename.erase(0, m_filename.find_last_of('/') + 1);
     }
-	else
-	{
-		std::cout << "THE TARGET: " << m_target << std::endl;
-	}
 }
 
 void Request::parseQuery(std::string url)

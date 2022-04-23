@@ -6,7 +6,7 @@
 #define CGI_VERSION    "CGI/1.1"
 
 #define DFL_CGI_DIR    "cgi-bin/"
-#define RECV_SIZE      100
+#define RECV_SIZE      2048
 
 #define DFL_FILE_SEARCH_PATH   "html/"
 #define DFL_UPLOAD_PATH        "html/"

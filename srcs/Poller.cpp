@@ -91,11 +91,9 @@ void            *Poller::pollPort(void *instance)
                 }
                 else if (poller->_checkIfCGIFd(poller->m_pfds[idx].fd))
                 {
-                    std::cout << "READING FROM: " << std::endl;
                     poller->_readCGIData(poller->m_pfds[idx].fd);
                 }
                 else {
-                    std::cout << "READING FROM: " << poller->m_pfds[idx].fd << std::endl;
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
                 }
                 usleep(POLLIN_SLEEP_MS);
@@ -305,23 +303,33 @@ void            Poller::_matchRoute(int socket_fd)
 
 void            Poller::_readConnectionData(int &socket_fd)
 {
-    Connection          *connection;
-
+    Connection              *connection;
+    
     connection = _searchCorrectConnection(socket_fd);
     connection->readSocket();
 }
 
 void            Poller::_readCGIData(int socket_fd)
 {
-    Connection     *connection;
+    Connection              *connection;
+    clients_t::iterator     client_it;
 
-    connection = _searchCorrectConnection(socket_fd);
-    connection->getCGI()->readAndAppend();
-    if (connection->getCGI()->isDone())
+    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
-        connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-        m_dropped_fds.push(socket_fd);
+        if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
+        {
+            connection = client_it->second;
+            connection->getCGI()->readAndAppend();
+            if (connection->getCGI()->isDone())
+            {
+                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+                m_dropped_fds.push(socket_fd);
+                m_dropped_fds.push(connection->getSock()->getFd());
+            }
+            break ;
+        }
     }
+    
 }
 
 bool            Poller::_checkIfCGIFd(int socket_fd)
