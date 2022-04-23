@@ -113,3 +113,13 @@ void                        Route::setRedirect(int status_code, const std::strin
     m_redirect->status_code = status_code;
     m_redirect->url = url;
 }
+
+void                        Route::setAcceptedMethods(const std::vector<std::string>& accepted_methods)
+{
+    m_accepted_methods = accepted_methods;
+}
+
+void                        Route::setCgiFileExtensions(const std::vector<std::string>& cgi_file_extensions)
+{
+    m_cgi_file_extensions = cgi_file_extensions;
+}

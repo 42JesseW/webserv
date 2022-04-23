@@ -61,6 +61,10 @@ class Response
 		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
 
+		// setters for testing purposes
+		void			setRequest(Request &re);
+		void			setRoute(Route &ro);
+
 	private:
 		status_code_body_t	_buildDate();
 		status_code_body_t	_buildLocation();

@@ -95,7 +95,17 @@ void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
     std::cout << "[DEBUG] Created response " << std::endl;
-	std::cout << m_response << std::endl;
+	// std::cout << m_response << std::endl;
+}
+
+void					Response::setRequest(Request &re)
+{
+	m_request = re;
+}
+
+void					Response::setRoute(Route &ro)
+{
+	m_route = ro;
 }
 
 // void					Response::resetResponse()

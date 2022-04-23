@@ -47,5 +47,7 @@ public:
     void                        setUploadPath(const std::string& path);
     void                        setAutoIndex(bool on);
     void                        setRedirect(int status_code, const std::string& url);
+    void                        setAcceptedMethods(const std::vector<std::string>& accepted_methods);
+    void                        setCgiFileExtensions(const std::vector<std::string>& cgi_file_extensions);
 
 };

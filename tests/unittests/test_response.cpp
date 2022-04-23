@@ -1,436 +1,156 @@
-// # include <Client.hpp>
-// # include <Request.hpp>
-// # include <Route.hpp>
-// # include <Response.hpp>
-// # include <vector>
-// # include <map>
-// # include <string>
-// # include <ctime>
-// # include <time.h>
-
-// // Good requests
-
-// static std::string basic_get_request =
-// 	"GET /?parameter1=waarde1&parameter2=waarde2&parameter3=waarde3 HTTP/1.1\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Host: localhost\r\n"
-// 	"Accept-Language: en-us\r\n"
-// 	"Accept-Encoding: gzip, deflate\r\n\r\n";
-
-// static std::string basic_post_request =
-// 	"POST /index.html HTTP/1.1\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Host: localhost:8082\r\n"
-// 	"Content-Type: text/xml; charset=utf-8\r\n"
-// 	"Content-Length: 35\r\n"
-// 	"Accept-Language: en-us\r\n"
-// 	"Accept-Encoding: gzip, deflate\r\n\r\n"
-// 	"<html><h1>Goodbye World</h1></html>";
-
-// static std::string basic_delete_request =
-// 	"DELETE /index.html HTTP/1.1\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Host: localhost\r\n\r\n";
-
-// // Bad requests
-
-// static std::string basic_get_request_wrong =
-// 	"GET / HTTP/1.0\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Host: localhost:8080\r\n"
-// 	"Accept-Language: en-us\r\n"
-// 	"Accept-Encoding: gzip, deflate\r\n\r\n";
-
-// static std::string basic_post_request_wrong =
-// 	"POST /index.html HTTP/1.1\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Content-Type: text/xml; charset=utf-8\r\n"
-// 	"Content-Length: 35\r\n"
-// 	"Accept-Language: en-us\r\n"
-// 	"Accept-Encoding: gzip, deflate\r\n\r\n"
-// 	"<html><h1>Goodbye World</h1></html>";
-
-// static std::string basic_delete_request_wrong =
-// 	"DELETe /index.html HTTP/1.1\r\n"
-// 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-// 	"Host: localhost\r\n\r\n";
-
-// // HTML files
-
-// std::string index_html =  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n\
-//     <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
-//     <title>Document</title>\n</head>\n<body>\n    <h1>Hello, welcome to our website.</h1>\n</body>\n</html>";
-
-// // Basic requests that would succeed
-
-// TEST_CASE("Basic get request -- basic config file with no redirection")
-// {
-// 	Client	new_client;
-// 	Request	new_request;
-// 	Route	new_route;
-
-// 	std::string m_base_url = "/";
-// 	std::string m_file_search_path = "/html";
-// 	std::string m_upload_path = "/html";
-// 	bool m_has_autoindex = true;
-
-// 	std::vector<std::string> m_accepted_methods;
-// 	m_accepted_methods.push_back("GET");
-// 	m_accepted_methods.push_back("POST");
-// 	m_accepted_methods.push_back("DELETE");
-
-// 	std::vector<std::string> m_index_files;
-// 	m_index_files.push_back("index.html");
-// 	m_index_files.push_back("index.php");
-
-// 	std::vector<std::string> m_cgi_file_extensions;
-// 	m_cgi_file_extensions.push_back(".php");
-// 	m_cgi_file_extensions.push_back(".py");
-
-// 	new_route.setBaseUrl(m_base_url);
-// 	new_route.setFileSearchPath(m_file_search_path);
-// 	new_route.setUploadPath(m_upload_path);
-// 	new_route.setAutoIndex(m_has_autoindex);
-// 	new_route.setAcceptedMethods(m_accepted_methods);
-// 	new_route.setIndexFiles(m_index_files);
-// 	new_route.setCgiFileExtensions(m_cgi_file_extensions);
-
-//     new_client.m_request = new_request;
-// 	new_client.m_route = new_route;
-// 	new_client.m_request.setRequest(basic_get_request);
-// 	new_client.m_request.divideRequest();
-// 	new_client.m_request.errorChecking();
-//     new_client.checkRoute();
-
-//     std::map<int, std::pair<std::string, std::string>> m_error_files = ConfigUtil::getHandle().getStatusCodeMap();
-// 	Response new_response(new_client.m_request, new_client.m_route);
-
-// 	new_response.buildResponse(m_error_files);
-
-// 	SECTION("Start line")
-// 	{
-// 		REQUIRE(new_response.getStartLine() == "HTTP/1.1 200 OK\r\n");
-// 	}
-
-// 	SECTION("Headers")
-// 	{
-// 		std::string test_date;
-// 		std::string test_content_length;
-// 		int			content_length;
-
-// 		content_length = new_response.getBody().length();
-// 		test_content_length = std::to_string(content_length);
-
-// 		std::time_t		rawtime;
-// 		struct std::tm	*ptm;
-// 		char			buf[50];
-
-// 		time(&rawtime);
-// 		ptm = gmtime(&rawtime);
-// 		strftime(buf, 500, "%a, %d %b %Y %H:%M:%S GMT", ptm);
-// 		test_date = std::string(buf);
-
-// 		std::map<std::string, std::string> TestMap =
-// 		{
-// 			{"Date", test_date},
-// 			{"Server", "Websurf/1.0.0 (Unix)"},
-// 			{"Connection", "close"},
-// 			{"Content-Length", test_content_length},
-// 			{"Content-Type", "text/html; charset=\"utf-8\""},
-// 	   };
-// 	   REQUIRE(new_response.getHeadersMap() == TestMap);
-// 	}
-
-// 	SECTION("Body")
-// 	{
-// 		REQUIRE(new_response.getBody() == index_html); 
-// 	}
-// }
-
-// TEST_CASE("Basic get request -- basic config file with redirection")
-// {
-// 	Client	new_client;
-// 	Request	new_request;
-// 	Route	new_route;
-
-// 	std::string m_base_url = "/";
-// 	std::string m_file_search_path = "/data/w3";
-// 	std::string m_upload_path = "/data/upload";
-// 	bool m_has_autoindex = true;
-
-// 	std::vector<std::string> m_accepted_methods;
-// 	m_accepted_methods.push_back("GET");
-// 	m_accepted_methods.push_back("POST");
-// 	m_accepted_methods.push_back("DELETE");
-
-// 	std::vector<std::string> m_index_files;
-// 	m_index_files.push_back("index.html");
-// 	m_index_files.push_back("index.php");
-
-// 	std::vector<std::string> m_cgi_file_extensions;
-// 	m_cgi_file_extensions.push_back(".php");
-// 	m_cgi_file_extensions.push_back(".py");
-
-// 	new_route.setBaseUrl(m_base_url);
-// 	new_route.setFileSearchPath(m_file_search_path);
-// 	new_route.setUploadPath(m_upload_path);
-// 	new_route.setAutoIndex(m_has_autoindex);
-// 	new_route.setRedirect(301, "www.google.com");
-// 	new_route.setAcceptedMethods(m_accepted_methods);
-// 	new_route.setIndexFiles(m_index_files);
-// 	new_route.setCgiFileExtensions(m_cgi_file_extensions);
-
-//     new_client.m_request = new_request;
-// 	new_client.m_route = new_route;
-// 	new_client.m_request.setRequest(basic_get_request);
-// 	new_client.m_request.divideRequest();
-// 	new_client.m_request.errorChecking();
-//     new_client.checkRoute();
-
-//     std::map<int, std::pair<std::string, std::string>> m_error_files = ConfigUtil::getHandle().getStatusCodeMap();
-// 	Response new_response(new_client.m_request, new_client.m_route);
-
-// 	new_response.buildResponse(m_error_files);
-
-// 	SECTION("Start line")
-// 	{
-// 		REQUIRE(new_response.getStartLine() == "HTTP/1.1 301 Moved Permanently\r\n");
-// 	}
-
-// 	SECTION("Headers")
-// 	{
-// 		std::string test_date;
-// 		std::string test_content_length;
-// 		int			content_length;
-
-// 		content_length = new_response.getBody().length();
-// 		test_content_length = std::to_string(content_length);
-
-// 		std::time_t		rawtime;
-// 		struct std::tm	*ptm;
-// 		char			buf[50];
-
-// 		time(&rawtime);
-// 		ptm = gmtime(&rawtime);
-// 		strftime(buf, 500, "%a, %d %b %Y %H:%M:%S GMT", ptm);
-// 		test_date = std::string(buf);
-
-// 		std::map<std::string, std::string> TestMap =
-// 		{
-// 			{"Date", test_date},
-// 			{"Location", "www.google.com"},
-// 			{"Server", "Websurf/1.0.0 (Unix)"},
-// 			{"Connection", "close"},
-// 			{"Content-Length", test_content_length},
-// 			{"Content-Type", "text/html; charset=\"utf-8\""},
-// 	   };
-// 	   std::map<std::string, std::string>::iterator iter;
-// 	   std::string test_headers_str;
-
-// 	   std::cout << "-------------" << std::endl;
-// 	   std::cout << "TEST HEADERS : " << std::endl;
-// 	   for (iter = TestMap.begin(); iter != TestMap.end(); iter++)
-// 		test_headers_str += (iter->first + ": " + iter->second + "/n");
-// 	   std::cout << test_headers_str << std::endl;
-// 	   std::cout << "-------------" << std::endl;
-
-// 	   REQUIRE(new_response.getHeadersMap() == TestMap);
-// 	}
-
-// 	SECTION("Body")
-// 	{
-// 		REQUIRE(new_response.getBody().empty());
-// 	}
-// }
-
-// // TEST_CASE("Basic post request")
-// // {
-// //    new_request->setRequest(basic_post_request);
-// //    new_request->divideRequest();
-// //    new_request->errorChecking();
-
-// // 	SECTION("Start line")
-// // 	{
-// //         REQUIRE(new_request->getMethod() == "POST");
-// //         REQUIRE(new_request->getTarget() == "/");
-// // 		REQUIRE(new_request->getFilename() == "/index.html");
-// //         REQUIRE(new_request->getQuery().empty());
-// //         REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
-// // 		REQUIRE(new_request->getPort() == 8082);
-// // 	}
-
-// // 	SECTION("Headers")
-// // 	{
-// //        std::map<std::string, std::string> TestMap =
-// //        {
-// // 			{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"},
-// // 			{"Host", "localhost:8082"},
-// // 			{"Content-Type", "text/xml; charset=utf-8"},
-// // 			{"Content-Length", "35"},
-// // 			{"Accept-Language", "en-us"},
-// // 			{"Accept-Encoding", "gzip, deflate"}
-// //        };
-// // 		REQUIRE(new_request->getHeaders() == TestMap);
-// // 	}
-
-// // 	SECTION("Body")
-// // 	{
-// // 		REQUIRE(new_request->getBody() == "<html><h1>Goodbye World</h1></html>");
-// // 	}
-
-// // 	SECTION("Status")
-// // 	{
-// // 		REQUIRE(new_request->getStatus() == HTTP_STATUS_OK);
-// // 	}
-// // }
-
-// // TEST_CASE("Basic delete request")
-// // {
-// //    new_request->setRequest(basic_delete_request);
-// //    new_request->divideRequest();
-// //    new_request->errorChecking();
-
-// // 	SECTION("Start line")
-// // 	{
-// //         REQUIRE(new_request->getMethod() == "DELETE");
-// //         REQUIRE(new_request->getTarget() == "/");
-// // 		REQUIRE(new_request->getFilename() == "/index.html");
-// //         REQUIRE(new_request->getQuery().empty());
-// //         REQUIRE(new_request->getVersion() == ALLOWED_VERSION);
-// // 		REQUIRE(new_request->getPort() == 80);
-// // 	}
-
-// // 	SECTION("Headers")
-// // 	{
-// //        std::map<std::string, std::string> TestMap =
-// //        {
-// // 			{"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"},
-// // 			{"Host", "localhost"}
-// //        };
-// // 	   REQUIRE(new_request->getHeaders() == TestMap);
-// // 	}
-
-// // 	SECTION("Body")
-// // 	{
-// // 		REQUIRE(new_request->getBody().empty());
-// // 	}
-
-// // 	SECTION("Status")
-// // 	{
-// // 		REQUIRE(new_request->getStatus() == HTTP_STATUS_OK);
-// // 	}
-// // }
-
-// // // Basic requests that would fail
-
-// TEST_CASE("Wrong basic get request ERROR 505 -- basic config file with no redirection")
-// {
-// 	Client	new_client;
-// 	Request	new_request;
-// 	Route	new_route;
-
-// 	std::string m_base_url = "/";
-// 	std::string m_file_search_path = "/html";
-// 	std::string m_upload_path = "/html";
-// 	bool m_has_autoindex = true;
-
-// 	std::vector<std::string> m_accepted_methods;
-// 	m_accepted_methods.push_back("GET");
-// 	m_accepted_methods.push_back("POST");
-// 	m_accepted_methods.push_back("DELETE");
-
-// 	std::vector<std::string> m_index_files;
-// 	m_index_files.push_back("index.html");
-// 	m_index_files.push_back("index.php");
-
-// 	std::vector<std::string> m_cgi_file_extensions;
-// 	m_cgi_file_extensions.push_back(".php");
-// 	m_cgi_file_extensions.push_back(".py");
-
-// 	new_route.setBaseUrl(m_base_url);
-// 	new_route.setFileSearchPath(m_file_search_path);
-// 	new_route.setUploadPath(m_upload_path);
-// 	new_route.setAutoIndex(m_has_autoindex);
-// 	new_route.setRedirect(0, "null");
-// 	new_route.setAcceptedMethods(m_accepted_methods);
-// 	new_route.setIndexFiles(m_index_files);
-// 	new_route.setCgiFileExtensions(m_cgi_file_extensions);
-
-//     new_client.m_request = new_request;
-// 	new_client.m_route = new_route;
-// 	new_client.m_request.setRequest(basic_get_request_wrong);
-// 	new_client.m_request.divideRequest();
-// 	new_client.m_request.errorChecking();
-//     new_client.checkRoute();
-
-//     std::map<int, std::pair<std::string, std::string>> m_error_files = ConfigUtil::getHandle().getStatusCodeMap();
-// 	Response new_response(new_client.m_request, new_client.m_route);
-
-// 	new_response.buildResponse(m_error_files);
-
-// 	SECTION("Start line")
-// 	{
-// 		REQUIRE(new_response.getStartLine() == "HTTP/1.1 505 HTTP Version Not Supported\r\n");
-// 	}
-
-// 	SECTION("Headers")
-// 	{
-// 		std::string test_date;
-// 		std::string test_content_length;
-// 		int			content_length;
-
-// 		content_length = new_response.getBody().length();
-// 		test_content_length = std::to_string(content_length);
-
-// 		std::time_t		rawtime;
-// 		struct std::tm	*ptm;
-// 		char			buf[50];
-
-// 		time(&rawtime);
-// 		ptm = gmtime(&rawtime);
-// 		strftime(buf, 500, "%a, %d %b %Y %H:%M:%S GMT", ptm);
-// 		test_date = std::string(buf);
-
-// 		std::map<std::string, std::string> TestMap =
-// 		{
-// 			{"Date", test_date},
-// 			{"Server", "Websurf/1.0.0 (Unix)"},
-// 			{"Connection", "close"},
-// 			{"Content-Length", test_content_length},
-// 			{"Content-Type", "text/html; charset=\"utf-8\""},
-// 	   };
-// 	   REQUIRE(new_response.getHeadersMap() == TestMap);
-// 	}
-
-// 	SECTION("Body")
-// 	{
-// 		// CHANGE THAT
-// 		REQUIRE(new_response.getBody().empty());
-// 	}
-// }
-
-// // TEST_CASE("Wrong basic post request")
-// // {
-// // 	new_request->setRequest(basic_post_request_wrong);
-// //   	new_request->divideRequest();
-// // 	new_request->errorChecking();
-// // 	if (new_request->getHeaders().find("Host") != new_request->getHeaders().end())
-// // 		std::cout << "I FOUND A HEADER WITH HOST: " << new_request->getHeaders().at("Host") << std::endl;;
-
-// // 	SECTION("Status")
-// // 	{
-// // 		REQUIRE(new_request->getStatus() == 400);
-// // 	}
-// // }
-
-// // TEST_CASE("Wrong basic delete request")
-// // {
-// // 	new_request->setRequest(basic_delete_request_wrong);
-// // 	new_request->divideRequest();
-// // 	new_request->errorChecking();
-
-// // 	SECTION("Status")
-// // 	{
-// // 		REQUIRE(new_request->getStatus() == 405);
-// // 	}
-// // }
+# include <unittests.hpp>
+# include <Response.hpp>
+# include <Request.hpp>
+# include <Route.hpp>
+# include <Config.hpp>
+
+# include <vector>
+# include <string>
+
+// Request setup
+
+// Basic GET Request
+static std::string basic_get_request_string =
+	"GET /?parameter1=waarde1&parameter2=waarde2&parameter3=waarde3 HTTP/1.1\r\n"
+	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+	"Host: localhost\r\n"
+	"Accept-Language: en-us\r\n"
+	"Accept-Encoding: gzip, deflate\r\n\r\n";
+
+// Route setup
+
+// Default Route 
+
+static std::string default_m_base_url = "/";
+static std::string default_m_file_search_path = "/html";
+static std::string default_m_upload_path = "/html";
+static bool default_m_has_autoindex = true;
+
+std::vector<std::string> default_m_accepted_methods{ "GET", "POST", "DELETE" };
+
+std::vector<std::string> default_m_index_files{ "index.html", "index.php" };
+
+std::vector<std::string> default_m_cgi_file_extensions{ ".php", ".py" };
+
+class TestResponse : public ::testing::Test
+{
+    public:
+        Response            res;
+        Request             req;
+        Route               rou;
+    protected:
+        void setRequestData(const std::string& data)
+        {
+            req.m_request = data;
+            req.parse();
+            req.errorChecking();
+        }
+
+        void setRouteData(const std::string& base_url, const std::string& file_search_path, const std::string& upload_path, 
+            const bool& has_autoindex, const std::vector<std::string> accepted_methods, const std::vector<std::string> cgi_file_extensions)
+        {
+            rou.setBaseUrl(base_url);
+            rou.setFileSearchPath(file_search_path);
+            rou.setUploadPath(upload_path);
+            rou.setAutoIndex(has_autoindex);
+            rou.setAcceptedMethods(accepted_methods);
+            rou.setCgiFileExtensions(cgi_file_extensions);
+        }
+
+        void setResponseData()
+        {
+            res.setRequest(req);
+            res.setRoute(rou);
+        }
+
+        status_code_map_t setDefaultStatusCodes(void)
+        {
+            status_code_map_t m_status_codes;
+
+            //------ 1xx - Informational ------
+            m_status_codes.insert(std::make_pair(100, std::make_pair("Continue", "")));
+            m_status_codes.insert(std::make_pair(101, std::make_pair("Switching Protocols", "")));
+            m_status_codes.insert(std::make_pair(102, std::make_pair("Processing", "")));
+            m_status_codes.insert(std::make_pair(103, std::make_pair("Early Hints", "")));
+
+            //------ 2xx - Successful ------
+            m_status_codes.insert(std::make_pair(200, std::make_pair("OK", "")));
+            m_status_codes.insert(std::make_pair(201, std::make_pair("Created", "")));
+            m_status_codes.insert(std::make_pair(202, std::make_pair("Accepted", "")));
+            m_status_codes.insert(std::make_pair(203, std::make_pair("Non-Authoritative Information", "")));
+            m_status_codes.insert(std::make_pair(204, std::make_pair("No Content", "")));
+            m_status_codes.insert(std::make_pair(205, std::make_pair("Reset Content", "")));
+            m_status_codes.insert(std::make_pair(206, std::make_pair("Partial Content", "")));
+            m_status_codes.insert(std::make_pair(207, std::make_pair("Multi-Status", "")));
+            m_status_codes.insert(std::make_pair(208, std::make_pair("Already Reported", "")));
+            m_status_codes.insert(std::make_pair(226, std::make_pair("Im Used", "")));
+
+            //------ 3xx - Redirection ------
+            m_status_codes.insert(std::make_pair(300, std::make_pair("Multiple Choices", "")));
+            m_status_codes.insert(std::make_pair(301, std::make_pair("Moved Permanently", "")));
+            m_status_codes.insert(std::make_pair(302, std::make_pair("Found", "")));
+            m_status_codes.insert(std::make_pair(303, std::make_pair("See Other", "")));
+            m_status_codes.insert(std::make_pair(304, std::make_pair("Not Modified", "")));
+            m_status_codes.insert(std::make_pair(305, std::make_pair("Use Proxy", "")));
+            m_status_codes.insert(std::make_pair(307, std::make_pair("Temporary Redirect", "")));
+            m_status_codes.insert(std::make_pair(308, std::make_pair("Permanent Redirect", "")));
+
+            //------ 4xx - Client Error ------
+            m_status_codes.insert(std::make_pair(400, std::make_pair("Bad Request", "")));
+            m_status_codes.insert(std::make_pair(401, std::make_pair("Unauthorized", "")));
+            m_status_codes.insert(std::make_pair(402, std::make_pair("Payment Required", "")));
+            m_status_codes.insert(std::make_pair(403, std::make_pair("Forbidden", "")));
+            m_status_codes.insert(std::make_pair(404, std::make_pair("Not Found", "")));
+            m_status_codes.insert(std::make_pair(405, std::make_pair("Method Not Allowed", "")));
+            m_status_codes.insert(std::make_pair(406, std::make_pair("Not Acceptable", "")));
+            m_status_codes.insert(std::make_pair(407, std::make_pair("Proxy Authentication Required", "")));
+            m_status_codes.insert(std::make_pair(408, std::make_pair("Request Timeout", "")));
+            m_status_codes.insert(std::make_pair(409, std::make_pair("Conflict", "")));
+            m_status_codes.insert(std::make_pair(410, std::make_pair("Gone", "")));
+            m_status_codes.insert(std::make_pair(411, std::make_pair("Length Required", "")));
+            m_status_codes.insert(std::make_pair(412, std::make_pair("Precondition Failed", "")));
+            m_status_codes.insert(std::make_pair(413, std::make_pair("Content Too Large", "")));
+            m_status_codes.insert(std::make_pair(414, std::make_pair("URI Too Long", "")));
+            m_status_codes.insert(std::make_pair(415, std::make_pair("Unsupported Media Type", "")));
+            m_status_codes.insert(std::make_pair(416, std::make_pair("Range Not Satisfiable", "")));
+            m_status_codes.insert(std::make_pair(417, std::make_pair("Expectation Failed", "")));
+            m_status_codes.insert(std::make_pair(418, std::make_pair("I'm a teapot", "")));
+            m_status_codes.insert(std::make_pair(421, std::make_pair("Misdirected Request", "")));
+            m_status_codes.insert(std::make_pair(422, std::make_pair("Unprocessable Content", "")));
+            m_status_codes.insert(std::make_pair(423, std::make_pair("Locked", "")));
+            m_status_codes.insert(std::make_pair(424, std::make_pair("Failed Dependency", "")));
+            m_status_codes.insert(std::make_pair(425, std::make_pair("Too Early", "")));
+            m_status_codes.insert(std::make_pair(426, std::make_pair("Upgrade Required", "")));
+            m_status_codes.insert(std::make_pair(428, std::make_pair("Precondition Required", "")));
+            m_status_codes.insert(std::make_pair(429, std::make_pair("Too Many Requests", "")));
+            m_status_codes.insert(std::make_pair(431, std::make_pair("Request Header Fields Too Large", "")));
+            m_status_codes.insert(std::make_pair(451, std::make_pair("Unavailable For Legal Reasons", "")));
+
+            //------ 5xx - Server Error ------
+            m_status_codes.insert(std::make_pair(500, std::make_pair("Internal Server Error", "")));
+            m_status_codes.insert(std::make_pair(501, std::make_pair("Not Implemented", "")));
+            m_status_codes.insert(std::make_pair(502, std::make_pair("Bad Gateway", "")));
+            m_status_codes.insert(std::make_pair(503, std::make_pair("Service Unavailable", "")));
+            m_status_codes.insert(std::make_pair(504, std::make_pair("Gateway Timeout", "")));
+            m_status_codes.insert(std::make_pair(505, std::make_pair("HTTP Version Not Supported", "")));
+            m_status_codes.insert(std::make_pair(506, std::make_pair("Variant Also Negotiates", "")));
+            m_status_codes.insert(std::make_pair(507, std::make_pair("Insufficient Storage", "")));
+            m_status_codes.insert(std::make_pair(508, std::make_pair("Loop Detected", "")));
+            m_status_codes.insert(std::make_pair(510, std::make_pair("Not Extended", "")));
+            m_status_codes.insert(std::make_pair(511, std::make_pair("Network Authentication Required", "")));
+
+            return(m_status_codes);
+        }
+};
+
+TEST_F(TestResponse, GetRequestBasicConf)
+{
+    setRequestData(basic_get_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+    res.buildResponse(m_status_codes);
+    EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 200 OK\r\n");
+}
