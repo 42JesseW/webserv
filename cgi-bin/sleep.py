@@ -1,10 +1,8 @@
-#!.venv/bin/python
+#!/usr/bin/python3
 
-print("Content-Type: text/html");
-print("Content-Length: 90\n");
-print("<html>");
-print("<body>");
-print("<h1>Sleep</h1>");
-print("</body>");
-print("</html>");
+import time
 
+time.sleep(5)
+
+print("Content-type:text/html\r\n\r\n")
+print("<h1>Feeling sleepy...</h1>")
