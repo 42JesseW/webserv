@@ -134,7 +134,7 @@ $(LIB_BASE)/openssl/lib/libssl.a:
   		cd $(LIB_BASE) && tar -xzf openssl-$(OPENSSL_VERSION).tar.gz; \
   	fi
 	@mkdir -p $(LIB_BASE)/openssl
-	@cd $(LIB_BASE)/openssl-$(OPENSSL_VERSION) && ./Configure --prefix=$(PWD)/$(LIB_BASE)/openssl
+	@cd $(LIB_BASE)/openssl-$(OPENSSL_VERSION) && ./Configure --prefix=$(PWD)/$(LIB_BASE)/openssl --libdir=lib
 	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION)
 	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) install_sw
 
