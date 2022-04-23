@@ -1,9 +1,6 @@
 #pragma once
 
-#define DFL_FILE_SEARCH_PATH   "html/"
-#define DFL_UPLOAD_PATH        "html/"
-#define DFL_INDEX_FILE         "index.html"
-
+#include <Defines.hpp>
 #include <Webserv.hpp>
 
 struct s_redirect

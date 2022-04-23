@@ -1,23 +1,13 @@
 #pragma once
 
-#define CR "\r"
-#define LF "\n"
-#define HTTP_VERSION   "HTTP/1.1"
-#define CGI_VERSION    "CGI/1.1"
-
-#define DFL_CGI_DIR    "cgi-bin/"
+#include <Defines.hpp>
 
 #define UNSET_PID      (-1)
 #define UNSET_PIPE     0
 #define MAX_PIPE_SIZE  65536
 
 #include <Utils.hpp>
-
-#include <unistd.h>
-
-#include <iostream>
 #include <Request.hpp>
-#include <poll.h>
 
 /*
  * Encapsulates all operations and data related to
@@ -70,6 +60,8 @@ private:
     int             m_pipe_in[2];
     int             m_pipe_out[2];
 
+    bool            m_done;
+
 public:
     CGI(void);
     CGI(const CGI& cpy);
@@ -77,8 +69,12 @@ public:
 
     CGI&            operator = (const CGI& rhs);
 
+    void            setDone();
     void            setProgramPath(const std::string& path);
 
+    void            readAndAppend();
+
+    bool            isDone();
     pid_t&          getForkedPid(void);
     int&            getPipeReadFd(void);
     pollfd          getPollFdStruct(void);

@@ -1,6 +1,7 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
+# include <Defines.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
 # include <Utils.hpp>
@@ -10,9 +11,6 @@
 # include <time.h>
 # include <ctime>
 # include <cstdlib>
-# include <iostream>
-# include <fstream>
-# include <sstream>
 
 # define RETRY_AFTER_SEC	"120"
 # define HTML_FILE_FLAG		0

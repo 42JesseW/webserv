@@ -1,7 +1,6 @@
 #pragma once
 
-#include <csignal>
-#include <cstring>
+#include <Defines.hpp>
 #include <ConfigUtil.hpp>
 
 void    signal_handler(int sig);

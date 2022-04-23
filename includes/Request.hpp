@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Defines.hpp>
 #include <Webserv.hpp>
 #include <StatusCodes.hpp>
 
-#define BUFF_SIZE 2048
 #define DFL_TARGET      "/"
 
 class Request

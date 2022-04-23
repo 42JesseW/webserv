@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Defines.hpp>
 #include <Socket.hpp>
-#define RECV_SIZE   10
 
 /*
  * Used to encapsulate the socket data retrieved

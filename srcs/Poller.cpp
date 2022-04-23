@@ -91,9 +91,11 @@ void            *Poller::pollPort(void *instance)
                 }
                 else if (poller->_checkIfCGIFd(poller->m_pfds[idx].fd))
                 {
-                    poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                    std::cout << "READING FROM: " << std::endl;
+                    poller->_readCGIData(poller->m_pfds[idx].fd);
                 }
                 else {
+                    std::cout << "READING FROM: " << poller->m_pfds[idx].fd << std::endl;
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
                 }
                 usleep(POLLIN_SLEEP_MS);
@@ -309,33 +311,28 @@ void            Poller::_readConnectionData(int &socket_fd)
     connection->readSocket();
 }
 
+void            Poller::_readCGIData(int socket_fd)
+{
+    Connection     *connection;
+
+    connection = _searchCorrectConnection(socket_fd);
+    connection->getCGI()->readAndAppend();
+    if (connection->getCGI()->isDone())
+    {
+        connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+        m_dropped_fds.push(socket_fd);
+    }
+}
+
 bool            Poller::_checkIfCGIFd(int socket_fd)
 {
     clients_t::iterator             client_it;
-    Connection                      *connection = NULL;
-    char                            *buff;
-    ssize_t                         bytes_read;
 
-    buff = new char[RECV_SIZE + 1];
     for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
         if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
         {
-            connection = client_it->second;
-            if ((bytes_read = ::read(socket_fd, buff, RECV_SIZE)) == SYS_ERROR) {
-                fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
-                return (true);
-            }
-            else
-            {
-                connection->getCGI()->appendResponse(buff, bytes_read);
-                if (bytes_read < RECV_SIZE)
-                {
-                    connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-                    m_dropped_fds.push(client_it->first);
-                    return (true);
-                }
-            }
+            return (true);
         }
     }
     return (false);

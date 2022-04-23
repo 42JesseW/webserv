@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Defines.hpp>
 #include <ConfigUtil.hpp>
 #include <ServerSocket.hpp>
 #include <Connection.hpp>
 #include <Route.hpp>
-
-#include <sys/poll.h>
 
 #define DFL_MAX_BODY_SIZE   1       /* in Megabytes */
 #define DFL_SERVER_NAME     ""

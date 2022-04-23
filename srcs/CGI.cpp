@@ -3,7 +3,8 @@
 CGI::CGI() :
     m_argv(NULL),
     m_envp(NULL),
-    m_fork_pid(UNSET_PID)
+    m_fork_pid(UNSET_PID),
+    m_done(false)
 {
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
@@ -44,6 +45,16 @@ void                CGI::setProgramPath(const std::string& path)
     m_program_path = path;
 }
 
+void                CGI::setDone(void)
+{
+    m_done = true;
+}
+
+bool                CGI::isDone(void)
+{
+    return (m_done);
+}
+
 pid_t&              CGI::getForkedPid(void)
 {
     return (m_fork_pid);
@@ -59,6 +70,23 @@ std::string         CGI::getResponse(void)
     return (m_response);
 }
 
+void           CGI::readAndAppend()
+{
+    ssize_t bytes_read;
+    char    *buff;
+
+    buff = new char[RECV_SIZE + 1];
+    if ((bytes_read = ::read(getPipeReadFd(), buff, RECV_SIZE)) == SYS_ERROR) {
+        fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
+    }
+    else
+    {
+        appendResponse(buff, bytes_read);
+        if (bytes_read < RECV_SIZE)
+            setDone();
+    }
+}
+
 pollfd         CGI::getPollFdStruct(void)
 {
     struct pollfd new_pollfd;
@@ -68,7 +96,6 @@ pollfd         CGI::getPollFdStruct(void)
     new_pollfd.revents = 0;
     return (new_pollfd);
 }
-
 
 /*
  * https://en.wikipedia.org/wiki/Common_Gateway_Interface

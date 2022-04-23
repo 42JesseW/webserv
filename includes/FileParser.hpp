@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Defines.hpp>
 #include <Webserv.hpp>
 #include <Config.hpp>
 
 #include <deque>
-#include <stack>
 #include <exception>
 
 #include <dirent.h>
