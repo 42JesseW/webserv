@@ -20,13 +20,6 @@ const std::string basic_post = ""
        "\r\n"
        "num1=10&num2=20";
 
-TEST(TestRequest, SimpleParse)
-{
-    SimpleRequest   request;
-
-    request.parse(basic_post.c_str());
-}
-
 class TestCGIFixture : public ::testing::Test
 {
 public:
@@ -49,8 +42,8 @@ protected:
 
 TEST_F(TestCGIFixture, SimpleInit)
 {
-    CGI             simple_cgi;
-    SimpleRequest   request;
+    CGI       simple_cgi;
+    Request   request;
 
     request.parse(basic_post.c_str());
     simple_cgi.setProgramPath(getProgramPath("sleep.py"));
@@ -68,7 +61,7 @@ TEST_F(TestCGIFixture, SimpleInit)
 TEST_F(TestCGIFixture, SimpleExecWithSleep)
 {
     CGI             simple_cgi;
-    SimpleRequest   request;
+    Request   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
@@ -103,7 +96,7 @@ TEST_F(TestCGIFixture, SimpleExecWithSleep)
 TEST_F(TestCGIFixture, SimpleExecHelloWorld)
 {
     CGI             simple_cgi;
-    SimpleRequest   request;
+    Request   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
@@ -145,7 +138,7 @@ TEST_F(TestCGIFixture, SimpleExecHelloWorld)
 TEST_F(TestCGIFixture, SimpleExecFormInput)
 {
     CGI             simple_cgi;
-    SimpleRequest   request;
+    Request   request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];

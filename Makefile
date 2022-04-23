@@ -50,7 +50,10 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/request/ErrorHandling.cpp \
               $(SOURCE_DIR)/request/Request.cpp \
               $(SOURCE_DIR)/request/Decoder.cpp \
-              $(SOURCE_DIR)/response/Response.cpp
+              $(SOURCE_DIR)/response/Response.cpp \
+              $(SOURCE_DIR)/response/ResponseBody.cpp \
+              $(SOURCE_DIR)/response/ResponseHeaders.cpp \
+              $(SOURCE_DIR)/response/ResponseStartLine.cpp
 
 TST_SRC		= $(TEST_DIR)/unittests/test_cgi.cpp \
 			  $(TEST_DIR)/unittests/test_connection.cpp \
@@ -142,14 +145,3 @@ $(LIB_BASE)/openssl/lib/libssl.a:
 tester: $(OBJECTS) $(LIB_BASE)/googletest/lib/libgtest.a $(LIB_BASE)/openssl/lib/libssl.a $(LIB_BASE)/curl/lib/libcurl.a $(TST_OBJECTS)
 	$(CXX) $(OBJECTS) $(TST_OBJECTS) -o $@ $(CFLAGS) $(TST_HEADERS) $(LIBS) $(CLINKS) -lcurl -lgtest -lgtest_main
 
-# mkdir libs/openssl
-# libs/openssl-{version}/Configure --prefix=$PWD/libs/openssl
-# make -C libs/openssl-{version}
-# make -C libs/openssl-{version} install
-# mkdir curl
-# libs/curl-{version}/configure --prefix=$PWD/libs/curl --with-openssl=$PWD/libs/openssl
-# make -C libs/curl-{version}
-# make -C libs/curl-{version} install
-# mv libs/googletest-release-{version} libs/googletest
-# cmake libs/googletest-release-{version}
-# cmake --build libs/googletest-release-{version}

@@ -1,27 +1,29 @@
 #include <Connection.hpp>
 
 // TODO these constructors and destructors SUCK
-Connection::Connection(void) : m_sock(NULL), m_route(NULL)
+Connection::Connection(void) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
 {
-
 }
 
-Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL)
+Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
 {
     *this = cpy;
 }
 
-Connection::Connection(ClientSocket *sock) : m_sock(sock)
+Connection::Connection(ClientSocket *sock) : m_sock(sock), m_cgi(NULL), m_cgi_added(false)
 {
-
 }
 
 Connection::~Connection(void)
 {
+    std::cout << "[DEBUG] Closing client connection" << '\n';
     if (m_sock)
     {
-        std::cout << "[DEBUG] Closing client connection" << '\n';
         delete m_sock;
+    }
+    if (m_cgi)
+    {
+        delete m_cgi;
     }
 }
 
@@ -37,6 +39,7 @@ Connection&     Connection::operator = (const Connection &conn)
         if (conn.m_route)
             m_route = new Route(*conn.m_route);
         m_request = conn.m_request;
+        m_cgi = conn.m_cgi;
     }
     return (*this);
 }
@@ -50,9 +53,19 @@ void            Connection::setSocket(ClientSocket *sock)
     m_sock = sock;
 }
 
+CGI*       Connection::getCGI(void)
+{
+    return (m_cgi);
+}
+
 Request&       Connection::getRequest(void)
 {
     return (m_request);
+}
+
+ClientSocket*   Connection::getSock(void)
+{
+    return (m_sock);
 }
 
 void            Connection::readSocket(void)
@@ -79,7 +92,6 @@ void            Connection::readSocket(void)
 
 void            Connection::parseRequest(void)
 {
-    std::cout << "[DEBUG] Building request object\n" << '\n';
     if (!m_request.m_request.empty())
         m_request.parse();
     else
@@ -93,19 +105,39 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
-    if (m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED) 
+    if ((m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED)
+        || m_request.getMethod() == "DELETE") 
     {
         response = new Response(m_request);
     }
     else
     {
         checkRoute();
+        methodHandler();
         response = new Response(m_request, *m_route);
     }
     response->buildResponse(*error_files);
-
     m_sock->send(response->getResponse().c_str());
     delete response;
+}
+
+void            Connection::methodHandler(void)
+{
+    Handler    method_handler;
+
+    if (m_request.getStatus() == HTTP_STATUS_OK)
+    {
+        if (m_request.getMethod() == "POST" \
+        && method_handler.post_handler(m_request, m_route->getUploadPath()))
+        {
+            m_request.setStatus(HTTP_STATUS_CREATED);
+        }
+        else if (m_request.getMethod() == "DELETE" \
+        && method_handler.delete_handler(m_request, m_route->getFileSearchPath()))
+        {
+            m_request.setStatus(HTTP_STATUS_OK);
+        }
+    }
 }
 
 void            Connection::close(void)
@@ -219,9 +251,16 @@ bool Connection::searchCGIExtensions(void)
         if (extension == *it)
         {
             m_request.setStatus(HTTP_STATUS_OK);
+            m_request.setCGI(true);
             return (true);
         }
     }
     m_request.setStatus(HTTP_STATUS_NOT_FOUND);
     return (false);
+}
+
+void Connection::initCGI(void)
+{
+    m_cgi = new CGI;
+    m_cgi->init(m_request);
 }

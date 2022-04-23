@@ -9,4 +9,3 @@ print('<body>')
 print('<h2>Hello World! This is my first CGI program</h2>')
 print('</body>')
 print('</html>')
-
