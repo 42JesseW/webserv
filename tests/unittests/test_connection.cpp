@@ -19,9 +19,11 @@ Route   *get_matching_route(void)
 }
 
 TEST(ConnectionConstruction, Default) {
-    Connection  conn;
+    Connection  *conn;
 
-    EXPECT_TRUE(!conn.m_sock);
+    conn = new Connection();
+    EXPECT_TRUE(!conn->m_sock);
+	delete conn;
 }
 
 TEST(ConnectionChecking, SinglePOLLINAndPOLLOUT) {

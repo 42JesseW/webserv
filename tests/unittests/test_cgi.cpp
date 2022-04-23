@@ -13,7 +13,6 @@
 
 const std::string basic_post = ""
        "POST /test?field1=10&field2=20 HTTP/1.1\r\n"
-       "\r\n"
        "Host: foo.example\r\n"
        "Content-Type: application/x-www-form-urlencoded\r\n"
        "Content-Length: 15\r\n"
@@ -45,7 +44,8 @@ TEST_F(TestCGIFixture, SimpleInit)
     CGI       simple_cgi;
     Request   request;
 
-    request.parse(basic_post.c_str());
+    request.appendRequestData(basic_post.c_str(), basic_post.size());
+    request.parse();
     simple_cgi.setProgramPath(getProgramPath("sleep.py"));
     simple_cgi.init(request);
     EXPECT_EQ(simple_cgi.m_environ["CONTENT_TYPE"], request.m_headers["Content-Type"]);
@@ -69,7 +69,7 @@ TEST_F(TestCGIFixture, SimpleExecWithSleep)
       "Content-type:text/html\r\n\r\n\n"
       "<h1>Feeling sleepy...</h1>\n";
 
-    request.parse(basic_post.c_str());
+    request.appendRequestData(basic_post.c_str(), basic_post.size());
     simple_cgi.setProgramPath(getProgramPath("sleep.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
@@ -111,7 +111,7 @@ TEST_F(TestCGIFixture, SimpleExecHelloWorld)
       "</body>\n"
       "</html>\n";
 
-    request.parse(basic_post.c_str());
+    request.appendRequestData(basic_post.c_str(), basic_post.size());
     simple_cgi.setProgramPath(getProgramPath("hello_world.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
@@ -138,7 +138,7 @@ TEST_F(TestCGIFixture, SimpleExecHelloWorld)
 TEST_F(TestCGIFixture, SimpleExecFormInput)
 {
     CGI             simple_cgi;
-    Request   request;
+    Request   		request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
@@ -147,7 +147,8 @@ TEST_F(TestCGIFixture, SimpleExecFormInput)
       "<h1>Addition Results</h1>\n"
       "<output>10 + 20 = 30</output>\n";
 
-    request.parse(basic_post.c_str());
+    request.appendRequestData(basic_post.c_str(), basic_post.size());
+    request.parse();
     simple_cgi.setProgramPath(getProgramPath("form_input.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);

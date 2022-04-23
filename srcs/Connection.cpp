@@ -1,16 +1,28 @@
 #include <Connection.hpp>
 
 // TODO these constructors and destructors SUCK
-Connection::Connection(void) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(void) :
+    m_sock(NULL),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
 }
 
-Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(const Connection &cpy) :
+    m_sock(NULL),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
     *this = cpy;
 }
 
-Connection::Connection(ClientSocket *sock) : m_sock(sock), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(ClientSocket *sock) :
+    m_sock(sock),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
 }
 
