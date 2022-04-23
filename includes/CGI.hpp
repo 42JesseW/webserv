@@ -85,8 +85,6 @@ public:
     std::string     getResponse(void);
     void            appendResponse(char *response, ssize_t size);
 
-    void            _cleanUp(void);
-
     /*
      * initialize the CGI structure using the Request object
      */

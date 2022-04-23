@@ -250,7 +250,6 @@ bool            Poller::_initAndExecCGI(int socket_fd)
         connection->getCGI()->setProgramPath(DFL_CGI_DIR + connection->getRequest().getFilename());
         if (connection->getCGI()->exec() == EXIT_FAILURE)
         {
-            connection->getCGI()->_cleanUp();
             connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
             connection->sendResponse(connection->getErrorFiles());
             return (false);
@@ -325,19 +324,18 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
             connection = client_it->second;
             if ((bytes_read = ::read(socket_fd, buff, RECV_SIZE)) == SYS_ERROR) {
                 fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
-                return (false);
+                return (true);
             }
             else
             {
                 connection->getCGI()->appendResponse(buff, bytes_read);
                 if (bytes_read < RECV_SIZE)
                 {
-                    std::cout << "READ: " << bytes_read << std::endl;
                     connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                     m_dropped_fds.push(client_it->first);
+                    return (true);
                 }
             }
-            return (true);
         }
     }
     return (false);

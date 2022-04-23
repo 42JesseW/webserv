@@ -200,13 +200,6 @@ int                 CGI::exec(void)
     return (EXIT_SUCCESS);
 }
 
-void                CGI::_cleanUp(void)
-{
-    /* errno can be check after a dup (not after read or write) */
-    ft::freeCharArr(&m_envp);
-    ft::freeCharArr(&m_argv);
-}
-
 void                CGI::reset(void)
 {
     m_program_path.clear();
