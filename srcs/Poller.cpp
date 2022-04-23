@@ -1,6 +1,8 @@
 #include <Poller.hpp>
 #include <Handler.hpp>
 
+#define reponse "HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 12:28:53 GMT\r\nServer: Apache/2.2.14 (Win32)\r\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\nContent-Length: 88\r\nContent-Type: text/html\r\nConnection: Closed"
+
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
@@ -33,6 +35,18 @@ Poller&         Poller::operator = (const Poller &rhs)
         m_new_connection = rhs.m_new_connection;
     }
     return (*this);
+}
+
+Connection          *Poller::_searchCorrectConnection(int socket_fd)
+{
+    clients_t::iterator it;
+
+    it = m_clients.find(socket_fd);
+    if (it != m_clients.end())
+    {
+        return (it->second);
+    }
+    return (NULL);
 }
 
 void            *Poller::pollPort(void *instance)
@@ -77,6 +91,10 @@ void            *Poller::pollPort(void *instance)
                 if (poller->m_pfds[idx].fd == port_config->getSocket()->getFd()) {
                     poller->_getNewConnection();
                 }
+                else if (poller->_checkIfCGIFd(poller->m_pfds[idx].fd))
+                {
+                    poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                }
                 else {
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
                 }
@@ -86,12 +104,21 @@ void            *Poller::pollPort(void *instance)
             {
                 if (poller->m_pfds[idx].revents & (POLLOUT))
                 {
-                    poller->_parseAndRespond(poller->m_pfds[idx].fd);
-                    poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                    poller->_parse(poller->m_pfds[idx].fd);
+                    if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
+                    {
+                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
+                    }
+                    else
+                    {
+                        poller->_respond(poller->m_pfds[idx].fd);
+                        poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                    }
                 }
             }
         }
-        poller->_updatePollFds();
+        poller->_deletePollFds();
+        poller->_addPollFds();
     }
     delete poller;
     return (NULL);
@@ -127,11 +154,11 @@ Poller            *Poller::_initPoller(PortConfig **port_config, void *instance)
  * - add new connection if available in m_new_connection
  * - empty m_dropped_clients and remove from vector and map
  */
-void            Poller::_updatePollFds(void)
+void            Poller::_addPollFds(void)
 {
     struct pollfd       client;
     clients_t::iterator client_it;
-    int                 dropped_client_fd;
+    Connection          *connection = NULL;
 
     if (m_new_connection.second)
     {
@@ -141,6 +168,22 @@ void            Poller::_updatePollFds(void)
         m_pfds.push_back(client);
         m_clients.insert(m_new_connection);
     }
+    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
+    {
+        connection = client_it->second;
+        if (connection->getCGI() != NULL && connection->m_cgi_added == false)
+        {
+            m_pfds.push_back(connection->getCGI()->getPollFdStruct());
+            connection->m_cgi_added = true;
+        }
+    }
+}
+
+void            Poller::_deletePollFds(void)
+{
+    int                 dropped_client_fd;
+    clients_t::iterator client_it;
+
     while (!m_dropped_fds.empty())
     {
         dropped_client_fd = m_dropped_fds.top();
@@ -157,43 +200,62 @@ void            Poller::_updatePollFds(void)
 
         /* remove from client map */
         client_it = m_clients.find(dropped_client_fd);
-        delete client_it->second;
-        m_clients.erase(client_it);
-
+        if (client_it != m_clients.end())
+        {
+            delete client_it->second;
+            m_clients.erase(client_it);
+        }
         m_dropped_fds.pop();
     }
 }
 
-void            Poller::_parseAndRespond(int &socket_fd)
+void            Poller::_parse(int &socket_fd)
 {
-    ConfigUtil::status_code_map_t   *error_files = NULL;
-    clients_t::iterator             it;
+    Connection          *connection;
+
+    connection = _searchCorrectConnection(socket_fd);
+    connection = m_clients.find(socket_fd)->second;
+    if (connection->getRequest().getHeaders().empty())
+        connection->parseRequest();
+}
+
+void            Poller::_respond(int &socket_fd)
+{
     Connection                      *connection;
     Route                           *matched_route;
-    Handler                         method_handler;
+    ConfigUtil::status_code_map_t   *error_files = NULL;
 
-    /* POLLOUT on client socket */
-    it              = m_clients.find(socket_fd);
-    connection      = it->second;
-    connection->parseRequest();
-
+    connection = _searchCorrectConnection(socket_fd);
     matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-
     if (matched_route != NULL && connection->getRequest().getStatus() == HTTP_STATUS_OK)
     {
         connection->setRoute(matched_route);
-        if (connection->getRequest().getMethod() == "POST" \
-        && method_handler.post_handler(connection->getRequest(), matched_route->getUploadPath()))
-        {
-            connection->getRequest().setStatus(HTTP_STATUS_CREATED);
-        }
-        else if (connection->getRequest().getMethod() == "DELETE" \
-        && method_handler.delete_handler(connection->getRequest(), matched_route->getFileSearchPath()))
-        {
-            connection->getRequest().setStatus(HTTP_STATUS_OK);
-        }
     }
     connection->sendResponse(error_files);
+}
+
+bool            Poller::_checkIfCGIConnection(int socket_fd)
+{
+    Connection          *connection;
+
+    connection = _searchCorrectConnection(socket_fd);
+    if (connection->getRequest().isCGI())
+    {
+        return (true);
+    }
+    return (false);
+}
+
+void            Poller::_initAndExecCGI(int socket_fd)
+{
+    Connection          *connection;
+
+    connection = _searchCorrectConnection(socket_fd);
+    if (!connection->getCGI())
+    {
+        connection->initCGI();
+        connection->getCGI()->exec();
+    }
 }
 
 void            Poller::_getNewConnection(void)
@@ -217,10 +279,38 @@ void            Poller::_getNewConnection(void)
 
 void            Poller::_readConnectionData(int &socket_fd)
 {
-    clients_t::iterator it;
     Connection          *connection;
 
-    it = m_clients.find(socket_fd);
-    connection = it->second;
+    connection = _searchCorrectConnection(socket_fd);
     connection->readSocket();
+}
+
+bool            Poller::_checkIfCGIFd(int socket_fd)
+{
+    clients_t::iterator             client_it;
+    Connection                      *connection = NULL;
+    char                            *buff;
+    ssize_t                         bytes_read;
+
+    buff = new char[RECV_SIZE + 1];
+    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
+    {
+        if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
+        {
+            connection = client_it->second;
+            if ((bytes_read = ::read(socket_fd, buff, RECV_SIZE)) == SYS_ERROR) {
+                fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
+                return (false);
+            }
+            else
+            {
+                connection->getCGI()->appendResponse(buff, bytes_read);
+                std::cout << connection->getCGI()->getResponse();
+                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+                m_dropped_fds.push(client_it->first);
+            }
+            return (true);
+        }
+    }
+    return (false);
 }

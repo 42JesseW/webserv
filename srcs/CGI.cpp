@@ -1,7 +1,7 @@
 #include <CGI.hpp>
 
 CGI::CGI() :
-    m_program_path(DFL_CGI_DIR "/" DFL_CGI_PROG),
+    m_program_path(DFL_CGI_DIR DFL_CGI_PROG),
     m_argv(NULL),
     m_envp(NULL),
     m_fork_pid(UNSET_PID)
@@ -55,6 +55,22 @@ int&                CGI::getPipeReadFd(void)
     return (m_pipe_out[0]);
 }
 
+std::string         CGI::getResponse(void)
+{
+    return (m_response);
+}
+
+pollfd         CGI::getPollFdStruct(void)
+{
+    struct pollfd new_pollfd;
+
+    new_pollfd.fd = m_pipe_out[0];
+    new_pollfd.events = (POLLIN);
+    new_pollfd.revents = 0;
+    return (new_pollfd);
+}
+
+
 /*
  * https://en.wikipedia.org/wiki/Common_Gateway_Interface
  *
@@ -85,19 +101,33 @@ int&                CGI::getPipeReadFd(void)
  *      Variables passed by user agent (HTTP_ACCEPT, HTTP_ACCEPT_LANGUAGE, HTTP_USER_AGENT, HTTP_COOKIE and
  *      possibly others) contain values of corresponding HTTP headers and therefore have the same sense.
  */
-void                CGI::init(SimpleRequest& request)
+void                CGI::init(Request& request)
 {
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
-    m_environ["SERVER_NAME"] = ""; // TODO Use Server.m_names[0] or request.headers.host
+    if (request.getHeaders().find("Host") != request.getHeaders().end())
+    {
+        m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second;
+    }
+    else
+    {
+        m_environ["SERVER_NAME"] = "???"; // TODO How to get Server.m_names[0]?
+    }
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
-
-    m_environ["SERVER_PROTOCOL"] = request.getHttpVersion();
+    m_environ["SERVER_PROTOCOL"] = request.getVersion();
     m_environ["SERVER_PORT"] = ""; // TODO Use server.m_socket.port
     m_environ["REQUEST_METHOD"] = request.getMethod();
-    m_environ["PATH_INFO"] = request.getPath();
+    m_environ["PATH_INFO"] = request.getCGIPath();
     m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
-    m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
+    if (request.getFilename().empty())
+    {
+        m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
+    }
+    else
+    {
+        m_environ["SCRIPT_NAME"] = request.getFilename();
+        setProgramPath(DFL_CGI_DIR + request.getFilename());
+    }
     m_environ["QUERY_STRING"] = request.getQuery();
     m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
     m_environ["REMOTE_ADDR"] = "";      // TODO use inet_ntoa()?
@@ -111,7 +141,6 @@ void                CGI::init(SimpleRequest& request)
             std::string("Content-Length"),
             ft::intToString(request.getBody().size())
     );
-
     m_envp = _environToEnvp();                                          // TODO testcase
     if (!m_envp)
         throw std::runtime_error("Failed to allocate for GGI::m_envp");
@@ -125,7 +154,6 @@ void                CGI::init(SimpleRequest& request)
     if (pipe(m_pipe_in) == SYS_ERROR || pipe(m_pipe_out) == SYS_ERROR)  // TODO testcase
         throw std::runtime_error("Failed to create pipes for CGI object");
     fcntl(m_pipe_out[0], F_SETFL, O_NONBLOCK);
-
     m_request_body = request.getBody();
 }
 
@@ -261,120 +289,7 @@ char                **CGI::_argsToArgv(void)
     return (argv);
 }
 
-SimpleRequest::SimpleRequest()
+void       CGI::appendResponse(char *response, ssize_t size)
 {
-
-}
-
-SimpleRequest::SimpleRequest(const SimpleRequest &cpy)
-{
-    *this = cpy;
-}
-
-SimpleRequest::~SimpleRequest()
-{
-
-}
-
-SimpleRequest&      SimpleRequest::operator = (const SimpleRequest &rhs)
-{
-    if (this != &rhs)
-    {
-        m_method = rhs.m_method;
-        m_uri = rhs.m_uri;
-        m_http_version = rhs.m_http_version;
-        m_headers = rhs.m_headers;
-        m_body = rhs.m_body;
-    }
-    return (*this);
-}
-
-void                SimpleRequest::parse(const char *request)
-{
-    std::string header_name, header_value;
-    std::string request_s(request);
-    size_t      pos;
-    size_t      uri_pos;
-    size_t      header_pos;
-
-    if ((pos = request_s.find(' ')) == std::string::npos)
-        throw std::invalid_argument("Parse fail");
-    m_method = request_s.substr(0, pos);
-
-    request_s.erase(0, pos + 1);
-    if ((pos = request_s.find(' ')) == std::string::npos)
-        throw std::invalid_argument("Parse fail");
-
-    m_uri = request_s.substr(0, pos);
-    if ((uri_pos = m_uri.find('?')) != std::string::npos)
-    {
-        m_query = m_uri.substr(uri_pos + 1, std::string::npos);
-        m_uri = m_uri.substr(0, uri_pos);
-    }
-    request_s.erase(0, pos + 1);
-
-    if ((pos = request_s.find(*CR)) == std::string::npos)
-        throw std::invalid_argument("Parse fail");
-    m_http_version = request_s.substr(0, pos);
-    if (m_http_version != HTTP_VERSION)
-        throw std::invalid_argument("Invalid HTPT version " + m_http_version);
-    request_s.erase(0, pos);
-    request_s.erase(0, request_s.find_first_not_of(CR LF));
-
-//    std::cout << "REQUEST LINE\n" << m_method << " | " << m_uri << " | " << m_query << " | " << m_http_version << "\n\n";
-    while (!request_s.empty() && request_s.find(CR LF) != 0)
-    {
-        if ((pos = request_s.find(':')) == std::string::npos)
-            throw std::invalid_argument("Parse fail");
-        header_name = request_s.substr(0, pos);
-        header_pos = request_s.find((*LF));
-        /* +2 to avoid adding the extra space after ':' and -3 since we don't want the \n */
-        header_value = request_s.substr(pos + 2, header_pos - pos - 3);
-        request_s.erase(0, header_pos + 1);
-//        std::cout << "header -> " << header_name << ": " << header_value << '\n';
-        m_headers.insert(std::make_pair(header_name, header_value));
-    }
-
-    if (!request_s.empty())
-    {
-        /* remove CR LF */
-        request_s.erase(0, 2);
-        m_body = request_s;
-    }
-//    std::cout << "\nBODY\n" << m_body << '\n';
-}
-
-std::string&                SimpleRequest::getMethod(void)
-{
-    return (m_method);
-}
-
-std::string&                SimpleRequest::getUri(void)
-{
-    return (m_uri);
-}
-
-std::string&                SimpleRequest::getPath(void)
-{
-    return (m_path);
-}
-
-std::string&                SimpleRequest::getQuery(void)
-{
-    return (m_query);
-}
-
-std::string&                SimpleRequest::getHttpVersion(void)
-{
-    return (m_http_version);
-}
-
-SimpleRequest::headers_t&   SimpleRequest::getHeaders(void)
-{
-    return (m_headers);
-}
-
-std::string&                SimpleRequest::getBody(void)
-{
-    return (m_body);
+    m_response.append(response, size);
 }

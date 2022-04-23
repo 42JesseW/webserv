@@ -300,7 +300,6 @@ void					Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 		}
 		else
 			_readFileIntoString(m_request.getFilename(), HTML_FILE_FLAG);
-		
 	}
 
 	if (m_request.getMethod() == "GET" && m_status_code == HTTP_STATUS_NOT_FOUND)
