@@ -30,6 +30,9 @@ SRC         = $(SOURCE_DIR)/ConfigUtil.cpp \
               $(SOURCE_DIR)/request/Request.cpp \
               $(SOURCE_DIR)/request/Decoder.cpp \
               $(SOURCE_DIR)/response/Response.cpp \
+              $(SOURCE_DIR)/response/ResponseBody.cpp \
+              $(SOURCE_DIR)/response/ResponseHeaders.cpp \
+              $(SOURCE_DIR)/response/ResponseStartLine.cpp \
 			  $(SOURCE_DIR)/main.cpp
 
 OBJECTS		= $(patsubst %.cpp, %.o, $(SRC))
