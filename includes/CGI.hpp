@@ -5,8 +5,8 @@
 #define HTTP_VERSION   "HTTP/1.1"
 #define CGI_VERSION    "CGI/1.1"
 
-#define DFL_CGI_DIR    "cgi-bin"
-#define DFL_CGI_PROG   "php-cgi"
+#define DFL_CGI_DIR    "cgi-bin/"
+#define DFL_CGI_PROG   "hello_world.py"
 
 #define UNSET_PID      (-1)
 #define UNSET_PIPE     0
@@ -17,42 +17,8 @@
 #include <unistd.h>
 
 #include <iostream>
-
-class SimpleRequest
-{
-private:
-    typedef std::map<std::string, std::string>  headers_t;
-
-private:
-    std::string     m_method;
-
-    /* example: http://example.com/cgi-bin/printenv.pl/foo/bar?var1=value1&var2=with%20percent%20encoding */
-    std::string     m_uri;      // cgi-bin/printenv.pl
-    std::string     m_path;     // /foo/bar <-- TODO
-    std::string     m_query;    // var1=value1&var2=with%20percent%20encoding
-
-    std::string     m_http_version;
-    headers_t       m_headers;
-    std::string     m_body;
-
-public:
-    SimpleRequest();
-    SimpleRequest(const SimpleRequest& cpy);
-    ~SimpleRequest();
-
-    SimpleRequest   &operator=(const SimpleRequest& rhs);
-
-    void            parse(const char *request);
-
-    std::string&    getMethod(void);
-    std::string&    getUri(void);
-    std::string&    getPath(void);
-    std::string&    getQuery(void);
-    std::string&    getHttpVersion(void);
-    headers_t&      getHeaders(void);
-    std::string&    getBody(void);
-
-};
+#include <Request.hpp>
+#include <poll.h>
 
 /*
  * Encapsulates all operations and data related to
@@ -88,6 +54,7 @@ private:
     arg_t           m_args;
     char            **m_argv;
     char            **m_envp;
+    std::string     m_response;
 
     /*
      * m_pipe_out[0] must be added to the list of `pollfd`
@@ -115,11 +82,14 @@ public:
 
     pid_t&          getForkedPid(void);
     int&            getPipeReadFd(void);
+    pollfd          getPollFdStruct(void);
+    std::string     getResponse(void);
+    void            appendResponse(char *response, ssize_t size);
 
     /*
      * initialize the CGI structure using the Request object
      */
-    void            init(SimpleRequest& request);
+    void            init(Request& request);
 
     /*
      * Last step in using the CGI object:

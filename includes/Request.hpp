@@ -24,7 +24,7 @@ private:
     std::string		m_version;
     int				m_port;
 
-    bool		    m_done;
+    bool		    m_cgi;
 
 public:
     std::string     m_request;
@@ -52,9 +52,11 @@ public:
     void			parseFilenamesAndCGI();
 
     void			setStatus(int status);
-    void			setDone(bool status);
+    void			setCGI(bool status);
     void			setHost(void);
     void            setFilesearchPath(std::string path);
+    void            checkIfChunkedRequest();
+    void            checkIfCGI();
 
     int				&getStatus();
     int				&getPort();
@@ -66,7 +68,7 @@ public:
     std::string		&getBody();
     std::string     &getCGIPath();
     headers_t 		&getHeaders();
-    bool			&isDone();
+    bool			&isCGI();
 
     void			decodeRequest();
 
