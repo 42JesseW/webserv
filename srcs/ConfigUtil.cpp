@@ -38,7 +38,7 @@ const ConfigUtil::methods_t&            ConfigUtil::getDefaultMethods(void)
     return (m_methods);
 }
 
-const ConfigUtil::status_code_map_t&    ConfigUtil::getStatusCodeMap(void)
+ConfigUtil::status_code_map_t&          ConfigUtil::getStatusCodeMap(void)
 {
     return (m_status_codes);
 }

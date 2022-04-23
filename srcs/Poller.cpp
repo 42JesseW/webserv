@@ -1,8 +1,6 @@
 #include <Poller.hpp>
 #include <Handler.hpp>
 
-#define reponse "HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 12:28:53 GMT\r\nServer: Apache/2.2.14 (Win32)\r\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\nContent-Length: 88\r\nContent-Type: text/html\r\nConnection: Closed"
-
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
@@ -105,9 +103,11 @@ void            *Poller::pollPort(void *instance)
                 if (poller->m_pfds[idx].revents & (POLLOUT))
                 {
                     poller->_parse(poller->m_pfds[idx].fd);
+                    poller->_matchRoute(poller->m_pfds[idx].fd);
                     if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
                     {
-                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
+                        if (!poller->_initAndExecCGI(poller->m_pfds[idx].fd))
+                            poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
                     }
                     else
                     {
@@ -222,16 +222,9 @@ void            Poller::_parse(int &socket_fd)
 void            Poller::_respond(int &socket_fd)
 {
     Connection                      *connection;
-    Route                           *matched_route;
-    ConfigUtil::status_code_map_t   *error_files = NULL;
 
     connection = _searchCorrectConnection(socket_fd);
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-    if (matched_route != NULL && connection->getRequest().getStatus() == HTTP_STATUS_OK)
-    {
-        connection->setRoute(matched_route);
-    }
-    connection->sendResponse(error_files);
+    connection->sendResponse(connection->getErrorFiles());
 }
 
 bool            Poller::_checkIfCGIConnection(int socket_fd)
@@ -246,7 +239,7 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
     return (false);
 }
 
-void            Poller::_initAndExecCGI(int socket_fd)
+bool            Poller::_initAndExecCGI(int socket_fd)
 {
     Connection          *connection;
 
@@ -254,8 +247,16 @@ void            Poller::_initAndExecCGI(int socket_fd)
     if (!connection->getCGI())
     {
         connection->initCGI();
-        connection->getCGI()->exec();
+        connection->getCGI()->setProgramPath(DFL_CGI_DIR + connection->getRequest().getFilename());
+        if (connection->getCGI()->exec() == EXIT_FAILURE)
+        {
+            connection->getCGI()->_cleanUp();
+            connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+            connection->sendResponse(connection->getErrorFiles());
+            return (false);
+        }
     }
+    return (true);
 }
 
 void            Poller::_getNewConnection(void)
@@ -275,6 +276,30 @@ void            Poller::_getNewConnection(void)
     socket      = new ClientSocket(fd, addr);
     connection  = new Connection(socket);
     m_new_connection = std::make_pair(fd, connection);
+}
+
+void            Poller::_matchRoute(int socket_fd)
+{
+    Connection                      *connection;
+    Route                           *matched_route;
+    ConfigUtil::status_code_map_t   *error_files = NULL;
+
+    connection = _searchCorrectConnection(socket_fd);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    if (!matched_route)
+    {
+        connection->setErrorFiles(&ConfigUtil::getHandle().getStatusCodeMap());
+    }
+    else
+    {
+        if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
+        {
+            connection->setRoute(matched_route);
+            connection->setErrorFiles(error_files);
+            connection->checkRoute();
+            connection->methodHandler();
+        }
+    }
 }
 
 void            Poller::_readConnectionData(int &socket_fd)
@@ -305,9 +330,12 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
             else
             {
                 connection->getCGI()->appendResponse(buff, bytes_read);
-                std::cout << connection->getCGI()->getResponse();
-                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-                m_dropped_fds.push(client_it->first);
+                if (bytes_read < RECV_SIZE)
+                {
+                    std::cout << "READ: " << bytes_read << std::endl;
+                    connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+                    m_dropped_fds.push(client_it->first);
+                }
             }
             return (true);
         }

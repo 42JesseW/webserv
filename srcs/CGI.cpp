@@ -1,7 +1,6 @@
 #include <CGI.hpp>
 
 CGI::CGI() :
-    m_program_path(DFL_CGI_DIR DFL_CGI_PROG),
     m_argv(NULL),
     m_envp(NULL),
     m_fork_pid(UNSET_PID)
@@ -119,15 +118,7 @@ void                CGI::init(Request& request)
     m_environ["REQUEST_METHOD"] = request.getMethod();
     m_environ["PATH_INFO"] = request.getCGIPath();
     m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
-    if (request.getFilename().empty())
-    {
-        m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
-    }
-    else
-    {
-        m_environ["SCRIPT_NAME"] = request.getFilename();
-        setProgramPath(DFL_CGI_DIR + request.getFilename());
-    }
+    m_environ["SCRIPT_NAME"] = request.getFilename();
     m_environ["QUERY_STRING"] = request.getQuery();
     m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
     m_environ["REMOTE_ADDR"] = "";      // TODO use inet_ntoa()?
@@ -178,19 +169,18 @@ int                 CGI::exec(void)
 
     if (pid == 0)
     {
-
         /* use dup to make sure the CGI program reads from the pipe */
         if (dup2(m_pipe_in[0], STDIN_FILENO) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
 
         /* write request body to write part of the pipe so CGI can read it */
         if (write(m_pipe_in[1], m_request_body.c_str(), m_request_body.size()) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
         close(m_pipe_in[1]);
 
         /* use dup to make sure the CGI program writes to the out pipe instead of STDOUT */
         if (dup2(m_pipe_out[1], STDOUT_FILENO) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
 
         /* call the CGI program using provided arguments. This call will take over child process */
         if (execve(m_program_path.c_str(), m_argv, m_envp) == SYS_ERROR)
@@ -200,7 +190,7 @@ int                 CGI::exec(void)
              * so that the parent still gets the POLL_IN notification from poll.
              * exit(EXIT_FAILURE) should tell the parent process that it failed
              */
-            _execExitFail();
+            return (EXIT_FAILURE);
         }
     }
     else
@@ -210,15 +200,11 @@ int                 CGI::exec(void)
     return (EXIT_SUCCESS);
 }
 
-void                CGI::_execExitFail(void)
+void                CGI::_cleanUp(void)
 {
     /* errno can be check after a dup (not after read or write) */
-    std::string err(strerror(errno));
-
-    write(m_pipe_out[1], err.c_str(), err.size());
     ft::freeCharArr(&m_envp);
     ft::freeCharArr(&m_argv);
-    exit(EXIT_FAILURE);
 }
 
 void                CGI::reset(void)

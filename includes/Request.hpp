@@ -56,7 +56,6 @@ public:
     void			setHost(void);
     void            setFilesearchPath(std::string path);
     void            checkIfChunkedRequest();
-    void            checkIfCGI();
 
     int				&getStatus();
     int				&getPort();

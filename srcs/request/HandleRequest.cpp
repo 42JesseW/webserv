@@ -3,37 +3,33 @@
 
 void Request::parseFilenamesAndCGI(void)
 {
-	if (std::count(m_target.begin(), m_target.end(), '.') > 2)
+	if (std::count(m_target.begin(), m_target.end(), '.') > 1)
 	{
-		setStatus(HTTP_STATUS_TEAPOT);
+		setStatus(HTTP_STATUS_BAD_REQUEST);
 	}
-	else if (std::count(m_target.begin(), m_target.end(), '.') == 2)
-    {
-		std::string tmp = m_target.substr(m_target.find_first_of('.'));
-		m_target.erase(m_target.find_first_of('.'));
-		m_target.append(tmp.substr(0, tmp.find_first_of('/')));
-		tmp.erase(0, tmp.find_first_of('/'));
-		m_cgi_path = tmp;
-		if (std::count(m_target.begin(), m_target.end(), '/') > 1)
-		{
-			m_filename = m_target.substr(m_target.find_last_of('/') + 1);
-			m_target.erase(m_target.find_last_of('/'));
-		}
-		else
-		{
-			m_filename = m_target.substr(m_target.find('/') + 1);
-			m_target = "/";
-		}
-    }
     else if (std::count(m_target.begin(), m_target.end(), '.') == 1)
     {
-		m_filename = m_target.substr(m_target.find_last_of('/') + 1);
-		m_target.erase(m_target.find_last_of('/'));
-		if (m_target.empty())
-		{
-			m_target = "/";
-		}
+		ssize_t idx;
+		std::string tmp;
+
+		idx = m_target.find_first_of('.');
+		tmp = m_target.substr(idx);
+		if (tmp.find('/') != std::string::npos)
+			idx += tmp.find('/');
+		else
+			idx += tmp.length();
+		tmp = m_target.substr(0, idx);
+		m_filename = tmp;
+		m_target.erase(0, idx);
+		if (!m_target.empty())
+			m_cgi_path = m_target;
+		m_target = m_filename.substr(0, m_filename.find_last_of('/') + 1);
+		m_filename.erase(0, m_filename.find_last_of('/') + 1);
     }
+	else
+	{
+		std::cout << "THE TARGET: " << m_target << std::endl;
+	}
 }
 
 void Request::parseQuery(std::string url)
@@ -108,14 +104,6 @@ void Request::parseAndSetHeaders(void)
         m_request.erase(0, 2);
         m_body = m_request;
     }
-}
-
-void Request::checkIfCGI(void)
-{
-	if (getTarget() == "/cgi-bin" || !getQuery().empty())
-	{
-		m_cgi = true;
-	}
 }
 
 void Request::checkIfChunkedRequest(void)

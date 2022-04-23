@@ -53,6 +53,11 @@ void            Connection::setSocket(ClientSocket *sock)
     m_sock = sock;
 }
 
+void       Connection::setErrorFiles(ConfigUtil::status_code_map_t *error_files)
+{
+    m_error_files = error_files;
+}
+
 CGI*       Connection::getCGI(void)
 {
     return (m_cgi);
@@ -66,6 +71,11 @@ Request&       Connection::getRequest(void)
 ClientSocket*   Connection::getSock(void)
 {
     return (m_sock);
+}
+
+ConfigUtil::status_code_map_t   *Connection::getErrorFiles(void)
+{
+    return (m_error_files);
 }
 
 void            Connection::readSocket(void)
@@ -111,8 +121,6 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     }
     else
     {
-        checkRoute();
-        methodHandler();
         response = new Response(m_request, *m_route);
     }
     response->buildResponse(*error_files);

@@ -6,7 +6,6 @@
 #define CGI_VERSION    "CGI/1.1"
 
 #define DFL_CGI_DIR    "cgi-bin/"
-#define DFL_CGI_PROG   "hello_world.py"
 
 #define UNSET_PID      (-1)
 #define UNSET_PIPE     0
@@ -86,6 +85,8 @@ public:
     std::string     getResponse(void);
     void            appendResponse(char *response, ssize_t size);
 
+    void            _cleanUp(void);
+
     /*
      * initialize the CGI structure using the Request object
      */
@@ -116,7 +117,6 @@ public:
 private:
     char            **_environToEnvp(void);
     char            **_argsToArgv(void);
-    void            _execExitFail(void);
 
     /* get a value from a map but with a default value if it does not exist */
     template < class Key, class Value >
