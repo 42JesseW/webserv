@@ -340,7 +340,7 @@ static std::string  basic_conf = ""
      "            allowed_methods GET POST DELETE\n"
      "\n"
      "            # sets the file_path to start looking for requested files\n"
-     "            root            /data/w3\n"
+     "            root            /\n"
      "\n"
      "            # provide directory listing if requested file is not found (either \"on\" or \"off\")\n"
      "            autoindex       on\n"
@@ -352,7 +352,7 @@ static std::string  basic_conf = ""
      "            cgi_extensions  .php .py\n"
      "\n"
      "            # file_path of where to upload files. When set will allow uploading files\n"
-     "            upload_path     ./\n"
+     "            upload_path     /\n"
      "\n"
      "            # return a redirect in the form \"return 3<xx> <redirect_url>\"\n"
      "            return          301 www.google.com\n"
@@ -408,7 +408,7 @@ TEST(FileParserFilesValues, ParseValidSingle)
                     EXPECT_TRUE(std::find(cmp_methods.begin(), cmp_methods.end(), method) != cmp_methods.end());
                 }
                 EXPECT_STREQ(route->m_base_url.c_str(), "/");
-                EXPECT_STREQ(route->m_file_search_path.c_str(), "/html/data/w3");
+                EXPECT_STREQ(route->m_file_search_path.c_str(), DFL_FILE_SEARCH_PATH);
                 EXPECT_EQ(route->m_has_autoindex, true);
                 EXPECT_EQ(route->m_index_files.size(), 2);
                 for (auto& file : route->m_index_files)
@@ -420,7 +420,7 @@ TEST(FileParserFilesValues, ParseValidSingle)
                 {
                     EXPECT_TRUE(std::find(cmp_ext.begin(), cmp_ext.end(), ext) != cmp_ext.end());
                 }
-                EXPECT_STREQ(route->m_upload_path.c_str(), "./");
+                EXPECT_STREQ(route->m_upload_path.c_str(), DFL_UPLOAD_PATH);
                 EXPECT_TRUE(route->m_redirect);
                 EXPECT_EQ(route->m_redirect->status_code, 301);
                 EXPECT_STREQ(route->m_redirect->url.c_str(), "www.google.com");

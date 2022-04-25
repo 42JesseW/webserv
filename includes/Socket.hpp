@@ -6,7 +6,7 @@
 #define SA_IN           struct sockaddr_in
 #define SA              struct sockaddr
 #define SOCKET_UNSET    (-2)
-#define DFL_BACKLOG     10
+#define DFL_BACKLOG     100
 
 /*
  * Simple wrapper around a unix socket. Should support
