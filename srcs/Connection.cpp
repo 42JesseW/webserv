@@ -175,7 +175,7 @@ void Connection::checkRoute(void)
 {
     checkAcceptedMethods();
     checkRedirects();
-    if (getRequest().getMethod() != "POST")
+    if (getRequest().getMethod() == "GET")
         checkFileSearchPath();
 }
 
