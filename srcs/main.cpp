@@ -19,7 +19,7 @@ static char ascii_wave[] = "\n"
 
 static void write_usage_stderr_and_exit(void)
 {
-    fprintf(stderr, "usage: %s [config_file]\n", PROG_NAME);
+    fprintf(stderr, "[ERROR] usage: %s [config_file]\n", PROG_NAME);
     std::exit(EXIT_FAILURE);
 }
 
@@ -56,16 +56,16 @@ int     main(int argc, char *argv[])
             /* returns non-zero value on error */
             if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::pollPort, poller))
             {
-                /* error handling */
-                break ;
+                fprintf(stderr, "[ERROR] Creating thread fail");
+                std::exit(EXIT_FAILURE);
             }
         }
         for (FileParser::config_vec_t::size_type idx = 0; idx < config_ports.size(); ++idx)
         {
             if (pthread_join(thread_ids[idx], NULL))
             {
-                /* error handling */
-                break ;
+                fprintf(stderr, "[ERROR] Joining thread fail");
+                std::exit(EXIT_FAILURE);
             }
         }
     }
@@ -81,7 +81,8 @@ int     main(int argc, char *argv[])
     }
     catch (const std::bad_alloc& alloc_err)
     {
-        /* some error handling */
+        fprintf(stderr, "[ERROR] Bad alloc");
+        exit_code = EXIT_FAILURE;
     }
     delete [] thread_ids;
     return (exit_code);

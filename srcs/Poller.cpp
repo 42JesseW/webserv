@@ -269,8 +269,8 @@ void            Poller::_getNewConnection(void)
     fd = m_port_config->getSocket()->accept(addr);
     if (fd == SYS_ERROR)
     {
-        /* some error handling */
-
+        fprintf(stderr, "[ERROR] Accept new connection fail");
+        return ;
     }
     socket      = new ClientSocket(fd, addr);
     connection  = new Connection(socket);

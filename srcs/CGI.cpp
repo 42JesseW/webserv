@@ -131,20 +131,25 @@ void                CGI::init(Request& request)
 {
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
-    if (request.getHeaders().find("Host") != request.getHeaders().end())
+    std::string servername;
+    servername = request.getHeaders().find("Host")->second;
+
+    if (!servername.empty())
     {
-        m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second;
-    }
-    else
-    {
-        m_environ["SERVER_NAME"] = "???"; // TODO How to get Server.m_names[0]?
+        std::string host = servername.substr(0, servername.find(":"));
+        m_environ["SERVER_NAME"] = host;
     }
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
     m_environ["SERVER_PROTOCOL"] = request.getVersion();
-    m_environ["SERVER_PORT"] = ""; // TODO Use server.m_socket.port
+    if (!servername.empty())
+    {
+        std::string port = servername.substr(servername.find(":") + 1);
+        if (port.empty())
+            port = "80";
+        m_environ["SERVER_PORT"] = port;
+    }
     m_environ["REQUEST_METHOD"] = request.getMethod();
     m_environ["PATH_INFO"] = request.getCGIPath();
-    m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
     m_environ["SCRIPT_NAME"] = request.getFilename();
     m_environ["QUERY_STRING"] = request.getQuery();
     m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
