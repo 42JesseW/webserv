@@ -577,7 +577,7 @@ void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
     else
     {
         if (tokens.front().at(0) == '/')
-        tokens.front().erase(0, 1);
+            tokens.front().erase(0, 1);
         else if (tokens.front().at(0) == '.' && tokens.front().at(1) == '/')
             tokens.front().erase(0, 2);
         upload_path = DFL_UPLOAD_PATH + tokens.front();
@@ -587,7 +587,7 @@ void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
         closedir(upload_dir);
     else if (errno == ENOENT)
     {
-        error_ss << "Directory " << tokens.front() << " does not exist.";
+        error_ss << "Directory " << upload_path << " does not exist.";
         throw MappingFailure(error_ss.str());
     }
     else

@@ -1,16 +1,28 @@
 #include <Connection.hpp>
 
 // TODO these constructors and destructors SUCK
-Connection::Connection(void) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(void) :
+    m_sock(NULL),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
 }
 
-Connection::Connection(const Connection &cpy) : m_sock(NULL), m_route(NULL), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(const Connection &cpy) :
+    m_sock(NULL),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
     *this = cpy;
 }
 
-Connection::Connection(ClientSocket *sock) : m_sock(sock), m_cgi(NULL), m_cgi_added(false)
+Connection::Connection(ClientSocket *sock) :
+    m_sock(sock),
+    m_route(NULL),
+    m_cgi(NULL),
+    m_cgi_added(false)
 {
 }
 
@@ -115,7 +127,8 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
-    if (m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED) 
+    if ((m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED)
+        || m_request.getMethod() == "DELETE") 
     {
         response = new Response(m_request);
     }
