@@ -5,7 +5,6 @@
 
 #include <deque>
 #include <stack>
-#include <exception>
 
 #include <dirent.h>
 #include <cerrno>

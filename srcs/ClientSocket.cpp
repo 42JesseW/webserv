@@ -21,12 +21,6 @@ ClientSocket&   ClientSocket::operator = (const ClientSocket &sock)
     return (*this);
 }
 
-/*
- * read at max RECV_SIZE bytes from socket and
- * return pointer to new buffer to user. Buffer
- * is heap allocated and must be freed by the
- * caller of the function.
- */
 char            *ClientSocket::recv(ssize_t *bytes_read)
 {
     char    *buff;

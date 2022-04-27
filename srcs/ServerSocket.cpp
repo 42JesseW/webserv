@@ -60,12 +60,12 @@ void        ServerSocket::init(const std::string& host, uint16_t port)
     }
 
     /* set the socket to be non-blocking so recv() and send() functions don't block */
-#ifndef TESTRUN
-    if (fcntl(getFd(), F_SETFL, O_NONBLOCK) == SYS_ERROR) {
-        freeaddrinfo(server_info);
-        throw InitFail();
-    }
-#endif
+    #ifndef TESTRUN
+        if (fcntl(getFd(), F_SETFL, O_NONBLOCK) == SYS_ERROR) {
+            freeaddrinfo(server_info);
+            throw InitFail();
+        }
+    #endif
 
     if (listen(getFd(), DFL_BACKLOG) == SYS_ERROR) {
         freeaddrinfo(server_info);

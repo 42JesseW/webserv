@@ -3,7 +3,6 @@
 namespace ft
 {
 
-	/* simple function to convert num into string */
 	std::string		intToString(int num)
 	{
 	    std::ostringstream ss;

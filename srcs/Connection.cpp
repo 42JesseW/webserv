@@ -117,15 +117,17 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
 
-    if ((m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED)
-        || m_request.getMethod() == "DELETE") 
+    if ((m_request.getStatus() >= HTTP_STATUS_NOT_FOUND && m_request.getStatus() <= HTTP_STATUS_HTTP_VERSION_NOT_SUPPORTED)) 
     {
         response = new Response(m_request);
     }
     else
     {
         checkRoute();
-        methodHandler();
+        if (m_request.getMethod() == "GET")
+            checkFileSearchPath();
+        else
+            methodHandler();
         response = new Response(m_request, *m_route);
     }
     response->buildResponse(*error_files);
@@ -168,7 +170,6 @@ void Connection::checkRoute(void)
 {
     checkAcceptedMethods();
     checkRedirects();
-    checkFileSearchPath();
 }
 
 void Connection::checkAcceptedMethods(void)

@@ -1,8 +1,5 @@
 #include <FileParser.hpp>
 
-/*
- * ( Option )
- */
 FileParser::Option::Option(int parse_level) : m_parse_level(parse_level)
 {
     
