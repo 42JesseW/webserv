@@ -20,7 +20,7 @@ bool Handler::post_handler(Request &request, std::string uploadPath)
         request.setStatus(HTTP_STATUS_BAD_REQUEST);
         return (false);
     }
-    newFile.open(uploadPath + filename, std::ofstream::out | std::ofstream::binary);
+    newFile.open(filename, std::ofstream::out | std::ofstream::binary);
     if (!newFile.is_open())
         return (false);
     newFile << request.getBody();
