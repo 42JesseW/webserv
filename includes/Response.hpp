@@ -1,7 +1,7 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <Defines.hpp>
+#include <Webserv.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
 # include <Utils.hpp>

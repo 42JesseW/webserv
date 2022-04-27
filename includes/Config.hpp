@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Defines.hpp>
+#include <Webserv.hpp>
 #include <ConfigUtil.hpp>
 #include <ServerSocket.hpp>
 #include <Connection.hpp>

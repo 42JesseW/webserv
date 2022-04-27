@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Defines.hpp>
+#include <Webserv.hpp>
 #include <ConfigUtil.hpp>
 
 void    signal_handler(int sig);

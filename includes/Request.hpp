@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Defines.hpp>
+#include <Webserv.hpp>
 #include <Webserv.hpp>
 #include <StatusCodes.hpp>
 
