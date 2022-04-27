@@ -3,6 +3,9 @@
 #include <ServerSocket.hpp>
 #include <ClientSocket.hpp>
 
+#include <thread>
+#include <chrono>
+
 /*
  * Can only construct ServerSocket with default constructor.
  */
@@ -109,6 +112,7 @@ TEST(SocketConnection, AcceptRecvSend) {
     a.init("*", port);
     url = "http://localhost:" + std::to_string(port);
     auto curl_future = std::async(sendEmptyRequest, url.c_str(), &curl_response);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     fd = a.accept(addr);
     ASSERT_TRUE(fd != SYS_ERROR);
     ClientSocket    b(fd, addr);

@@ -13,8 +13,10 @@
 # include <cstdlib>
 
 # define RETRY_AFTER_SEC	"120"
-# define HTML_FILE_FLAG		0
-# define ERROR_FILE_FLAG	1
+# define DFL_PATH			"html/"
+# define FILE_EXTENSION		".html"
+# define POST_FILENAME		"post.html"
+# define DELETE_FILENAME	"delete.html"
 
 typedef std::pair<std::string, std::string> status_code_body_t;
 typedef std::map<int, status_code_body_t>   status_code_map_t;
@@ -53,7 +55,7 @@ class Response
 
 		void			buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		void			buildHeaders();
-		void			buildBody(ConfigUtil::status_code_map_t& m_error_files);
+		void			buildBody();
 		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
 
@@ -67,7 +69,12 @@ class Response
 		status_code_body_t	_buildContentLength();
 		status_code_body_t	_buildContentType();
 		status_code_body_t	_buildTransferEncoding();
-		int					_readFileIntoString(const std::string &path, int error_file);
+		void				_buildBodyGet();
+		void				_buildBodyPost();
+		void				_buildBodyDelete();
+		void				_buildBodyError();
+		std::string			_buildFilePath(const std::string &filename, int file_flag);
+		int					_readFileIntoString(const std::string &path);
 };
 
 #endif

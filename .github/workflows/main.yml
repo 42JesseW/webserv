@@ -2,7 +2,7 @@ name: Continuous-Integration
 
 on:
   push:
-    branches: [ master, development ]
+    branches: [ master, development, regression-test ]
 
   pull_request:
     branches: [ master, development ]
@@ -24,6 +24,8 @@ jobs:
           make fclean
           make webserv
           make re
+          make tester
+          make uninstall
 
   build-linux:
 
@@ -38,3 +40,5 @@ jobs:
           make fclean
           make webserv
           make re
+          make tester
+          make uninstall
