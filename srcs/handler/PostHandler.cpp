@@ -5,7 +5,7 @@ bool Handler::post_handler(Request &request, std::string uploadPath)
     std::string filename;
     std::ofstream newFile;
 
-    if (!filename.empty())
+    if (!request.getFilename().empty())
     {
         filename = uploadPath + request.getFilename();
     }
@@ -13,7 +13,7 @@ bool Handler::post_handler(Request &request, std::string uploadPath)
     {
         std::string extension = request.getHeaders().find("Content-Type")->second;
         extension = extension.substr(extension.find('/') + 1);
-        filename = "test." + extension;
+        filename = uploadPath + "test." + extension;
     }
     else
     {
@@ -25,6 +25,5 @@ bool Handler::post_handler(Request &request, std::string uploadPath)
         return (false);
     newFile << request.getBody();
     newFile.close();
-        return (true);
-    return (false);
+    return (true);
 }
