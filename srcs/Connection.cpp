@@ -4,7 +4,6 @@
 Connection::Connection(void) :
     m_sock(NULL),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
 }
@@ -12,7 +11,6 @@ Connection::Connection(void) :
 Connection::Connection(const Connection &cpy) :
     m_sock(NULL),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
     *this = cpy;
@@ -21,7 +19,6 @@ Connection::Connection(const Connection &cpy) :
 Connection::Connection(ClientSocket *sock) :
     m_sock(sock),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
 }
@@ -32,10 +29,6 @@ Connection::~Connection(void)
     if (m_sock)
     {
         delete m_sock;
-    }
-    if (m_cgi)
-    {
-        delete m_cgi;
     }
 }
 
@@ -51,7 +44,7 @@ Connection&     Connection::operator = (const Connection &conn)
         if (conn.m_route)
             m_route = new Route(*conn.m_route);
         m_request = conn.m_request;
-        m_cgi = conn.m_cgi;
+        m_cgi = std::unique_ptr<CGI>(new CGI(*conn.m_cgi));
     }
     return (*this);
 }
@@ -67,7 +60,7 @@ void            Connection::setSocket(ClientSocket *sock)
 
 CGI*       Connection::getCGI(void)
 {
-    return (m_cgi);
+    return (m_cgi.get());
 }
 
 Request&       Connection::getRequest(void)
@@ -273,6 +266,6 @@ bool Connection::searchCGIExtensions(void)
 
 void Connection::initCGI(void)
 {
-    m_cgi = new CGI;
+    m_cgi = std::unique_ptr<CGI>(new CGI);
     m_cgi->init(m_request);
 }

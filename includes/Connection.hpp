@@ -7,6 +7,8 @@
 #include <ClientSocket.hpp>
 #include <Handler.hpp>
 
+#include <memory>
+
 /*
  * Holds connection information while poll
  * returns POLLIN or a CGI process is still
@@ -18,10 +20,10 @@ public:
     typedef std::vector<Route*>             routes_t;
 
 private:
-    ClientSocket    *m_sock;
-    Request         m_request;
-    Route           *m_route;
-    CGI             *m_cgi;
+    ClientSocket            *m_sock;
+    Request                 m_request;
+    Route                   *m_route;
+    std::unique_ptr<CGI>    m_cgi;
 
 public:
     bool            m_cgi_added;

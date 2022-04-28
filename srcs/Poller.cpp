@@ -281,22 +281,21 @@ bool            Poller::_checkIfCGIFd(int socket_fd)
 {
     clients_t::iterator             client_it;
     Connection                      *connection = NULL;
-    char                            *buff;
     ssize_t                         bytes_read;
+    std::unique_ptr<char[]>         buff(new char[RECV_SIZE + 1]);
 
-    buff = new char[RECV_SIZE + 1];
     for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
         if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
         {
             connection = client_it->second;
-            if ((bytes_read = ::read(socket_fd, buff, RECV_SIZE)) == SYS_ERROR) {
+            if ((bytes_read = ::read(socket_fd, buff.get(), RECV_SIZE)) == SYS_ERROR) {
                 fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
                 return (false);
             }
             else
             {
-                connection->getCGI()->appendResponse(buff, bytes_read);
+                connection->getCGI()->appendResponse(buff.get(), bytes_read);
                 std::cout << connection->getCGI()->getResponse();
                 connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                 m_dropped_fds.push(client_it->first);
