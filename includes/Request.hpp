@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Webserv.hpp>
-#include <Webserv.hpp>
 #include <StatusCodes.hpp>
 
 #define DFL_TARGET      "/"
