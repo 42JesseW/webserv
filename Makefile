@@ -77,10 +77,10 @@ TST_LINKS	= -lgtest -lgtest_main
 UNAME_S		= $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
 	# uses clang which does not give the option but work correctly with linking anyway
-	TST_LINKS	+= -lcrypto -lcurl
+	TST_LINKS	+= -lcurl
 else ifeq ($(UNAME_S), Linux)
 	# uses gcc and prioritises dynamic over static lib. Also needs `tinfo` for tgetflag / PC etc.
-	TST_LINKS	+= -lz -l:./libcrypto.a -l:./libcurl.a
+	TST_LINKS	+= -lz -l:./libcurl.a
 else
 	$(error Unsupported Opertating system)
 endif
