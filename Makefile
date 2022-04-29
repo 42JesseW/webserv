@@ -75,13 +75,13 @@ TST_OBJECTS	= $(patsubst %.cpp, %.o, $(TST_SRC))
 TST_HEADERS	= $(addprefix -I, $(TST_HEADER_DIR))
 TST_LINKS	= -lgtest -lgtest_main
 
-UNAME_S	= $(shell uname -s)
+UNAME_S		= $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
 	# uses clang which does not give the option but work correctly with linking anyway
-	TST_LINKS += -lcurl
+	TST_LINKS	+= -lcurl
 else ifeq ($(UNAME_S), Linux)
 	# uses gcc and prioritises dynamic over static lib. Also needs `tinfo` for tgetflag / PC etc.
-	TST_LINKS += -l:./libcurl.a -lz
+	TST_LINKS	+= -l:./libcurl.a -lz
 else
 	$(error Unsupported Opertating system)
 endif
@@ -108,7 +108,7 @@ fclean: clean
 uninstall: fclean
 	@if [ -d $(LIB_BASE)/googletest ]; then cd $(LIB_BASE)/googletest && cmake --build . --target clean; fi
 	@if [ -d $(LIB_BASE)/curl ]; then \
-		rm -rf $(LIB_BASE)/curl; \
+  		rm -rf $(LIB_BASE)/curl; \
 		make -C $(LIB_BASE)/curl-$(CURL_VERSION) clean; \
 	fi
 
