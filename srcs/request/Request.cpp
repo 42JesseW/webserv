@@ -4,10 +4,9 @@ Request::Request(void) :
     m_target(DFL_TARGET),
     m_status(HTTP_STATUS_OK),
     m_port(80),
-    m_cgi(false)
-{
-
-}
+    m_cgi(false),
+    m_autoindex(false)
+{}
 
 Request::Request(const Request &copy)
 {
@@ -23,12 +22,11 @@ Request::Request(const Request &copy)
     m_cgi = copy.m_cgi;
     m_filename = copy.m_filename;
     m_filesearch = copy.m_filesearch;
+    m_autoindex = copy.m_autoindex;
 }
 
 Request::~Request(void)
-{
-
-}
+{}
 
 Request & Request::operator = (const Request &copy)
 {
@@ -46,6 +44,7 @@ Request & Request::operator = (const Request &copy)
         m_cgi = copy.m_cgi;
         m_filename = copy.m_filename;
         m_filesearch = copy.m_filesearch;
+        m_autoindex = copy.m_autoindex;
     }
     return (*this);
 }
@@ -78,6 +77,11 @@ void Request::setStatus(int status)
 void Request::setCGI(bool status)
 {
     m_cgi = status;
+}
+
+void Request::setAutoIndex(bool status)
+{
+    m_autoindex = status;
 }
 
 int	&Request::getStatus(void)

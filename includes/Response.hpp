@@ -56,6 +56,7 @@ class Response
 		void			buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		void			buildHeaders();
 		void			buildBody();
+		void		 	buildAutoIndex();
 		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
 

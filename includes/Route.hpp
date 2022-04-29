@@ -51,5 +51,4 @@ public:
     void                        setUploadPath(const std::string& path);
     void                        setAutoIndex(bool on);
     void                        setRedirect(int status_code, const std::string& url);
-
 };
