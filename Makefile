@@ -80,7 +80,7 @@ ifeq ($(UNAME_S), Darwin)
 	TST_LINKS	+= -lcurl
 else ifeq ($(UNAME_S), Linux)
 	# uses gcc and prioritises dynamic over static lib. Also needs `tinfo` for tgetflag / PC etc.
-	TST_LINKS	+= -lz -l:./libcurl.a
+	TST_LINKS	+= -l:./libcurl.a -lz
 else
 	$(error Unsupported Opertating system)
 endif
