@@ -216,7 +216,7 @@ void            Poller::_parse(int &socket_fd)
     connection = _searchCorrectConnection(socket_fd);
     connection = m_clients.find(socket_fd)->second;
     if (connection->getRequest().getHeaders().empty())
-        connection->parseRequest();
+        connection->parseRequest();    
 }
 
 void            Poller::_respond(int &socket_fd)
