@@ -1,8 +1,6 @@
 #include <Poller.hpp>
 #include <Handler.hpp>
 
-#define reponse "HTTP/1.1 200 OK\r\nDate: Mon, 27 Jul 2009 12:28:53 GMT\r\nServer: Apache/2.2.14 (Win32)\r\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\nContent-Length: 88\r\nContent-Type: text/html\r\nConnection: Closed"
-
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
@@ -93,7 +91,7 @@ void            *Poller::pollPort(void *instance)
                 }
                 else if (poller->_checkIfCGIFd(poller->m_pfds[idx].fd))
                 {
-                    poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                    poller->_readCGIData(poller->m_pfds[idx].fd);
                 }
                 else {
                     poller->_readConnectionData(poller->m_pfds[idx].fd);
@@ -105,9 +103,11 @@ void            *Poller::pollPort(void *instance)
                 if (poller->m_pfds[idx].revents & (POLLOUT))
                 {
                     poller->_parse(poller->m_pfds[idx].fd);
+                    poller->_matchRoute(poller->m_pfds[idx].fd);
                     if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
                     {
-                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
+                        if (!poller->_initAndExecCGI(poller->m_pfds[idx].fd))
+                            poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
                     }
                     else
                     {
@@ -222,16 +222,9 @@ void            Poller::_parse(int &socket_fd)
 void            Poller::_respond(int &socket_fd)
 {
     Connection                      *connection;
-    Route                           *matched_route;
-    ConfigUtil::status_code_map_t   *error_files = NULL;
 
     connection = _searchCorrectConnection(socket_fd);
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
-    if (matched_route != NULL && connection->getRequest().getStatus() == HTTP_STATUS_OK)
-    {
-        connection->setRoute(matched_route);
-    }
-    connection->sendResponse(error_files);
+    connection->sendResponse(connection->getErrorFiles());
 }
 
 bool            Poller::_checkIfCGIConnection(int socket_fd)
@@ -246,7 +239,7 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
     return (false);
 }
 
-void            Poller::_initAndExecCGI(int socket_fd)
+bool            Poller::_initAndExecCGI(int socket_fd)
 {
     Connection          *connection;
 
@@ -254,8 +247,15 @@ void            Poller::_initAndExecCGI(int socket_fd)
     if (!connection->getCGI())
     {
         connection->initCGI();
-        connection->getCGI()->exec();
+        connection->getCGI()->setProgramPath(DFL_CGI_DIR + connection->getRequest().getFilename());
+        if (connection->getCGI()->exec() == EXIT_FAILURE)
+        {
+            connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+            connection->sendResponse(connection->getErrorFiles());
+            return (false);
+        }
     }
+    return (true);
 }
 
 void            Poller::_getNewConnection(void)
@@ -277,38 +277,69 @@ void            Poller::_getNewConnection(void)
     m_new_connection = std::make_pair(fd, connection);
 }
 
+void            Poller::_matchRoute(int socket_fd)
+{
+    Connection                      *connection;
+    Route                           *matched_route;
+    ConfigUtil::status_code_map_t   *error_files = NULL;
+
+    connection = _searchCorrectConnection(socket_fd);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    if (!matched_route)
+    {
+        connection->setErrorFiles(&ConfigUtil::getHandle().getStatusCodeMap());
+    }
+    else
+    {
+        if (connection->getRequest().getStatus() == HTTP_STATUS_OK)
+        {
+            connection->setRoute(matched_route);
+            connection->setErrorFiles(error_files);
+            connection->checkRoute();
+            connection->methodHandler();
+        }
+    }
+}
+
 void            Poller::_readConnectionData(int &socket_fd)
 {
-    Connection          *connection;
-
+    Connection              *connection;
+    
     connection = _searchCorrectConnection(socket_fd);
     connection->readSocket();
 }
 
-bool            Poller::_checkIfCGIFd(int socket_fd)
+void            Poller::_readCGIData(int socket_fd)
 {
-    clients_t::iterator             client_it;
-    Connection                      *connection = NULL;
-    char                            *buff;
-    ssize_t                         bytes_read;
+    Connection              *connection;
+    clients_t::iterator     client_it;
 
-    buff = new char[RECV_SIZE + 1];
     for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
         if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
         {
             connection = client_it->second;
-            if ((bytes_read = ::read(socket_fd, buff, RECV_SIZE)) == SYS_ERROR) {
-                fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
-                return (false);
-            }
-            else
+            connection->getCGI()->readAndAppend();
+            if (connection->getCGI()->isDone())
             {
-                connection->getCGI()->appendResponse(buff, bytes_read);
-                std::cout << connection->getCGI()->getResponse();
                 connection->getSock()->send(connection->getCGI()->getResponse().c_str());
-                m_dropped_fds.push(client_it->first);
+                m_dropped_fds.push(socket_fd);
+                m_dropped_fds.push(connection->getSock()->getFd());
             }
+            break ;
+        }
+    }
+    
+}
+
+bool            Poller::_checkIfCGIFd(int socket_fd)
+{
+    clients_t::iterator             client_it;
+
+    for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
+    {
+        if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
+        {
             return (true);
         }
     }

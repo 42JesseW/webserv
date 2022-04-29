@@ -1,6 +1,7 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
+#include <Webserv.hpp>
 # include <Request.hpp>
 # include <ConfigUtil.hpp>
 # include <Utils.hpp>
@@ -10,9 +11,6 @@
 # include <time.h>
 # include <ctime>
 # include <cstdlib>
-# include <iostream>
-# include <fstream>
-# include <sstream>
 
 # define RETRY_AFTER_SEC	"120"
 # define DFL_PATH			"html/"
@@ -60,10 +58,6 @@ class Response
 		void			buildBody();
 		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
-
-		// setters for testing purposes
-		void			setRequest(Request &re);
-		void			setRoute(Route &ro);
 
 	private:
 		status_code_body_t	_buildDate();

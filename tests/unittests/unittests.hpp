@@ -6,7 +6,6 @@
 #include <Webserv.hpp>
 
 #include <future>
-#include <bsd/string.h>
 
 #define SOCKET_SETUP_TIME 500000
 

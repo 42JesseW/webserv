@@ -30,23 +30,31 @@ int     sendEmptyRequest(const char *url, std::string* data)
     return (EXIT_SUCCESS);
 }
 
-size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+static size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 {
-	size_t	res;
+    char		*s;
+    size_t		nleft;
 
-	res = 0;
-	if (size > 0)
-	{
-		while (src[res] && res < (size - 1))
-		{
-			dst[res] = src[res];
-			res++;
-		}
-		dst[res] = '\0';
-	}
-	while (src[res])
-		res++;
-	return (res);
+    if (src == NULL || dst == NULL)
+        return (0);
+    s = (char *)src;
+    nleft = size;
+    if (nleft != 0)
+    {
+        nleft -= 1;
+        while (*s != '\0' && nleft != 0)
+        {
+            *dst = *s;
+            dst++;
+            s++;
+            nleft--;
+        }
+    }
+    if (size != 0)
+        *dst = '\0';
+    while (*s)
+        s++;
+    return (s - src);
 }
 
 size_t readFunction(char *buffer, size_t size, size_t nitems, std::string* userdata)

@@ -6,10 +6,6 @@
 #include <Webserv.hpp>
 #include <Utils.hpp>
 
-#include <vector>
-#include <sstream>
-#include <fstream>
-
 class ConfigUtil
 {
 public:
@@ -37,7 +33,7 @@ public:
     static ConfigUtil&          getHandle(void);
 
     const methods_t&            getDefaultMethods(void);
-    const status_code_map_t&    getStatusCodeMap(void);
+    status_code_map_t&          getStatusCodeMap(void);
 
     void                        setSignalled(int sig);
     bool                        isSignalled(void);

@@ -18,10 +18,11 @@ public:
     typedef std::vector<Route*>             routes_t;
 
 private:
-    ClientSocket    *m_sock;
-    Request         m_request;
-    Route           *m_route;
-    CGI             *m_cgi;
+    ClientSocket                    *m_sock;
+    Request                         m_request;
+    Route                           *m_route;
+    CGI                             *m_cgi;
+    ConfigUtil::status_code_map_t   *m_error_files;
 
 public:
     bool            m_cgi_added;
@@ -40,10 +41,12 @@ public:
 
     void            setSocket(ClientSocket *sock);
     void		    setRoute(Route *route);
+    void            setErrorFiles(ConfigUtil::status_code_map_t *error_files);
 
     Request&        getRequest(void);
     CGI             *getCGI(void);
     ClientSocket    *getSock(void);
+    ConfigUtil::status_code_map_t   *getErrorFiles(void);
 
     void            readSocket(void);
     void            parseRequest(void);

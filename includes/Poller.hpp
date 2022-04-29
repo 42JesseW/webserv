@@ -1,11 +1,7 @@
 #pragma once
 
+#include <Webserv.hpp>
 #include <Config.hpp>
-
-#include <stack>
-
-#include <sys/poll.h>
-#include <csignal>
 
 #define POLL_TIMEOUT_MS     500
 #define POLLIN_SLEEP_MS     2000
@@ -42,11 +38,13 @@ private:
     Connection          *_searchCorrectConnection(int socket_fd);
 
     void                _getNewConnection(void);
+    void                _matchRoute(int socket_fd);
     void                _readConnectionData(int& socket_fd);
+    void                _readCGIData(int socket_fd);
     void                _parse(int& socket_fd);
     void                _respond(int &socket_fd);
 
-    void                _initAndExecCGI(int socket_fd);
+    bool                _initAndExecCGI(int socket_fd);
     bool                _checkIfCGIConnection(int socket_fd);
     bool                _checkIfCGIFd(int socket_fd);
 

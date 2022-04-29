@@ -1,7 +1,11 @@
 #pragma once
 
 #define DFL_FILE_SEARCH_PATH   "html/"
-#define DFL_UPLOAD_PATH        "html/"
+#ifdef TESTRUN
+# define DFL_UPLOAD_PATH        "../../html/"
+#else
+# define DFL_UPLOAD_PATH        "html/"
+#endif
 #define DFL_INDEX_FILE         "index.html"
 
 #include <Webserv.hpp>
@@ -47,7 +51,5 @@ public:
     void                        setUploadPath(const std::string& path);
     void                        setAutoIndex(bool on);
     void                        setRedirect(int status_code, const std::string& url);
-    void                        setAcceptedMethods(const std::vector<std::string>& accepted_methods);
-    void                        setCgiFileExtensions(const std::vector<std::string>& cgi_file_extensions);
 
 };
