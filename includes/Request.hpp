@@ -3,7 +3,6 @@
 #include <Webserv.hpp>
 #include <StatusCodes.hpp>
 
-#define BUFF_SIZE 2048
 #define DFL_TARGET      "/"
 
 class Request
@@ -56,7 +55,6 @@ public:
     void			setHost(void);
     void            setFilesearchPath(std::string path);
     void            checkIfChunkedRequest();
-    void            checkIfCGI();
 
     int				&getStatus();
     int				&getPort();

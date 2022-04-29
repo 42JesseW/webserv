@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Webserv.hpp>
 #include <Socket.hpp>
-#define RECV_SIZE   2048
 
 /*
  * Used to encapsulate the socket data retrieved
