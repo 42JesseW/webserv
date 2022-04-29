@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stack>
 
 #include <cstring>
 #include <cerrno>

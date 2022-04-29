@@ -40,11 +40,7 @@ Connection          *Poller::_searchCorrectConnection(int socket_fd)
     clients_t::iterator it;
 
     it = m_clients.find(socket_fd);
-    if (it != m_clients.end())
-    {
-        return (it->second);
-    }
-    return (NULL);
+    return ((it != m_clients.end()) ? it->second : NULL);
 }
 
 void            *Poller::pollPort(void *instance)
@@ -232,11 +228,7 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
     Connection          *connection;
 
     connection = _searchCorrectConnection(socket_fd);
-    if (connection->getRequest().isCGI())
-    {
-        return (true);
-    }
-    return (false);
+    return (connection->getRequest().isCGI());
 }
 
 bool            Poller::_initAndExecCGI(int socket_fd)

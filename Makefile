@@ -72,6 +72,18 @@ LIBS		= $(addprefix -L, $(LIB_DIR))
 
 TST_OBJECTS	= $(patsubst %.cpp, %.o, $(TST_SRC))
 TST_HEADERS	= $(addprefix -I, $(TST_HEADER_DIR))
+TST_LINKS	= -lgtest -lgtest_main
+
+UNAME_S		= $(shell uname -s)
+ifeq ($(UNAME_S), Darwin)
+	# uses clang which does not give the option but work correctly with linking anyway
+	TST_LINKS	+= -lcurl
+else ifeq ($(UNAME_S), Linux)
+	# uses gcc and prioritises dynamic over static lib. Also needs `tinfo` for tgetflag / PC etc.
+	TST_LINKS	+= -l:./libcurl.a -lz
+else
+	$(error Unsupported Opertating system)
+endif
 
 all: $(NAME)
 
@@ -96,10 +108,6 @@ uninstall: fclean
 	@if [ -d $(LIB_BASE)/googletest ]; then cd $(LIB_BASE)/googletest && cmake --build . --target clean; fi
 	@if [ -d $(LIB_BASE)/curl ]; then \
   		rm -rf $(LIB_BASE)/curl; \
-		make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) clean; \
-	fi
-	@if [ -d $(LIB_BASE)/openssl ]; then \
-		rm -rf $(LIB_BASE)/openssl; \
 		make -C $(LIB_BASE)/curl-$(CURL_VERSION) clean; \
 	fi
 
@@ -126,22 +134,9 @@ $(LIB_BASE)/curl/lib/libcurl.a:
 	@cd $(LIB_BASE)/curl-$(CURL_VERSION) && \
 		./configure \
 			--prefix $(PWD)/$(LIB_BASE)/curl \
-			--with-openssl=$(PWD)/$(LIB_BASE)/openssl
+			--without-ssl
 	@make -C $(LIB_BASE)/curl-$(CURL_VERSION)
 	@make -C $(LIB_BASE)/curl-$(CURL_VERSION) install
 
-$(LIB_BASE)/openssl/lib/libssl.a:
-	# download and unpack openssl if not retrieved yet
-	@if [ ! -d $(LIB_BASE)/openssl-$(OPENSSL_VERSION) ]; then \
-  		curl --insecure -L $(OPENSSL_DOWNLOAD) --output $(LIB_BASE)/openssl-$(OPENSSL_VERSION).tar.gz; \
-  		cd $(LIB_BASE) && tar -xzf openssl-$(OPENSSL_VERSION).tar.gz; \
-  	fi
-	@mkdir -p $(LIB_BASE)/openssl
-	@cd $(LIB_BASE)/openssl-$(OPENSSL_VERSION) && ./Configure --prefix=$(PWD)/$(LIB_BASE)/openssl --libdir=lib
-	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION)
-	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) install_sw
-
-# TODO add this to the github actions flow
-tester: $(OBJECTS) $(LIB_BASE)/googletest/lib/libgtest.a $(LIB_BASE)/openssl/lib/libssl.a $(LIB_BASE)/curl/lib/libcurl.a $(TST_OBJECTS)
-	$(CXX) $(OBJECTS) $(TST_OBJECTS) -o $@ $(CFLAGS) $(TST_HEADERS) $(LIBS) $(CLINKS) -lcurl -lgtest -lgtest_main
-
+tester: $(OBJECTS) $(LIB_BASE)/googletest/lib/libgtest.a $(LIB_BASE)/curl/lib/libcurl.a $(TST_OBJECTS)
+	$(CXX) $(OBJECTS) $(TST_OBJECTS) -o $@ $(CFLAGS) $(TST_HEADERS) $(LIBS) $(CLINKS) $(TST_LINKS)
