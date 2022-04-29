@@ -11,11 +11,36 @@
 
 // Basic GET Request
 static std::string basic_get_request_string =
-	"GET / HTTP/1.1\r\n"
-	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
-	"Host: localhost\r\n"
-	"Accept-Language: en-us\r\n"
-	"Accept-Encoding: gzip, deflate\r\n\r\n";
+    	"GET / HTTP/1.1\r\n"
+    	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+    	"Host: localhost:8082\r\n"
+    	"Accept-Language: en-us\r\n"
+    	"Accept-Encoding: gzip, deflate\r\n\r\n";
+
+// Basic POST Request
+static std::string  basic_post_request_string =
+        "POST /index.html HTTP/1.1\r\n"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+        "Host: localhost:8082\r\n"
+        "Content-Type: text/xml; charset=utf-8\r\n"
+        "Content-Length: 35\r\n"
+        "Accept-Language: en-us\r\n"
+        "Accept-Encoding: gzip, deflate\r\n\r\n"
+        "<html><h1>Goodbye World</h1></html>";
+
+// Basic DELETE Request
+static std::string  basic_delete_request_string =
+        "DELETE /index.html HTTP/1.1\r\n"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+        "Host: localhost\r\n\r\n";
+
+// Basic invalid GET Request
+static std::string  basic_get_request_wrong_string =
+        "GET / HTTP/1.0\r\n"
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
+        "Host: localhost:8080\r\n"
+        "Accept-Language: en-us\r\n"
+        "Accept-Encoding: gzip, deflate\r\n\r\n";
 
 // Route setup
 
@@ -42,12 +67,13 @@ class TestResponse : public ::testing::Test
         void setRequestData(const std::string& data)
         {
             req.m_request = data;
+            req.setFilesearchPath("html/");
             req.parse();
             req.errorChecking();
         }
 
         void setRouteData(const std::string& base_url, const std::string& file_search_path, const std::string& upload_path, 
-            const bool& has_autoindex, const std::vector<std::string> accepted_methods, const std::vector<std::string> cgi_file_extensions)
+            const bool& has_autoindex, const std::vector<std::string>& accepted_methods, const std::vector<std::string>& cgi_file_extensions)
         {
             rou.setBaseUrl(base_url);
             rou.setFileSearchPath(file_search_path);
@@ -149,7 +175,7 @@ std::string readFileIntoString(const std::string &path)
 
 	std::ifstream input_file(path.c_str());
 	if (!input_file.is_open())
-		return (NULL);
+		return (m_body);
 
 	m_body = std::string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
     return (m_body);
@@ -167,8 +193,6 @@ TEST_F(TestResponse, GetRequestBasicConfStartLine)
 
     res.buildResponse(m_status_codes);
 
-    std::string correct_response_body = readFileIntoString("../../html/index.html");
-
     EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 200 OK\r\n");
 }
 
@@ -183,9 +207,97 @@ TEST_F(TestResponse, GetRequestBasicConfBody)
 
     res.buildResponse(m_status_codes);
 
-    std::string correct_response_body = readFileIntoString("../../html/index.html");
+    std::string correct_response_body = readFileIntoString("html/index.html");
 
-    // std::cout << " GET BODY IS " << res.getBody() << std::endl;
-    // std::cout << " CORRECT RESPONSE BODY IS " << correct_response_body << std::endl;
+    EXPECT_TRUE(res.getBody() == correct_response_body);
+}
+
+TEST_F(TestResponse, PostRequestBasicConfStartLine)
+{
+    setRequestData(basic_post_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 200 OK\r\n");
+}
+
+TEST_F(TestResponse, PostRequestBasicConfBody)
+{
+    setRequestData(basic_post_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    std::string correct_response_body = readFileIntoString("html/post.html");
+
+    EXPECT_TRUE(res.getBody() == correct_response_body);
+}
+
+TEST_F(TestResponse, DeleteRequestBasicConfStartLine)
+{
+    setRequestData(basic_delete_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 200 OK\r\n");
+}
+
+TEST_F(TestResponse, DeleteRequestBasicConfBody)
+{
+    setRequestData(basic_delete_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    std::string correct_response_body = readFileIntoString("html/delete.html");
+
+    EXPECT_TRUE(res.getBody() == correct_response_body);
+}
+
+TEST_F(TestResponse, InvalidGetRequestBasicConfStartLine)
+{
+    setRequestData(basic_get_request_wrong_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 505 HTTP Version Not Supported\r\n");
+}
+
+TEST_F(TestResponse, InvalidGetRequestBasicConfBody)
+{
+    setRequestData(basic_get_request_wrong_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    std::string correct_response_body = readFileIntoString("conf/error_pages/505.html");
+
     EXPECT_TRUE(res.getBody() == correct_response_body);
 }

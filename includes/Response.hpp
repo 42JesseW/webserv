@@ -53,6 +53,9 @@ class Response
 		std::string	const &										getBody() const;
 		std::string const &										getResponse() const;
 
+		void			setRequest(Request& req);
+		void			setRoute(Route& rou);
+
 		void			buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		void			buildHeaders();
 		void			buildBody();
