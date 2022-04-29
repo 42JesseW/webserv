@@ -1,10 +1,10 @@
 #include <CGI.hpp>
 
 CGI::CGI() :
-    m_program_path(DFL_CGI_DIR DFL_CGI_PROG),
     m_argv(NULL),
     m_envp(NULL),
-    m_fork_pid(UNSET_PID)
+    m_fork_pid(UNSET_PID),
+    m_done(false)
 {
     std::memset(m_pipe_in, 0, sizeof(m_pipe_in));
     std::memset(m_pipe_out, 0, sizeof(m_pipe_out));
@@ -45,6 +45,16 @@ void                CGI::setProgramPath(const std::string& path)
     m_program_path = path;
 }
 
+void                CGI::setDone(void)
+{
+    m_done = true;
+}
+
+bool                CGI::isDone(void)
+{
+    return (m_done);
+}
+
 pid_t&              CGI::getForkedPid(void)
 {
     return (m_fork_pid);
@@ -60,6 +70,23 @@ std::string         CGI::getResponse(void)
     return (m_response);
 }
 
+void           CGI::readAndAppend()
+{
+    ssize_t bytes_read;
+    char    *buff;
+
+    buff = new char[RECV_SIZE + 1];
+    if ((bytes_read = ::read(getPipeReadFd(), buff, RECV_SIZE)) == SYS_ERROR) {
+        fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
+    }
+    else
+    {
+        appendResponse(buff, bytes_read);
+        if (bytes_read < RECV_SIZE)
+            setDone();
+    }
+}
+
 pollfd         CGI::getPollFdStruct(void)
 {
     struct pollfd new_pollfd;
@@ -69,7 +96,6 @@ pollfd         CGI::getPollFdStruct(void)
     new_pollfd.revents = 0;
     return (new_pollfd);
 }
-
 
 /*
  * https://en.wikipedia.org/wiki/Common_Gateway_Interface
@@ -119,15 +145,7 @@ void                CGI::init(Request& request)
     m_environ["REQUEST_METHOD"] = request.getMethod();
     m_environ["PATH_INFO"] = request.getCGIPath();
     m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
-    if (request.getFilename().empty())
-    {
-        m_environ["SCRIPT_NAME"] = DFL_CGI_PROG; // TODO can be from a custom directive in config file ?
-    }
-    else
-    {
-        m_environ["SCRIPT_NAME"] = request.getFilename();
-        setProgramPath(DFL_CGI_DIR + request.getFilename());
-    }
+    m_environ["SCRIPT_NAME"] = request.getFilename();
     m_environ["QUERY_STRING"] = request.getQuery();
     m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
     m_environ["REMOTE_ADDR"] = "";      // TODO use inet_ntoa()?
@@ -178,19 +196,18 @@ int                 CGI::exec(void)
 
     if (pid == 0)
     {
-
         /* use dup to make sure the CGI program reads from the pipe */
         if (dup2(m_pipe_in[0], STDIN_FILENO) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
 
         /* write request body to write part of the pipe so CGI can read it */
         if (write(m_pipe_in[1], m_request_body.c_str(), m_request_body.size()) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
         close(m_pipe_in[1]);
 
         /* use dup to make sure the CGI program writes to the out pipe instead of STDOUT */
         if (dup2(m_pipe_out[1], STDOUT_FILENO) == SYS_ERROR)
-            _execExitFail();
+            return (EXIT_FAILURE);
 
         /* call the CGI program using provided arguments. This call will take over child process */
         if (execve(m_program_path.c_str(), m_argv, m_envp) == SYS_ERROR)
@@ -200,7 +217,7 @@ int                 CGI::exec(void)
              * so that the parent still gets the POLL_IN notification from poll.
              * exit(EXIT_FAILURE) should tell the parent process that it failed
              */
-            _execExitFail();
+            return (EXIT_FAILURE);
         }
     }
     else
@@ -208,17 +225,6 @@ int                 CGI::exec(void)
         m_fork_pid = pid;
     }
     return (EXIT_SUCCESS);
-}
-
-void                CGI::_execExitFail(void)
-{
-    /* errno can be check after a dup (not after read or write) */
-    std::string err(strerror(errno));
-
-    write(m_pipe_out[1], err.c_str(), err.size());
-    ft::freeCharArr(&m_envp);
-    ft::freeCharArr(&m_argv);
-    exit(EXIT_FAILURE);
 }
 
 void                CGI::reset(void)

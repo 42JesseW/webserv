@@ -57,7 +57,6 @@ void        Request::parse(void)
     parseAndSetHeaders();
     checkIfChunkedRequest();
     errorChecking();
-    checkIfCGI();
     m_request.clear();
 }
 
