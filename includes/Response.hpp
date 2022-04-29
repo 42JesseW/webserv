@@ -76,6 +76,7 @@ class Response
 		void				_buildBodyError();
 		std::string			_buildFilePath(const std::string &filename, int file_flag);
 		int					_readFileIntoString(const std::string &path);
+		void 				_sortAndAddToBody(std::vector<std::string> directories, std::vector<std::string> files);
 };
 
 #endif

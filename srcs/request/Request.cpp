@@ -129,6 +129,11 @@ bool &Request::isCGI(void)
     return (m_cgi);
 }
 
+bool &Request::isAutoIndex(void)
+{
+    return (m_autoindex);
+}
+
 std::map<std::string, std::string>	&Request::getHeaders(void)
 {
     return (m_headers);

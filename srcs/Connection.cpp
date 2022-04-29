@@ -175,6 +175,8 @@ void Connection::checkRoute(void)
 {
     checkAcceptedMethods();
     checkRedirects();
+    if (m_route->hasAutoIndex())
+        m_request.setAutoIndex(true);
     if (getRequest().getMethod() == "GET")
         checkFileSearchPath();
 }
