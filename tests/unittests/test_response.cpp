@@ -11,7 +11,7 @@
 
 // Basic GET Request
 static std::string basic_get_request_string =
-	"GET /?parameter1=waarde1&parameter2=waarde2&parameter3=waarde3 HTTP/1.1\r\n"
+	"GET / HTTP/1.1\r\n"
 	"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
 	"Host: localhost\r\n"
 	"Accept-Language: en-us\r\n"
@@ -143,7 +143,20 @@ class TestResponse : public ::testing::Test
         }
 };
 
-TEST_F(TestResponse, GetRequestBasicConf)
+std::string readFileIntoString(const std::string &path)
+{
+    std::string m_body;
+
+	std::ifstream input_file(path.c_str());
+	if (!input_file.is_open())
+		return (NULL);
+
+	m_body = std::string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+    return (m_body);
+}
+
+
+TEST_F(TestResponse, GetRequestBasicConfStartLine)
 {
     setRequestData(basic_get_request_string);
     setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
@@ -151,6 +164,28 @@ TEST_F(TestResponse, GetRequestBasicConf)
     setResponseData();
 
     status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
     res.buildResponse(m_status_codes);
+
+    std::string correct_response_body = readFileIntoString("../../html/index.html");
+
     EXPECT_TRUE(res.getStartLine() == "HTTP/1.1 200 OK\r\n");
+}
+
+TEST_F(TestResponse, GetRequestBasicConfBody)
+{
+    setRequestData(basic_get_request_string);
+    setRouteData(default_m_base_url, default_m_file_search_path, default_m_upload_path, default_m_has_autoindex,
+        default_m_accepted_methods, default_m_cgi_file_extensions);
+    setResponseData();
+
+    status_code_map_t   m_status_codes = setDefaultStatusCodes();
+
+    res.buildResponse(m_status_codes);
+
+    std::string correct_response_body = readFileIntoString("../../html/index.html");
+
+    // std::cout << " GET BODY IS " << res.getBody() << std::endl;
+    // std::cout << " CORRECT RESPONSE BODY IS " << correct_response_body << std::endl;
+    EXPECT_TRUE(res.getBody() == correct_response_body);
 }
