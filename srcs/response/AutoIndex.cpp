@@ -31,7 +31,9 @@ void Response::buildAutoIndex(void)
         {
             if (ent->d_type == DT_DIR) 
             {
-                directories.push_back("<a href=\"" + m_request.getTarget() + ent->d_name + "/\">" + ent->d_name + "/" + "</a><br>");
+                std::cout << "DIR NAME: " << ent->d_name << std::endl;
+                if (std::strcmp(ent->d_name, ".") != 0 && std::strcmp(ent->d_name, "..") != 0)
+                    directories.push_back("<a href=\"" + m_request.getTarget() + ent->d_name + "/\">" + ent->d_name + "/" + "</a><br>");
             }
             else
             {

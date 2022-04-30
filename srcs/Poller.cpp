@@ -4,9 +4,7 @@
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
-{
-
-}
+{}
 
 /* shallow copy of port config */
 Poller::Poller(const Poller &cpy) :
@@ -14,9 +12,7 @@ Poller::Poller(const Poller &cpy) :
     m_port_config(cpy.m_port_config),
     m_dropped_fds(cpy.m_dropped_fds),
     m_new_connection(cpy.m_new_connection)
-{
-
-}
+{}
 
 Poller::~Poller(void)
 {
@@ -189,7 +185,7 @@ void            Poller::_deletePollFds(void)
         dropped_client_fd = m_dropped_fds.top();
 
         /* remove from pollfd vector */
-        for (auto it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
+        for (std::vector<struct pollfd>::iterator it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
         {
             if (it->fd == dropped_client_fd)
             {
