@@ -142,7 +142,6 @@ $(LIB_BASE)/openssl/lib/libssl.a:
 	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION)
 	@make -C $(LIB_BASE)/openssl-$(OPENSSL_VERSION) install_sw
 
-# TODO add this to the github actions flow
 tester: $(OBJECTS) $(LIB_BASE)/googletest/lib/libgtest.a $(LIB_BASE)/openssl/lib/libssl.a $(LIB_BASE)/curl/lib/libcurl.a $(TST_OBJECTS)
 	$(CXX) $(OBJECTS) $(TST_OBJECTS) -o $@ $(CFLAGS) $(TST_HEADERS) $(LIBS) $(CLINKS) -lcurl -lgtest -lgtest_main
 

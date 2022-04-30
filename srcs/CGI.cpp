@@ -129,27 +129,34 @@ pollfd         CGI::getPollFdStruct(void)
  */
 void                CGI::init(Request& request)
 {
+    std::string host;
+    if (request.getHeaders().find("Host") != request.getHeaders().end())
+        host = request.getHeaders().find("Host")->second;
+
     /* set environment variables for the CGI request */
     m_environ["SERVER_SOFTWARE"] = PROG_NAME;
-    if (request.getHeaders().find("Host") != request.getHeaders().end())
+    if (!host.empty())
     {
-        m_environ["SERVER_NAME"] = request.getHeaders().find("Host")->second;
-    }
-    else
-    {
-        m_environ["SERVER_NAME"] = "???"; // TODO How to get Server.m_names[0]?
+        std::string hostName = host.substr(0, host.find(":"));
+        m_environ["SERVER_NAME"] = hostName;
     }
     m_environ["GATEWAY_INTERFACE"] = CGI_VERSION;
     m_environ["SERVER_PROTOCOL"] = request.getVersion();
-    m_environ["SERVER_PORT"] = ""; // TODO Use server.m_socket.port
+    if (!host.empty())
+    {
+        std::string hostPort = host.substr(host.find(":") + 1);
+        m_environ["SERVER_PORT"] = hostPort;
+    }
+    else
+    {
+        m_environ["SERVER_PORT"] = "8080";
+    }
     m_environ["REQUEST_METHOD"] = request.getMethod();
     m_environ["PATH_INFO"] = request.getCGIPath();
-    m_environ["PATH_TRANSLATED"] = ""; // TODO build a full path using program PWD
     m_environ["SCRIPT_NAME"] = request.getFilename();
     m_environ["QUERY_STRING"] = request.getQuery();
-    m_environ["REMOTE_HOST"] = "";      // TODO use getnameinfo()?
-    m_environ["REMOTE_ADDR"] = "";      // TODO use inet_ntoa()?
-    // TODO could also use std::map.at which throws exception std::out_of_range
+    m_environ["REMOTE_HOST"] = "";
+    m_environ["REMOTE_ADDR"] = "";
     m_environ["CONTENT_TYPE"] = _getMapValueWithDefault(
             request.getHeaders(),
             std::string("Content-Type"),
@@ -159,17 +166,17 @@ void                CGI::init(Request& request)
             std::string("Content-Length"),
             ft::intToString(request.getBody().size())
     );
-    m_envp = _environToEnvp();                                          // TODO testcase
+    m_envp = _environToEnvp();
     if (!m_envp)
         throw std::runtime_error("Failed to allocate for GGI::m_envp");
 
-    m_args.push_back(m_program_path);                                   // TODO extra arguments must be passed here
+    m_args.push_back(m_program_path);
     m_argv = _argsToArgv();
     if (!m_argv)
         throw std::runtime_error("Failed to allocate for CGI::m_argv");
 
     /* create the two pipes needed for .exec and make output pipe's read part `non_blocking` */
-    if (pipe(m_pipe_in) == SYS_ERROR || pipe(m_pipe_out) == SYS_ERROR)  // TODO testcase
+    if (pipe(m_pipe_in) == SYS_ERROR || pipe(m_pipe_out) == SYS_ERROR)
         throw std::runtime_error("Failed to create pipes for CGI object");
     fcntl(m_pipe_out[0], F_SETFL, O_NONBLOCK);
     m_request_body = request.getBody();
@@ -182,7 +189,6 @@ void                CGI::init(Request& request)
  *
  * https://unix.stackexchange.com/questions/11946/how-big-is-the-pipe-buffer
  *
- * TODO implement different implementation with request_body size
  */
 int                 CGI::exec(void)
 {

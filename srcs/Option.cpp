@@ -383,7 +383,7 @@ void                                    FileParser::OptionAllowedMethods::parse(
     route = (Route *)obj;
     route->getAcceptedMethods().clear();
     methods = &ConfigUtil::getHandle().getDefaultMethods();
-    while (!tokens.empty() && !(tokens.front() == "\n" || count >= 3)) // TODO testcase
+    while (!tokens.empty() && !(tokens.front() == "\n" || count >= 3))
     {
         if (std::find(methods->begin(), methods->end(), tokens.front()) == methods->end())
             throw MappingFailure("Failed to parse allowed_methods");
