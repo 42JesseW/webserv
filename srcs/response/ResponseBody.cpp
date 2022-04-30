@@ -37,12 +37,19 @@ void		Response::_buildBodyGet()
 
 	if (m_request.getFilename().empty())
 	{
-		path_vector = m_route.getIndexFiles();
-		for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
+		if (m_request.isAutoIndex())
 		{
-			path = _buildFilePath(path_vector.at(iter - path_vector.begin()), m_status_code);
-			if (_readFileIntoString(path))
-				break;	
+			buildAutoIndex();
+		}
+		else
+		{
+			path_vector = m_route.getIndexFiles();
+			for (iter = path_vector.begin(); iter != path_vector.end(); ++iter)
+			{
+				path = _buildFilePath(path_vector.at(iter - path_vector.begin()), m_status_code);
+				if (_readFileIntoString(path))
+					break;	
+			}
 		}
 	}
 	else
