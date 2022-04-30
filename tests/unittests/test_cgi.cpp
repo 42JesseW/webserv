@@ -61,11 +61,12 @@ TEST_F(TestCGIFixture, SimpleInit)
 TEST_F(TestCGIFixture, SimpleExecWithSleep)
 {
     CGI             simple_cgi;
-    Request   request;
+    Request         request;
     struct pollfd   pollfds[1];
 
     char            buff[BUFF_TEST_SIZE];
     const std::string   out = ""
+      "HTTP/1.1 200 OK\n"
       "Content-type:text/html\r\n\r\n\n"
       "<h1>Feeling sleepy...</h1>\n";
 
@@ -88,7 +89,7 @@ TEST_F(TestCGIFixture, SimpleExecWithSleep)
             ASSERT_TRUE(waitpid(simple_cgi.m_fork_pid, NULL, 0) != SYS_ERROR);
             ssize_t ret = read(simple_cgi.m_pipe_out[0], buff, BUFF_TEST_SIZE);
             buff[ret] = '\0';
-            EXPECT_STREQ(buff, out.c_str());
+            EXPECT_EQ(std::string(buff), out);
             break ;
         }
     }
@@ -146,6 +147,7 @@ TEST_F(TestCGIFixture, SimpleExecFormInput)
 
     char            buff[BUFF_TEST_SIZE];
     const std::string   out = ""
+      "HTTP/1.1 200 OK\n"
       "Content-Type:text/html\r\n\r\n\n"
       "<h1>Addition Results</h1>\n"
       "<output>10 + 20 = 30</output>\n";
