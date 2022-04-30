@@ -59,14 +59,18 @@ Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_c
     ServerConfig                        *server_config;
     Route                               *route;
     ServerConfig::routes_t::iterator    it;
+    std::string                         target;
 
+    target = request.getTarget();
+    if (target[target.length() - 1] == '/' && target != "/")
+        target.erase(target.length() - 1);
     server_config = _getMatchingServerBlock(request, error_files);
     if (request.getStatus() == HTTP_STATUS_OK)
     {
         for (it = server_config->getRoutes().begin() ; it != server_config->getRoutes().end() ; it++)
         {
             route = (*it);
-            if (route->getBaseUrl() == request.getTarget())
+            if (route->getBaseUrl() == target)
             {
                 return (route);
             }
