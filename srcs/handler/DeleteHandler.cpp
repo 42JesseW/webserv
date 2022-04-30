@@ -13,7 +13,10 @@ bool Handler::delete_handler(Request &request, std::string searchPath)
     if (!filename.empty())
     {
         if (std::remove(filename.c_str()) != 0)
+        {
+            request.setStatus(HTTP_STATUS_NOT_FOUND);
             return (false);
+        }
     }
     return (true);
 }
