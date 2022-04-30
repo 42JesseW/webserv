@@ -79,7 +79,7 @@ namespace ft
             return ;
         p = *arr;
         for (int idx = 0; p[idx]; ++idx)
-            delete p[idx];
+            delete [] p[idx];
         delete [] p;
         *arr = NULL;
     }

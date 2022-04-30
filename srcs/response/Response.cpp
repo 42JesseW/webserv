@@ -88,7 +88,17 @@ std::string const &								Response::getResponse() const
 	return (m_response);
 }
 
-void					Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
+void											Response::setRequest(Request &req)
+{
+	m_request = req;
+}
+
+void											Response::setRoute(Route &rou)
+{
+	m_route = rou;
+}
+
+void											Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	buildStartLine(m_error_files);
 	buildBody();
