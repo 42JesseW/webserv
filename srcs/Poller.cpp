@@ -54,7 +54,7 @@ void            *Poller::pollPort(void *instance)
         poller->m_new_connection = std::make_pair(0, (Connection*)NULL);
 
         active_connections = poller->m_pfds.size();
-        fds_with_events = poll(&poller->m_pfds.at(0), active_connections, POLL_TIMEOUT_MS);
+        fds_with_events = poll(&poller->m_pfds.front(), active_connections, POLL_TIMEOUT_MS);
         if (fds_with_events == SYS_ERROR) {
             util->setSignalled(SIGINT);
         }
@@ -98,8 +98,7 @@ void            *Poller::pollPort(void *instance)
                     poller->_matchRoute(poller->m_pfds[idx].fd);
                     if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
                     {
-                        if (!poller->_initAndExecCGI(poller->m_pfds[idx].fd))
-                            poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
                     }
                     else
                     {
@@ -236,12 +235,7 @@ bool            Poller::_initAndExecCGI(int socket_fd)
     {
         connection->initCGI();
         connection->getCGI()->setProgramPath(DFL_CGI_DIR + connection->getRequest().getFilename());
-        if (connection->getCGI()->exec() == EXIT_FAILURE)
-        {
-            connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
-            connection->sendResponse(connection->getErrorFiles());
-            return (false);
-        }
+        connection->getCGI()->exec();
     }
     return (true);
 }
@@ -299,6 +293,7 @@ void            Poller::_readCGIData(int socket_fd)
 {
     Connection              *connection;
     clients_t::iterator     client_it;
+    int                     w_status;
 
     for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
@@ -308,7 +303,14 @@ void            Poller::_readCGIData(int socket_fd)
             connection->getCGI()->readAndAppend();
             if (connection->getCGI()->isDone())
             {
-                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+                waitpid(connection->getCGI()->getForkedPid(), &w_status, 0);
+                if (WEXITSTATUS(w_status) == EXIT_FAILURE)
+                {
+                    connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+                    connection->sendResponse(connection->getErrorFiles());
+                }
+                else
+                    connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                 m_dropped_fds.push(socket_fd);
                 m_dropped_fds.push(connection->getSock()->getFd());
             }

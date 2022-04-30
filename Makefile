@@ -14,18 +14,13 @@ CLINKS = -lpthread
 CURL_VERSION	= 7.82.0
 CURL_DOWNLOAD	= https://curl.se/download/curl-$(CURL_VERSION).tar.gz
 
-OPENSSL_VERSION	= 3.0.2
-OPENSSL_DOWNLOAD	= https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
-
 GTEST_VERSION	= 1.11.0
 GTEST_DOWNLOAD	= https://github.com/google/googletest/archive/refs/tags/release-$(GTEST_VERSION).tar.gz
 
 TST_HEADER_DIR	= $(HEADER_DIR) tests/unittests
-TST_HEADER_DIR	+= $(PWD)/$(LIB_BASE)/openssl/include
 TST_HEADER_DIR	+= $(PWD)/$(LIB_BASE)/curl/include
 TST_HEADER_DIR	+= $(PWD)/$(LIB_BASE)/googletest/googletest/include
 
-LIB_DIR	= $(PWD)/$(LIB_BASE)/openssl/lib
 LIB_DIR	+= $(PWD)/$(LIB_BASE)/curl/lib
 LIB_DIR	+= $(PWD)/$(LIB_BASE)/googletest/lib
 

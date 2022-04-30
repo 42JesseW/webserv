@@ -1,11 +1,6 @@
 #pragma once
 
 #define DFL_FILE_SEARCH_PATH   "html/"
-#ifdef TESTRUN
-# define DFL_UPLOAD_PATH        "../../html/"
-#else
-# define DFL_UPLOAD_PATH        "html/"
-#endif
 #define DFL_INDEX_FILE         "index.html"
 
 #include <Webserv.hpp>

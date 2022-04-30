@@ -182,6 +182,14 @@ void                CGI::init(Request& request)
     m_request_body = request.getBody();
 }
 
+static void cgi_exit(void)
+{
+    std::string err("ERROR");
+
+    write(STDOUT_FILENO, err.c_str(), err.size());
+    exit(EXIT_FAILURE);
+}
+
 /*
  * The forked process will use execve to run the CGI program.
  * If the request body has a size large than MAX_PIPE_SIZE, then
@@ -204,16 +212,16 @@ int                 CGI::exec(void)
     {
         /* use dup to make sure the CGI program reads from the pipe */
         if (dup2(m_pipe_in[0], STDIN_FILENO) == SYS_ERROR)
-            return (EXIT_FAILURE);
+            cgi_exit();
 
         /* write request body to write part of the pipe so CGI can read it */
         if (write(m_pipe_in[1], m_request_body.c_str(), m_request_body.size()) == SYS_ERROR)
-            return (EXIT_FAILURE);
+            cgi_exit();
         close(m_pipe_in[1]);
 
         /* use dup to make sure the CGI program writes to the out pipe instead of STDOUT */
         if (dup2(m_pipe_out[1], STDOUT_FILENO) == SYS_ERROR)
-            return (EXIT_FAILURE);
+            cgi_exit();
 
         /* call the CGI program using provided arguments. This call will take over child process */
         if (execve(m_program_path.c_str(), m_argv, m_envp) == SYS_ERROR)
@@ -223,7 +231,7 @@ int                 CGI::exec(void)
              * so that the parent still gets the POLL_IN notification from poll.
              * exit(EXIT_FAILURE) should tell the parent process that it failed
              */
-            return (EXIT_FAILURE);
+            cgi_exit();
         }
     }
     else
