@@ -263,11 +263,6 @@ void            Poller::_getNewConnection(void)
 
     connection = NULL;
     fd = m_port_config->getSocket()->accept(addr);
-    if (fd == SYS_ERROR)
-    {
-        /* some error handling */
-
-    }
     socket      = new ClientSocket(fd, addr);
     connection  = new Connection(socket);
     m_new_connection = std::make_pair(fd, connection);
@@ -328,7 +323,6 @@ void            Poller::_readCGIData(int socket_fd)
             break ;
         }
     }
-    
 }
 
 bool            Poller::_checkIfCGIFd(int socket_fd)
