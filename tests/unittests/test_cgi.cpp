@@ -70,6 +70,7 @@ TEST_F(TestCGIFixture, SimpleExecWithSleep)
       "<h1>Feeling sleepy...</h1>\n";
 
     request.appendRequestData(basic_post.c_str(), basic_post.size());
+    request.parse();
     simple_cgi.setProgramPath(getProgramPath("sleep.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
@@ -101,7 +102,8 @@ TEST_F(TestCGIFixture, SimpleExecHelloWorld)
 
     char            buff[BUFF_TEST_SIZE];
     const std::string   out = ""
-      "Content-type:text/html\r\n\r\n\n"
+      "HTTP/1.1 200 OK\n"
+      "Content-type:text/html\r\n\n"
       "<html>\n"
       "<head>\n"
       "<title>Hello World - First CGI Program</title>\n"
@@ -112,6 +114,7 @@ TEST_F(TestCGIFixture, SimpleExecHelloWorld)
       "</html>\n";
 
     request.appendRequestData(basic_post.c_str(), basic_post.size());
+    request.parse();
     simple_cgi.setProgramPath(getProgramPath("hello_world.py"));
     simple_cgi.init(request);
     ASSERT_TRUE(simple_cgi.exec() != SYS_ERROR);
