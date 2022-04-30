@@ -92,6 +92,11 @@ void                        Route::setBaseUrl(const std::string &base_url)
     m_base_url = base_url;
 }
 
+void                        Route::setAcceptedMethods(const std::vector<std::string> &accepted_methods)
+{
+    m_accepted_methods = accepted_methods;
+}
+
 void                        Route::setFileSearchPath(const std::string &path)
 {
     m_file_search_path = path;
@@ -112,4 +117,9 @@ void                        Route::setRedirect(int status_code, const std::strin
     if (!m_redirect) m_redirect = new REDIR;
     m_redirect->status_code = status_code;
     m_redirect->url = url;
+}
+
+void                        Route::setCgiFileExtensions(const std::vector<std::string> &cgi_file_extensions)
+{
+    m_cgi_file_extensions = cgi_file_extensions;
 }
