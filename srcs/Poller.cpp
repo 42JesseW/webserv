@@ -4,9 +4,7 @@
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
-{
-
-}
+{}
 
 /* shallow copy of port config */
 Poller::Poller(const Poller &cpy) :
@@ -14,9 +12,7 @@ Poller::Poller(const Poller &cpy) :
     m_port_config(cpy.m_port_config),
     m_dropped_fds(cpy.m_dropped_fds),
     m_new_connection(cpy.m_new_connection)
-{
-
-}
+{}
 
 Poller::~Poller(void)
 {
@@ -184,7 +180,7 @@ void            Poller::_deletePollFds(void)
         dropped_client_fd = m_dropped_fds.top();
 
         /* remove from pollfd vector */
-        for (auto it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
+        for (std::vector<struct pollfd>::iterator it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
         {
             if (it->fd == dropped_client_fd)
             {
@@ -211,7 +207,7 @@ void            Poller::_parse(int &socket_fd)
     connection = _searchCorrectConnection(socket_fd);
     connection = m_clients.find(socket_fd)->second;
     if (connection->getRequest().getHeaders().empty())
-        connection->parseRequest();
+        connection->parseRequest();    
 }
 
 void            Poller::_respond(int &socket_fd)
@@ -253,11 +249,6 @@ void            Poller::_getNewConnection(void)
 
     connection = NULL;
     fd = m_port_config->getSocket()->accept(addr);
-    if (fd == SYS_ERROR)
-    {
-        /* some error handling */
-
-    }
     socket      = new ClientSocket(fd, addr);
     connection  = new Connection(socket);
     m_new_connection = std::make_pair(fd, connection);
@@ -268,9 +259,10 @@ void            Poller::_matchRoute(int socket_fd)
     Connection                      *connection;
     Route                           *matched_route;
     ConfigUtil::status_code_map_t   *error_files = NULL;
+    uint32_t                         max_body_size;
 
     connection = _searchCorrectConnection(socket_fd);
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files, &max_body_size);
     if (!matched_route)
     {
         connection->setErrorFiles(&ConfigUtil::getHandle().getStatusCodeMap());
@@ -281,6 +273,8 @@ void            Poller::_matchRoute(int socket_fd)
         {
             connection->setRoute(matched_route);
             connection->setErrorFiles(error_files);
+            if (connection->getRequest().getMethod() == "POST")
+                connection->checkBodySize(max_body_size);
             connection->checkRoute();
             connection->methodHandler();
         }
@@ -323,7 +317,6 @@ void            Poller::_readCGIData(int socket_fd)
             break ;
         }
     }
-    
 }
 
 bool            Poller::_checkIfCGIFd(int socket_fd)

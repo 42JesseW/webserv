@@ -53,9 +53,13 @@ class Response
 		std::string	const &										getBody() const;
 		std::string const &										getResponse() const;
 
+		void			setRequest(Request& req);
+		void			setRoute(Route& rou);
+
 		void			buildStartLine(ConfigUtil::status_code_map_t& m_error_files);
 		void			buildHeaders();
 		void			buildBody();
+		void		 	buildAutoIndex();
 		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
 
@@ -75,6 +79,7 @@ class Response
 		void				_buildBodyError();
 		std::string			_buildFilePath(const std::string &filename, int file_flag);
 		int					_readFileIntoString(const std::string &path);
+		void 				_sortAndAddToBody(std::vector<std::string> directories, std::vector<std::string> files);
 };
 
 #endif

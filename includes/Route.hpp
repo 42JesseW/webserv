@@ -42,9 +42,11 @@ public:
     std::vector<std::string>&   getCgiFileExtensions(void);
 
     void                        setBaseUrl(const std::string& base_url);
+    void                        setAcceptedMethods(const std::vector<std::string>& accepted_methods);
     void                        setFileSearchPath(const std::string& path);
     void                        setUploadPath(const std::string& path);
     void                        setAutoIndex(bool on);
     void                        setRedirect(int status_code, const std::string& url);
+    void                        setCgiFileExtensions(const std::vector<std::string>& cgi_file_extensions);
 
 };
