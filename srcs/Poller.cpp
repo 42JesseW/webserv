@@ -278,9 +278,10 @@ void            Poller::_matchRoute(int socket_fd)
     Connection                      *connection;
     Route                           *matched_route;
     ConfigUtil::status_code_map_t   *error_files = NULL;
+    uint32_t                         max_body_size;
 
     connection = _searchCorrectConnection(socket_fd);
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files, &max_body_size);
     if (!matched_route)
     {
         connection->setErrorFiles(&ConfigUtil::getHandle().getStatusCodeMap());
@@ -291,6 +292,8 @@ void            Poller::_matchRoute(int socket_fd)
         {
             connection->setRoute(matched_route);
             connection->setErrorFiles(error_files);
+            if (connection->getRequest().getMethod() == "POST")
+                connection->checkBodySize(max_body_size);
             connection->checkRoute();
             connection->methodHandler();
         }

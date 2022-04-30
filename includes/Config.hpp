@@ -51,6 +51,7 @@ public:
     routes_t&                   getRoutes(void);
     std::vector<std::string>&   getNames(void);
     status_code_map_t&          getErrorFiles(void);
+    uint32_t                    getMaxBodySize(void);
 
     void                        clearNames(void);
     bool                        hasRoutes(void);
@@ -97,9 +98,9 @@ public:
      * the error_files pointer to the corresponding ServerConfig its
      * custom error file map.
      */
-    Route                       *getMatchingRoute(Request& request, ConfigUtil::status_code_map_t **error_files);
+    Route                       *getMatchingRoute(Request& request, ConfigUtil::status_code_map_t **error_files, uint32_t *max_body_size);
 
 private:
-    ServerConfig                *_getMatchingServerBlock(Request& request, ConfigUtil::status_code_map_t **error_files);
+    ServerConfig                *_getMatchingServerBlock(Request& request, ConfigUtil::status_code_map_t **error_files, uint32_t *max_body_size);
 
 };

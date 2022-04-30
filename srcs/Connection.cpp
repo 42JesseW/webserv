@@ -230,6 +230,26 @@ void Connection::checkFileSearchPath(void)
     }
 }
 
+void Connection::checkBodySize(uint32_t max_size)
+{
+    uint32_t                        body_length_bytes;
+    Request::headers_t::iterator    it;
+
+    it = m_request.getHeaders().find("Content-Length");
+    if (it != m_request.getHeaders().end())
+    {
+        body_length_bytes = std::stoi(it->second);
+    }
+    else
+    {
+        body_length_bytes = m_request.getBody().length();
+    }
+    if (body_length_bytes > (max_size * 1000000))
+    {
+        m_request.setStatus(HTTP_STATUS_REQUEST_ENTITY_TOO_LARGE);
+    }
+}
+
 void Connection::searchFile(void)
 {
     std::string filepath;

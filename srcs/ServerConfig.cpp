@@ -99,6 +99,11 @@ std::vector<std::string>&   ServerConfig::getNames(void)
     return (m_names);
 }
 
+uint32_t                    ServerConfig::getMaxBodySize(void)
+{
+    return (m_client_max_body_size);
+}
+
 ServerConfig::status_code_map_t&    ServerConfig::getErrorFiles(void)
 {
     return (m_error_files);

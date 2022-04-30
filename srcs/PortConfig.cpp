@@ -54,7 +54,7 @@ PortConfig::server_t&    PortConfig::getServers(void)
     return (m_server_blocks);
 }
 
-Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_code_map_t **error_files)
+Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_code_map_t **error_files, uint32_t *max_body_size)
 {
     ServerConfig                        *server_config;
     Route                               *route;
@@ -64,7 +64,7 @@ Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_c
     target = request.getTarget();
     if (target[target.length() - 1] == '/' && target != "/")
         target.erase(target.length() - 1);
-    server_config = _getMatchingServerBlock(request, error_files);
+    server_config = _getMatchingServerBlock(request, error_files, max_body_size);
     if (request.getStatus() == HTTP_STATUS_OK)
     {
         for (it = server_config->getRoutes().begin() ; it != server_config->getRoutes().end() ; it++)
@@ -85,7 +85,7 @@ Route       *PortConfig::getMatchingRoute(Request& request, ConfigUtil::status_c
  * a matching `Host` -> `server_name`. If no matching block
  * found, then use the default (0).
  */
-ServerConfig    *PortConfig::_getMatchingServerBlock(Request& request, ConfigUtil::status_code_map_t **error_files)
+ServerConfig    *PortConfig::_getMatchingServerBlock(Request& request, ConfigUtil::status_code_map_t **error_files, uint32_t *max_body_size)
 {
     ServerConfig                        *server;
     std::string                         host_header_value;
@@ -106,11 +106,13 @@ ServerConfig    *PortConfig::_getMatchingServerBlock(Request& request, ConfigUti
                 if (name_it != server->getNames().end())
                 {
                     *error_files = &server->getErrorFiles();
+                    *max_body_size = server->getMaxBodySize();
                     return (server);
                 }
             }
         }
     }
-    *error_files = &m_server_blocks.at(0)->getErrorFiles();
-    return (m_server_blocks.at(0));
+    *error_files = &m_server_blocks.front()->getErrorFiles();
+    *max_body_size = m_server_blocks.front()->getMaxBodySize();
+    return (m_server_blocks.front());
 }
