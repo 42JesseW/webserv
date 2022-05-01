@@ -237,7 +237,6 @@ void Connection::checkBodySize(uint32_t max_size)
     {
         body_length_bytes = m_request.getBody().length();
     }
-    std::cout << "HELLO?: " << body_length_bytes << " AND " <<  max_size * 1000000 << std::endl;
     if (body_length_bytes > (max_size * 1000000))
     {
         m_request.setStatus(HTTP_STATUS_REQUEST_ENTITY_TOO_LARGE);
