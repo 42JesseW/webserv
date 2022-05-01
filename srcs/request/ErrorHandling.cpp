@@ -38,9 +38,11 @@ void    Request::checkHeaders()
     {
         setStatus(HTTP_STATUS_EXPECTATION_FAILED);
     }
-    if (m_headers.find("Content-Type") != m_headers.end() && m_headers["Content-Type"].find("multipart") != std::string::npos)
+    if (m_headers.find("Content-Type") != m_headers.end())
     {
-        setStatus(HTTP_STATUS_TEAPOT);
+        if (m_headers["Content-Type"].find("multipart") != std::string::npos ||
+        m_headers["Content-Type"].find("form") != std::string::npos)
+            setStatus(HTTP_STATUS_TEAPOT);
     }
 }
 
