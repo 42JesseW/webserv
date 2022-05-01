@@ -40,8 +40,7 @@ void    Request::checkHeaders()
     }
     if (m_headers.find("Content-Type") != m_headers.end())
     {
-        if (m_headers["Content-Type"].find("multipart") != std::string::npos ||
-        m_headers["Content-Type"].find("form") != std::string::npos)
+        if (m_headers["Content-Type"].find("multipart/form") != std::string::npos)
             setStatus(HTTP_STATUS_TEAPOT);
     }
 }
