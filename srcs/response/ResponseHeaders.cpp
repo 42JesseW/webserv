@@ -77,7 +77,12 @@ status_code_body_t			Response::_buildContentType()
 {
 	std::string	content_type;
 
-	content_type = "text/html; charset=\"utf-8\"";
+	if (m_request.getFilename().find(".jpeg") != std::string::npos || m_request.getFilename().find(".jpg") != std::string::npos)
+		content_type = "image/jpeg";
+	else if (m_request.getFilename().find(".png") != std::string::npos)
+		content_type = "image/png";
+	else
+		content_type = "text/html; charset=\"utf-8\"";
 	return(std::make_pair("Content-Type", content_type));
 }
 
