@@ -85,6 +85,7 @@ void           CGI::readAndAppend()
         if (bytes_read < RECV_SIZE)
             setDone();
     }
+    delete [] buff;
 }
 
 pollfd         CGI::getPollFdStruct(void)
