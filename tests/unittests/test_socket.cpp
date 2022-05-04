@@ -123,7 +123,7 @@ TEST(SocketConnection, AcceptRecvSend) {
     response += "Date: Wed, 21 Oct 2015 07:28:00 GMT\r\n";
     response += "\r\n";
     response += "Hello there ;)";
-    b.send(response.c_str());
+    b.send(response);
     b.close();
     EXPECT_EQ(curl_future.get(), EXIT_SUCCESS);
     EXPECT_EQ(response, curl_response);
