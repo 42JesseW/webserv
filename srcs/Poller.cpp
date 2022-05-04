@@ -310,7 +310,11 @@ void            Poller::_readCGIData(int socket_fd)
                     connection->sendResponse(connection->getErrorFiles());
                 }
                 else
+<<<<<<< HEAD
                     connection->getSock()->send(connection->getCGI()->getResponse());
+=======
+                    connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
                 m_dropped_fds.push(socket_fd);
                 m_dropped_fds.push(connection->getSock()->getFd());
             }

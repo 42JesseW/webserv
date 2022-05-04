@@ -3,10 +3,17 @@
     "files.associations": {
         "filesystem": "cpp",
         "__bit_reference": "cpp",
+<<<<<<< HEAD
         "__config": "cpp",
         "__debug": "cpp",
         "__errc": "cpp",
         "__functional_base": "cpp",
+=======
+        "__bits": "cpp",
+        "__config": "cpp",
+        "__debug": "cpp",
+        "__errc": "cpp",
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
         "__hash_table": "cpp",
         "__locale": "cpp",
         "__mutex_base": "cpp",
@@ -17,15 +24,26 @@
         "__threading_support": "cpp",
         "__tree": "cpp",
         "__tuple": "cpp",
+<<<<<<< HEAD
         "algorithm": "cpp",
+=======
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
         "bitset": "cpp",
         "cctype": "cpp",
         "chrono": "cpp",
+<<<<<<< HEAD
         "cmath": "cpp",
         "complex": "cpp",
+=======
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "compare": "cpp",
+        "complex": "cpp",
+        "concepts": "cpp",
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
         "csignal": "cpp",
         "cstdarg": "cpp",
         "cstddef": "cpp",
@@ -39,7 +57,10 @@
         "deque": "cpp",
         "exception": "cpp",
         "fstream": "cpp",
+<<<<<<< HEAD
         "functional": "cpp",
+=======
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
         "future": "cpp",
         "initializer_list": "cpp",
         "iomanip": "cpp",
@@ -47,7 +68,10 @@
         "iosfwd": "cpp",
         "iostream": "cpp",
         "istream": "cpp",
+<<<<<<< HEAD
         "iterator": "cpp",
+=======
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
         "limits": "cpp",
         "locale": "cpp",
         "map": "cpp",
@@ -69,7 +93,17 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "unordered_map": "cpp",
+<<<<<<< HEAD
         "utility": "cpp",
         "vector": "cpp"
+=======
+        "variant": "cpp",
+        "vector": "cpp",
+        "__functional_base": "cpp",
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "utility": "cpp"
+>>>>>>> 9a572961dfc5c337dcb78b69a0841a8a5a422362
     }
 }
