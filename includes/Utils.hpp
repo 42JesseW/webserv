@@ -7,7 +7,7 @@
 
 namespace ft
 {
-	std::string		intToString(unsigned long int num);
+	std::string		intToString(int num);
 	int             stringToInt(const std::string& str);
 	std::string     readFileContent(std::ifstream& file_stream, const std::string& file_name);
 	void            freeCharArr(char ***arr);
