@@ -8,7 +8,8 @@ TEST_DIR = tests
 LIB_BASE	= libs
 CMAKE_DIR = cmake-build
 
-CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -pedantic -g
+# CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=address
 CLINKS = -lpthread
 
 CURL_VERSION	= 7.82.0

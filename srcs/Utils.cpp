@@ -4,7 +4,7 @@ namespace ft
 {
 
 	/* simple function to convert num into string */
-	std::string		intToString(int num)
+	std::string		intToString(unsigned long int num)
 	{
 	    std::ostringstream ss;
 

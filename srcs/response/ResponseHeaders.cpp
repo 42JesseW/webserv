@@ -65,8 +65,8 @@ status_code_body_t			Response::_buildTransferEncoding()
 
 status_code_body_t			Response::_buildContentLength()
 {
-	int			string_size;
-	std::string	str_string_size;
+	unsigned long int			string_size;
+	std::string					str_string_size;
 
 	string_size = m_body.size();
 	str_string_size = ft::intToString(string_size);
@@ -77,7 +77,14 @@ status_code_body_t			Response::_buildContentType()
 {
 	std::string	content_type;
 
-	content_type = "text/html; charset=\"utf-8\"";
+	if (m_request.getFilename().find(".jpeg") != std::string::npos ||
+		m_request.getFilename().find(".jpg") != std::string::npos)
+		content_type = "image/jpeg";
+	else if (m_request.getFilename().find(".png") != std::string::npos)
+		content_type = "image/png";
+	else
+		content_type = "text/html; charset=\"utf-8\"";
+
 	return(std::make_pair("Content-Type", content_type));
 }
 

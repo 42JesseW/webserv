@@ -34,6 +34,7 @@ class Response
 		std::string								m_headers_str;
 		std::string								m_body;
 		std::string 							m_response;
+		// char*									m_response_cstr;
 
 	public:
 		Response();
@@ -52,6 +53,7 @@ class Response
 		std::string	const &										getHeadersStr() const;
 		std::string	const &										getBody() const;
 		std::string const &										getResponse() const;
+		// char* const &											getResponse_cstr() const;
 
 		void			setRequest(Request& req);
 		void			setRoute(Route& rou);
@@ -60,7 +62,7 @@ class Response
 		void			buildHeaders();
 		void			buildBody();
 		void		 	buildAutoIndex();
-		void			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
+		char*			buildResponse(ConfigUtil::status_code_map_t& m_error_files);
 		void			resetResponse();
 
 	private:
