@@ -70,7 +70,7 @@ std::string         CGI::getResponse(void)
     return (m_response);
 }
 
-void           CGI::readAndAppend()
+bool           CGI::readAndAppend()
 {
     ssize_t bytes_read;
     char    *buff;
@@ -78,6 +78,7 @@ void           CGI::readAndAppend()
     buff = new char[RECV_SIZE + 1];
     if ((bytes_read = ::read(getPipeReadFd(), buff, RECV_SIZE)) == SYS_ERROR) {
         fprintf(stderr, "Failed to read from socket: %s\n", strerror(errno));
+        return (false);
     }
     else
     {
@@ -86,6 +87,7 @@ void           CGI::readAndAppend()
             setDone();
     }
     delete [] buff;
+    return (true);
 }
 
 pollfd         CGI::getPollFdStruct(void)

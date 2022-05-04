@@ -19,7 +19,7 @@ static char ascii_wave[] = "\n"
 
 static void write_usage_stderr_and_exit(void)
 {
-    fprintf(stderr, "usage: %s [config_file]\n", PROG_NAME);
+    fprintf(stderr, "[ERROR] usage: %s [config_file]\n", PROG_NAME);
     std::exit(EXIT_FAILURE);
 }
 

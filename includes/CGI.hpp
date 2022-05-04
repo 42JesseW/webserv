@@ -72,7 +72,7 @@ public:
     void            setDone();
     void            setProgramPath(const std::string& path);
 
-    void            readAndAppend();
+    bool            readAndAppend();
 
     bool            isDone();
     pid_t&          getForkedPid(void);

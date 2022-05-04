@@ -1,6 +1,5 @@
 #include <Connection.hpp>
 
-// TODO these constructors and destructors SUCK
 Connection::Connection(void) :
     m_sock(NULL),
     m_route(NULL),
