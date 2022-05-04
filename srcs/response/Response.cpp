@@ -110,14 +110,12 @@ char*											Response::buildResponse(ConfigUtil::status_code_map_t& m_error_f
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
 
-	std::cout << "M_RESPONSE " << m_response << std::endl;
 	char* m_response_cstr = new char[m_response.size()];
 
-	// std::cout << "RESPONSE DATA " << m_response.data() << std::endl;
 	// std::cout << "RESPONSE SIZE " << m_response.size() << std::endl;
 
-	std::copy_n(m_response.begin(), m_response.size(), m_response_cstr);
-	// memcpy(m_response_cstr, m_response.data(), m_response.size());
+	// std::copy_n(m_response.begin(), m_response.size(), m_response_cstr);
+	memcpy(m_response_cstr, m_response.data(), m_response.size());
 	// if (memcmp(m_response_cstr, m_response.data(), m_response.size()) != 0)
 	// 	std::cout << "WRONG MEMCPY" << std::endl;
 	// else
