@@ -307,6 +307,8 @@ void            Poller::_readConnectionData(int &socket_fd)
     
     connection = _searchCorrectConnection(socket_fd);
     connection->readSocket();
+    if (connection->getRequest().m_request.empty())
+        m_dropped_fds.push(socket_fd);
 }
 
 void            Poller::_readCGIData(int socket_fd)
@@ -319,7 +321,11 @@ void            Poller::_readCGIData(int socket_fd)
         if (client_it->second->getCGI() != NULL && client_it->second->getCGI()->getPipeReadFd() == socket_fd)
         {
             connection = client_it->second;
-            connection->getCGI()->readAndAppend();
+            if (!connection->getCGI()->readAndAppend())
+            {
+                connection->getCGI()->setDone();
+                connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+            }
             if (connection->getCGI()->isDone())
             {
                 connection->getSock()->send(connection->getCGI()->getResponse().c_str());

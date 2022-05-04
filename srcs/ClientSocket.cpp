@@ -48,6 +48,5 @@ void            ClientSocket::send(const char *response)
     len = std::strlen(response);
     if (::send(getFd(), response, len, 0) == SYS_ERROR) {
         fprintf(stderr, "Failed to write to socket: %s\n", strerror(errno));
-        throw SendFail();
     }
 }

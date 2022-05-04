@@ -44,7 +44,7 @@ status_code_body_t			Response::_buildAllow()
 	accepted_methods = m_route.getAcceptedMethods();
 	for (iter = accepted_methods.begin(); iter < accepted_methods.end(); iter++)
 		allowed_methods.append(*iter + ", ");
-
+	allowed_methods.erase(allowed_methods.length() - 2, allowed_methods.length() - 1);
 	return (std::make_pair("Allow", allowed_methods));
 }
 
