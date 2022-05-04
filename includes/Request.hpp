@@ -24,6 +24,7 @@ private:
     int				m_port;
 
     bool		    m_cgi;
+    bool            m_autoindex;
 
 public:
     std::string     m_request;
@@ -54,6 +55,7 @@ public:
     void			setCGI(bool status);
     void			setHost(void);
     void            setFilesearchPath(std::string path);
+    void            setAutoIndex(bool status);
     void            checkIfChunkedRequest();
 
     int				&getStatus();
@@ -67,6 +69,7 @@ public:
     std::string     &getCGIPath();
     headers_t 		&getHeaders();
     bool			&isCGI();
+    bool            &isAutoIndex();
 
     void			decodeRequest();
 

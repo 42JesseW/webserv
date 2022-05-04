@@ -44,7 +44,6 @@ void Request::parseQuery(std::string url)
 	}
 }
 
-// TODO if not extension then path otherwise filename
 void Request::parseAndSetStartLine(void)
 {
 	m_method = m_request.substr(0, m_request.find(' '));

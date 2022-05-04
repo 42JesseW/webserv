@@ -56,7 +56,7 @@ int     main(int argc, char *argv[])
             /* returns non-zero value on error */
             if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::pollPort, poller))
             {
-                /* error handling */
+                fprintf(stderr, "[ERROR] Thread creation fail\n");
                 break ;
             }
         }
@@ -64,7 +64,7 @@ int     main(int argc, char *argv[])
         {
             if (pthread_join(thread_ids[idx], NULL))
             {
-                /* error handling */
+                fprintf(stderr, "[ERROR] Thread join fail\n");
                 break ;
             }
         }
@@ -81,7 +81,8 @@ int     main(int argc, char *argv[])
     }
     catch (const std::bad_alloc& alloc_err)
     {
-        /* some error handling */
+        fprintf(stderr, "[ERROR] Bad alloc\n");
+        exit_code = EXIT_FAILURE;
     }
     delete [] thread_ids;
     return (exit_code);

@@ -62,6 +62,7 @@ public:
     void		    checkAcceptedMethods(void);
     void		    checkRedirects(void);
     void		    checkFileSearchPath(void);
+    void            checkBodySize(uint32_t max_size);
 
     void		    searchFile(void);
     void 		    searchDefaultIndexPages(void);
