@@ -128,7 +128,7 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
         response = new Response(m_request, *m_route);
     }
     response->buildResponse(*error_files);
-    m_sock->send(response->getResponse().c_str());
+    m_sock->send(response->getResponse());
     delete response;
 }
 
