@@ -1,2 +1,15 @@
 .idea/
+cmake-build/
 cmake-build-debug/
+a.out
+.DS_Store
+*.o
+*.d
+.venv/
+.pytest_cache/
+.vscode/
+webserv
+tester
+__pycache__/
+*.tar.gz
+YoupiBanane/
