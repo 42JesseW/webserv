@@ -582,7 +582,7 @@ void            FileParser::OptionUploadPath::parse(void *obj, tokens_t &tokens)
             tokens.front().erase(0, 2);
         upload_path = DFL_UPLOAD_PATH + tokens.front();
     }
-    upload_dir = opendir(upload_path.c_str());   // TODO must be an absolute path using `realpath`
+    upload_dir = opendir(upload_path.c_str());
     if (upload_dir)
         closedir(upload_dir);
     else if (errno == ENOENT)
