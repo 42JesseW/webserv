@@ -112,14 +112,14 @@ int         ServerSocket::accept(SA_IN& addr)
     }
     if (fcntl(getFd(), F_SETFL, O_NONBLOCK) == SYS_ERROR)
     {
-        fprintf(stderr, "[ERROR] Fcntl fail");
+        fprintf(stderr, "[ERROR] Fcntl fail\n");
         std::exit(EXIT_FAILURE);
     }
 
     int enable = 1;
     if (setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
     {
-        fprintf(stderr, "[ERROR] Setsockopt fail");
+        fprintf(stderr, "[ERROR] Setsockopt fail\n");
         std::exit(EXIT_FAILURE);
     }
     std::cout << "[DEBUG] Creating server socket " << sock_fd << '\n';

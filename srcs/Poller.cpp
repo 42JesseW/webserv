@@ -4,9 +4,7 @@
 Poller::Poller(PortConfig *port_config) :
     m_port_config(port_config),
     m_new_connection(std::make_pair(0, (Connection*)NULL))
-{
-
-}
+{}
 
 /* shallow copy of port config */
 Poller::Poller(const Poller &cpy) :
@@ -14,9 +12,7 @@ Poller::Poller(const Poller &cpy) :
     m_port_config(cpy.m_port_config),
     m_dropped_fds(cpy.m_dropped_fds),
     m_new_connection(cpy.m_new_connection)
-{
-
-}
+{}
 
 Poller::~Poller(void)
 {
@@ -40,11 +36,7 @@ Connection          *Poller::_searchCorrectConnection(int socket_fd)
     clients_t::iterator it;
 
     it = m_clients.find(socket_fd);
-    if (it != m_clients.end())
-    {
-        return (it->second);
-    }
-    return (NULL);
+    return ((it != m_clients.end()) ? it->second : NULL);
 }
 
 void            *Poller::pollPort(void *instance)
@@ -62,7 +54,7 @@ void            *Poller::pollPort(void *instance)
         poller->m_new_connection = std::make_pair(0, (Connection*)NULL);
 
         active_connections = poller->m_pfds.size();
-        fds_with_events = poll(&poller->m_pfds.at(0), active_connections, POLL_TIMEOUT_MS);
+        fds_with_events = poll(&poller->m_pfds.front(), active_connections, POLL_TIMEOUT_MS);
         if (fds_with_events == SYS_ERROR) {
             util->setSignalled(SIGINT);
         }
@@ -106,8 +98,7 @@ void            *Poller::pollPort(void *instance)
                     poller->_matchRoute(poller->m_pfds[idx].fd);
                     if (poller->_checkIfCGIConnection(poller->m_pfds[idx].fd))
                     {
-                        if (!poller->_initAndExecCGI(poller->m_pfds[idx].fd))
-                            poller->m_dropped_fds.push(poller->m_pfds[idx].fd);
+                        poller->_initAndExecCGI(poller->m_pfds[idx].fd);
                     }
                     else
                     {
@@ -189,7 +180,7 @@ void            Poller::_deletePollFds(void)
         dropped_client_fd = m_dropped_fds.top();
 
         /* remove from pollfd vector */
-        for (auto it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
+        for (std::vector<struct pollfd>::iterator it = m_pfds.begin() ; it != m_pfds.end() ; ++it)
         {
             if (it->fd == dropped_client_fd)
             {
@@ -216,7 +207,7 @@ void            Poller::_parse(int &socket_fd)
     connection = _searchCorrectConnection(socket_fd);
     connection = m_clients.find(socket_fd)->second;
     if (connection->getRequest().getHeaders().empty())
-        connection->parseRequest();
+        connection->parseRequest();    
 }
 
 void            Poller::_respond(int &socket_fd)
@@ -232,11 +223,7 @@ bool            Poller::_checkIfCGIConnection(int socket_fd)
     Connection          *connection;
 
     connection = _searchCorrectConnection(socket_fd);
-    if (connection->getRequest().isCGI())
-    {
-        return (true);
-    }
-    return (false);
+    return (connection->getRequest().isCGI());
 }
 
 bool            Poller::_initAndExecCGI(int socket_fd)
@@ -248,12 +235,7 @@ bool            Poller::_initAndExecCGI(int socket_fd)
     {
         connection->initCGI();
         connection->getCGI()->setProgramPath(DFL_CGI_DIR + connection->getRequest().getFilename());
-        if (connection->getCGI()->exec() == EXIT_FAILURE)
-        {
-            connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
-            connection->sendResponse(connection->getErrorFiles());
-            return (false);
-        }
+        connection->getCGI()->exec();
     }
     return (true);
 }
@@ -267,11 +249,6 @@ void            Poller::_getNewConnection(void)
 
     connection = NULL;
     fd = m_port_config->getSocket()->accept(addr);
-    if (fd == SYS_ERROR)
-    {
-        fprintf(stderr, "[ERROR] Accept new connection fail");
-        return ;
-    }
     socket      = new ClientSocket(fd, addr);
     connection  = new Connection(socket);
     m_new_connection = std::make_pair(fd, connection);
@@ -282,9 +259,10 @@ void            Poller::_matchRoute(int socket_fd)
     Connection                      *connection;
     Route                           *matched_route;
     ConfigUtil::status_code_map_t   *error_files = NULL;
+    uint32_t                         max_body_size;
 
     connection = _searchCorrectConnection(socket_fd);
-    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files);
+    matched_route   = m_port_config->getMatchingRoute(connection->getRequest(), &error_files, &max_body_size);
     if (!matched_route)
     {
         connection->setErrorFiles(&ConfigUtil::getHandle().getStatusCodeMap());
@@ -295,6 +273,8 @@ void            Poller::_matchRoute(int socket_fd)
         {
             connection->setRoute(matched_route);
             connection->setErrorFiles(error_files);
+            if (connection->getRequest().getMethod() == "POST")
+                connection->checkBodySize(max_body_size);
             connection->checkRoute();
             connection->methodHandler();
         }
@@ -315,6 +295,7 @@ void            Poller::_readCGIData(int socket_fd)
 {
     Connection              *connection;
     clients_t::iterator     client_it;
+    int                     w_status;
 
     for (client_it = m_clients.begin() ; client_it != m_clients.end() ; ++client_it)
     {
@@ -328,14 +309,20 @@ void            Poller::_readCGIData(int socket_fd)
             }
             if (connection->getCGI()->isDone())
             {
-                connection->getSock()->send(connection->getCGI()->getResponse().c_str());
+                waitpid(connection->getCGI()->getForkedPid(), &w_status, 0);
+                if (WEXITSTATUS(w_status) == EXIT_FAILURE)
+                {
+                    connection->getRequest().setStatus(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+                    connection->sendResponse(connection->getErrorFiles());
+                }
+                else
+                    connection->getSock()->send(connection->getCGI()->getResponse().c_str());
                 m_dropped_fds.push(socket_fd);
                 m_dropped_fds.push(connection->getSock()->getFd());
             }
             break ;
         }
     }
-    
 }
 
 bool            Poller::_checkIfCGIFd(int socket_fd)

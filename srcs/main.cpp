@@ -56,16 +56,16 @@ int     main(int argc, char *argv[])
             /* returns non-zero value on error */
             if (pthread_create(&thread_ids[idx], NULL, (THREAD_FUNC_PTR)Poller::pollPort, poller))
             {
-                fprintf(stderr, "[ERROR] Creating thread fail");
-                std::exit(EXIT_FAILURE);
+                fprintf(stderr, "[ERROR] Thread creation fail\n");
+                break ;
             }
         }
         for (FileParser::config_vec_t::size_type idx = 0; idx < config_ports.size(); ++idx)
         {
             if (pthread_join(thread_ids[idx], NULL))
             {
-                fprintf(stderr, "[ERROR] Joining thread fail");
-                std::exit(EXIT_FAILURE);
+                fprintf(stderr, "[ERROR] Thread join fail\n");
+                break ;
             }
         }
     }
@@ -81,7 +81,7 @@ int     main(int argc, char *argv[])
     }
     catch (const std::bad_alloc& alloc_err)
     {
-        fprintf(stderr, "[ERROR] Bad alloc");
+        fprintf(stderr, "[ERROR] Bad alloc\n");
         exit_code = EXIT_FAILURE;
     }
     delete [] thread_ids;

@@ -56,7 +56,7 @@ static std::string  basic_delete_request_wrong =
 
 // Advanced requests
 static std::string  advanced_get_request =
-        "GET /script.py/html/index.html HTTP/1.1\r\n"
+        "GET /script.py/html/index HTTP/1.1\r\n"
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36\r\n"
         "Host: localhost\r\n"
         "Accept-Language: en-us\r\n"
@@ -158,7 +158,7 @@ TEST_F(TestBasicRequest, GetRequest2)
     setRequestData(basic_get_request2);
     EXPECT_TRUE(req.getMethod() == "GET");
     EXPECT_TRUE(req.getTarget() == "/upload");
-    EXPECT_TRUE(req.getFilename() == "/");
+    EXPECT_TRUE(req.getFilename().empty());
 }
 
 
@@ -167,7 +167,7 @@ TEST_F(TestBasicRequest, PostRequest)
     setRequestData(basic_post_request);
     EXPECT_TRUE(req.getMethod() == "POST");
     EXPECT_TRUE(req.getTarget() == "/");
-    EXPECT_TRUE(req.getFilename() == "/index.html");
+    EXPECT_TRUE(req.getFilename() == "index.html");
     EXPECT_TRUE(req.getQuery().empty());
     EXPECT_TRUE(req.getVersion() == HTTP_VERSION);
     EXPECT_TRUE(req.getPort() == 8082);
@@ -190,7 +190,7 @@ TEST_F(TestBasicRequest, DeleteRequest)
     setRequestData(basic_delete_request);
     EXPECT_TRUE(req.getMethod() == "DELETE");
     EXPECT_TRUE(req.getTarget() == "/");
-    EXPECT_TRUE(req.getFilename() == "/index.html");
+    EXPECT_TRUE(req.getFilename() == "index.html");
     EXPECT_TRUE(req.getQuery().empty());
     EXPECT_TRUE(req.getVersion() == HTTP_VERSION);
     EXPECT_TRUE(req.getPort() == 80);
@@ -227,10 +227,10 @@ TEST_F(TestBasicRequest, AdvancedGetRequest)
     setRequestData(advanced_get_request);
     EXPECT_TRUE(req.getMethod() == "GET");
     EXPECT_TRUE(req.getTarget() == "/");
-    EXPECT_TRUE(req.getFilename() == "/script.py");
+    EXPECT_TRUE(req.getFilename() == "script.py");
     EXPECT_TRUE(req.getQuery().empty());
     EXPECT_TRUE(req.getVersion() == HTTP_VERSION);
-    EXPECT_TRUE(req.getCGIPath() == "/html/index.html");
+    EXPECT_TRUE(req.getCGIPath() == "/html/index");
     EXPECT_TRUE(req.getPort() == 80);
 }
 

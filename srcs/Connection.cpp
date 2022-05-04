@@ -3,7 +3,6 @@
 Connection::Connection(void) :
     m_sock(NULL),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
 }
@@ -11,7 +10,6 @@ Connection::Connection(void) :
 Connection::Connection(const Connection &cpy) :
     m_sock(NULL),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
     *this = cpy;
@@ -20,7 +18,6 @@ Connection::Connection(const Connection &cpy) :
 Connection::Connection(ClientSocket *sock) :
     m_sock(sock),
     m_route(NULL),
-    m_cgi(NULL),
     m_cgi_added(false)
 {
 }
@@ -31,10 +28,6 @@ Connection::~Connection(void)
     if (m_sock)
     {
         delete m_sock;
-    }
-    if (m_cgi)
-    {
-        delete m_cgi;
     }
 }
 
@@ -50,7 +43,7 @@ Connection&     Connection::operator = (const Connection &conn)
         if (conn.m_route)
             m_route = new Route(*conn.m_route);
         m_request = conn.m_request;
-        m_cgi = conn.m_cgi;
+        m_cgi = std::unique_ptr<CGI>(new CGI(*conn.m_cgi));
     }
     return (*this);
 }
@@ -71,7 +64,7 @@ void       Connection::setErrorFiles(ConfigUtil::status_code_map_t *error_files)
 
 CGI*       Connection::getCGI(void)
 {
-    return (m_cgi);
+    return (m_cgi.get());
 }
 
 Request&       Connection::getRequest(void)
@@ -174,7 +167,10 @@ void Connection::checkRoute(void)
 {
     checkAcceptedMethods();
     checkRedirects();
-    checkFileSearchPath();
+    if (m_route->hasAutoIndex())
+        m_request.setAutoIndex(true);
+    if (getRequest().getMethod() == "GET")
+        checkFileSearchPath();
 }
 
 void Connection::checkAcceptedMethods(void)
@@ -226,6 +222,26 @@ void Connection::checkFileSearchPath(void)
     }
 }
 
+void Connection::checkBodySize(uint32_t max_size)
+{
+    uint32_t                        body_length_bytes;
+    Request::headers_t::iterator    it;
+
+    it = m_request.getHeaders().find("Content-Length");
+    if (it != m_request.getHeaders().end())
+    {
+        body_length_bytes = std::stoi(it->second);
+    }
+    else
+    {
+        body_length_bytes = m_request.getBody().length();
+    }
+    if (body_length_bytes > (max_size * 1000000))
+    {
+        m_request.setStatus(HTTP_STATUS_REQUEST_ENTITY_TOO_LARGE);
+    }
+}
+
 void Connection::searchFile(void)
 {
     std::string filepath;
@@ -269,6 +285,8 @@ bool Connection::searchCGIExtensions(void)
         if (extension == *it)
         {
             m_request.setStatus(HTTP_STATUS_OK);
+            if (m_request.getMethod() != "GET")
+                return (false);
             m_request.setCGI(true);
             return (true);
         }
@@ -279,6 +297,6 @@ bool Connection::searchCGIExtensions(void)
 
 void Connection::initCGI(void)
 {
-    m_cgi = new CGI;
+    m_cgi = std::unique_ptr<CGI>(new CGI);
     m_cgi->init(m_request);
 }
