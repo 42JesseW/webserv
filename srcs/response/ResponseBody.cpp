@@ -75,15 +75,23 @@ void			Response::_buildBodyDelete(void)
 	_readFileIntoString(path);
 }
 
-void			Response::_buildBodyError(void)
+void			Response::_buildBodyError(ConfigUtil::status_code_map_t& m_error_files)
 {
-	std::string path;
+	status_code_map_t::iterator iter;
 
-	path = _buildFilePath(ft::intToString(m_status_code), m_status_code);
-	_readFileIntoString(path);
+	iter = m_error_files.find(m_status_code);
+	if (iter->second.second.empty())
+	{
+		std::string path;
+
+		path = _buildFilePath(ft::intToString(m_status_code), m_status_code);
+		_readFileIntoString(path);
+	}
+	else
+		m_body = iter->second.second;
 }
 
-void			Response::buildBody()
+void			Response::buildBody(ConfigUtil::status_code_map_t& m_error_files)
 {
 	if (m_status_code < HTTP_STATUS_BAD_REQUEST)
 	{
@@ -95,5 +103,5 @@ void			Response::buildBody()
 			_buildBodyDelete();
 	}
 	else
-		_buildBodyError();
+		_buildBodyError(m_error_files);
 }
