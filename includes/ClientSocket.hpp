@@ -27,7 +27,7 @@ public:
     ClientSocket&   operator = (const ClientSocket& sock);
 
     char            *recv(ssize_t *bytes_read);
-    void            send(const char *response);
+    void            send(std::string response);
 
 public:
     class SendFail : std::exception { };
