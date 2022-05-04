@@ -88,11 +88,6 @@ std::string const &								Response::getResponse() const
 	return (m_response);
 }
 
-// char* 		const &								Response::getResponse_cstr() const
-// {
-// 	return (m_response_cstr);
-// }
-
 void											Response::setRequest(Request &req)
 {
 	m_request = req;
@@ -103,29 +98,13 @@ void											Response::setRoute(Route &rou)
 	m_route = rou;
 }
 
-char*											Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
+void											Response::buildResponse(ConfigUtil::status_code_map_t& m_error_files)
 {
 	buildStartLine(m_error_files);
 	buildBody();
 	buildHeaders();
 	m_response = m_start_line + m_headers_str + m_body;
 
-	char* m_response_cstr = new char[m_response.size()];
-
-	// std::cout << "RESPONSE SIZE " << m_response.size() << std::endl;
-
-	// std::copy_n(m_response.begin(), m_response.size(), m_response_cstr);
-	memcpy(m_response_cstr, m_response.data(), m_response.size());
-	// if (memcmp(m_response_cstr, m_response.data(), m_response.size()) != 0)
-	// 	std::cout << "WRONG MEMCPY" << std::endl;
-	// else
-	// 	std::cout << "correct memcpy" << std::endl;
- 
-	// std::cout << "M_RESPONSE_CSTR SIZE IS " << std::strlen(m_response_cstr) << std::endl;
-
     std::cout << "[DEBUG] Created response " << std::endl;
 	// std::cout << m_response << std::endl;
-
-	std::cout << m_response_cstr << std::endl;
-	return (m_response_cstr);
 }

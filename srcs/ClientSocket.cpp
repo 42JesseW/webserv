@@ -41,13 +41,9 @@ char            *ClientSocket::recv(ssize_t *bytes_read)
     return (buff);
 }
 
-void            ClientSocket::send(const char *response)
+void            ClientSocket::send(std::string response)
 {
-    size_t  len;
-
-    len = std::strlen(response);
-    std::cout << "LEN IS " << len << std::endl;
-    if (::send(getFd(), response, len, 0) == SYS_ERROR) {
+    if (::send(getFd(), response.data(), response.size(), 0) == SYS_ERROR) {
         fprintf(stderr, "Failed to write to socket: %s\n", strerror(errno));
         throw SendFail();
     }

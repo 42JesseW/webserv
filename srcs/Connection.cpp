@@ -116,7 +116,6 @@ void            Connection::parseRequest(void)
 void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_files)
 {
     Response	*response;
-    char*		response_str;       
 
     if (m_request.getStatus() == HTTP_STATUS_NO_CONTENT)
         return ;
@@ -129,11 +128,9 @@ void            Connection::sendResponse(ConfigUtil::status_code_map_t *error_fi
     {
         response = new Response(m_request, *m_route);
     }
-    response_str = response->buildResponse(*error_files);
-    // m_sock->send(response->getResponse().c_str());
-    m_sock->send(response_str);
+    response->buildResponse(*error_files);
+    m_sock->send(response->getResponse());
     delete response;
-	delete response_str;
 }
 
 void            Connection::methodHandler(void)
